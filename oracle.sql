@@ -548,7 +548,107 @@ SELECT FIRST_NAME,
        RPAD('*', SALARY / 1000, '*') AS RANKING
 FROM EMPLOYEES
 ORDER BY SALARY DESC;
+--*******************************************************************************************************
+--*                         CLASE 79 : FUNCIONES NUMERICAS : ROUND - TRUNC - MOD - POWER                *
+--*******************************************************************************************************
+-- ROUND REDONDEAR
+SELECT ROUND(50.920, 2)
+FROM DUAL;
+--50.92
+
+-- TRUNC TRUNCAR
+SELECT TRUNC(50.9790, 2)
+FROM DUAL;
+--50.90
+
+--MOD(A,B)
+SELECT MOD(10, 3)
+FROM DUAL;
+
+-- POWER(A,B)
+SELECT POWER(10, 2)
+FROM DUAL;
+--10^2=100
+--*******************************************************************************************************
+/*
+PRACTICA -->
+1. Funciones numéricas
+• Visualizar el nombre y salario de los empleados de los que el número de
+empleado es impar (PISTA: MOD)
+• Prueba con los siguientes valores aplicando las funciones TRUNC y
+ROUND, con 1 y 2 decimales.
+
+*/
+
+SELECT EMPLOYEE_ID, FIRST_NAME, SALARY
+FROM EMPLOYEES
+WHERE MOD(EMPLOYEE_ID, 2) <> 0;
 
 
 
+--*******************************************************************************************************
+--*                         CLASE 81 : FUNCIONES FECHAS                                        *
+--*******************************************************************************************************
+
+SELECT FIRST_NAME, HIRE_DATE
+FROM EMPLOYEES;
+
+SELECT SYSDATE
+FROM DUAL;
+
+
+--*******************************************************************************************************
+--*                         CLASE 82 : FUNCIONES FECHAS ARITMETICA DE FECHAS                                    *
+--*******************************************************************************************************
+
+SELECT FIRST_NAME, HIRE_DATE
+FROM EMPLOYEES;
+
+SELECT SYSDATE
+FROM DUAL;
+
+--SUMAR UN NUMERO
+SELECT SYSDATE + 2
+FROM DUAL;
+-- SUMA 2 DIAS
+--RESTAR UN NUMERO
+SELECT SYSDATE - 2
+FROM DUAL;
+-- RESTA 2 DIAS
+-- RESTAR FECHAS
+SELECT HIRE_DATE, SYSDATE - HIRE_DATE AS "DIAS TRABAJADOS"
+FROM EMPLOYEES;
+
+
+--*******************************************************************************************************
+--*                         CLASE 83 : MONTHS-BETWEEN-NEXT_DAY-ADD_MONTHS                               *
+--*******************************************************************************************************
+
+-- MONTHS_BETWEEN(FECHA1,FECHA2)
+SELECT HIRE_DATE, MONTHS_BETWEEN(SYSDATE, HIRE_DATE) AS "MESES TRABAJADOS"
+FROM EMPLOYEES;
+
+-- ADD_MONTHS(FECHA,NUMERO_MESES)
+SELECT SYSDATE, ADD_MONTHS(SYSDATE, 3), SYSDATE + 90
+FROM DUAL;
+
+-- NEXT_DAY(FECHA,'DIA_DE_LA_SEMANA')
+SELECT NEXT_DAY(SYSDATE, 'MIÉRCOLES')
+FROM DUAL;
+
+--*******************************************************************************************************
+--*                         CLASE 84 : LAST_DAY-ROUND-TRUNC                              *
+--*******************************************************************************************************
+--LAST_DAY(FECHA) NOS DEVUELVE LA FECHA DEL ULTIMO DIA DEL MES QUE CONTIENE LA FECHA
+SELECT SYSDATE, LAST_DAY(SYSDATE)
+FROM DUAL;
+
+--ROUND(FECHA,'FORMATO')  -  TRUNC(FECHA,'FORMATO')
+-- ROUND ME REDONDEA LA FECHA AL FORMATO INDICADO
+-- TRUNC ME TRUNCA LA FECHA AL FORMATO INDICADO
+
+SELECT SYSDATE, ROUND(SYSDATE, 'MONTH'), ROUND(SYSDATE, 'YEAR')
+FROM DUAL;
+SELECT SYSDATE, TRUNC(SYSDATE, 'MONTH'), TRUNC(SYSDATE, 'YEAR')
+FROM DUAL;
 

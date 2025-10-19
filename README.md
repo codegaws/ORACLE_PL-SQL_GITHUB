@@ -566,3 +566,146 @@ RPAD('*', 3500/1000, '*') = RPAD('*', 3, '*') = '***'
 Crear una representación visual del salario donde cada asterisco representa 1000 dólares, facilitando comparar salarios de forma gráfica.
 
 ![imagen](images/4.png)
+
+---
+
+## ⬅️➡️ CLASE 79 — FUNCIONES NUMERICAS : ROUND - TRUNC - MOD - POWER
+
+-- ROUND REDONDEAR
+SELECT ROUND(50.920, 2)
+FROM DUAL;
+--50.92
+
+-- TRUNC TRUNCAR
+SELECT TRUNC(50.9790, 2)
+FROM DUAL;
+--50.90
+
+--MOD(A,B)
+SELECT MOD(10, 3)
+FROM DUAL;
+
+-- POWER(A,B)
+SELECT POWER(10, 2)
+FROM DUAL;
+--10^2=100
+--*******************************************************************************************************
+/*
+PRACTICA -->
+1. Funciones numéricas
+   • Visualizar el nombre y salario de los empleados de los que el número de
+   empleado es impar (PISTA: MOD)
+   • Prueba con los siguientes valores aplicando las funciones TRUNC y
+   ROUND, con 1 y 2 decimales.
+
+*/
+
+```sql
+
+SELECT EMPLOYEE_ID, FIRST_NAME, SALARY
+FROM EMPLOYEES
+WHERE MOD(EMPLOYEE_ID, 2) <> 0;
+
+```
+
+![imagen](images/5.png)
+
+![imagen](images/6.png)
+
+---
+# 📅 SQL — Práctica de Funciones Numéricas y de Fechas
+
+---
+
+## 🧮 1. Funciones Numéricas
+
+> Visualizar el nombre y salario de los empleados cuyo número de empleado es **impar** (`MOD`).
+
+```sql
+SELECT EMPLOYEE_ID, FIRST_NAME, SALARY
+FROM EMPLOYEES
+WHERE MOD(EMPLOYEE_ID, 2) <> 0;
+```
+
+> Prueba con los siguientes valores aplicando las funciones `TRUNC` y `ROUND`, con 1 y 2 decimales.
+
+*(Agrega aquí tus valores de prueba y ejemplos de TRUNC/ROUND)*
+
+---
+
+## 📆 CLASE 81 : Funciones de Fechas
+
+```sql
+SELECT FIRST_NAME, HIRE_DATE
+FROM EMPLOYEES;
+
+SELECT SYSDATE
+FROM DUAL;
+```
+
+---
+
+## ➕➖ CLASE 82 : Aritmética de Fechas
+
+```sql
+SELECT FIRST_NAME, HIRE_DATE
+FROM EMPLOYEES;
+
+SELECT SYSDATE
+FROM DUAL;
+
+-- Sumar días
+SELECT SYSDATE + 2 FROM DUAL; -- Suma 2 días
+
+-- Restar días
+SELECT SYSDATE - 2 FROM DUAL; -- Resta 2 días
+
+-- Restar fechas
+SELECT HIRE_DATE, SYSDATE - HIRE_DATE AS "DIAS TRABAJADOS"
+FROM EMPLOYEES;
+```
+
+---
+
+## 📅 CLASE 83 : MONTHS_BETWEEN, NEXT_DAY, ADD_MONTHS
+
+```sql
+-- MONTHS_BETWEEN(FECHA1, FECHA2)
+SELECT HIRE_DATE, MONTHS_BETWEEN(SYSDATE, HIRE_DATE) AS "MESES TRABAJADOS"
+FROM EMPLOYEES;
+
+-- ADD_MONTHS(FECHA, NUMERO_MESES)
+SELECT SYSDATE, ADD_MONTHS(SYSDATE, 3), SYSDATE + 90
+FROM DUAL;
+
+-- NEXT_DAY(FECHA, 'DIA_DE_LA_SEMANA')
+SELECT NEXT_DAY(SYSDATE, 'MIÉRCOLES')
+FROM DUAL;
+```
+
+---
+
+## ⏳ CLASE 84 : LAST_DAY, ROUND, TRUNC
+
+```sql
+-- LAST_DAY(FECHA): último día del mes de la fecha
+SELECT SYSDATE, LAST_DAY(SYSDATE)
+FROM DUAL;
+
+-- ROUND(FECHA, 'FORMATO'), TRUNC(FECHA, 'FORMATO')
+SELECT SYSDATE, ROUND(SYSDATE, 'MONTH'), ROUND(SYSDATE, 'YEAR')
+FROM DUAL;
+
+SELECT SYSDATE, TRUNC(SYSDATE, 'MONTH'), TRUNC(SYSDATE, 'YEAR')
+FROM DUAL;
+```
+
+---
+
+> 🚀 **¡Sigue practicando y dominando funciones en SQL!**
+
+
+
+
+
+
