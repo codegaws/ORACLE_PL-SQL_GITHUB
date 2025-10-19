@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="140" viewBox="0 0 900 140">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0" stop-color="#ff3b30"/>
+      <stop offset="0.17" stop-color="#ff9500"/>
+      <stop offset="0.33" stop-color="#ffcc00"/>
+      <stop offset="0.5" stop-color="#34c759"/>
+      <stop offset="0.67" stop-color="#007aff"/>
+      <stop offset="0.84" stop-color="#5856d6"/>
+      <stop offset="1" stop-color="#ff2d55"/>
+    </linearGradient>
+
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Fondo con gradiente arcoíris y sombra -->
+  <rect x="10" y="10" rx="18" ry="18" width="880" height="120" fill="url(#g)" filter="url(#shadow)"/>
+  <rect x="14" y="14" rx="14" ry="14" width="872" height="112" fill="#0b0b0d" opacity="0.9"/>
+
+  <!-- Imagen del logo / icono de Oracle (sustituye el cilindro) -->
+  <!--
+    Instrucciones:
+    - Guarda el logo de Oracle (SVG o PNG) en tu repo, por ejemplo: assets/oracle-logo.svg o assets/oracle-logo.png
+    - Si usas PNG, cambia el href a "assets/oracle-logo.png"
+    - Respeta las condiciones de uso/licencia del logo de Oracle.
+  -->
+  <g transform="translate(40,20)">
+    <!-- Reemplaza el href por la ruta de tu archivo: assets/oracle-logo.svg o assets/oracle-logo.png -->
+    <image href="images/oracle.png" x="-10" y="0" width="100" height="100" preserveAspectRatio="xMidYMid meet" />
+    <!-- Si prefieres un fallback simple (círculo de color) coméntalo/descoméntalo -->
+    <!-- <circle cx="40" cy="40" r="40" fill="#e02b20" opacity="0.15"/> -->
+  </g>
+
+  <!-- Título: mono, negrita y subrayado -->
+  <text x="140" y="78" font-family="JetBrains Mono, 'Menlo', monospace" font-size="40" font-weight="700" fill="#ffffff" text-decoration="underline">
+    Oracle PL/SQL - SQL
+  </text>
+</svg>
