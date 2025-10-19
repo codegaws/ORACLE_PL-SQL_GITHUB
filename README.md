@@ -512,3 +512,57 @@ WHERE FIRST_NAME LIKE 'S%' OR LAST_NAME LIKE 'S%';
 
 ![imagen](images/3.png)
 
+-- Visualizar el nombre del empleado, su salario, y con asteriscos, el
+-- número miles de dólares que gana. Se asocia ejemplo. (PISTA: se
+-- puede usar RPAD. Ordenado por salario
+
+```sql
+
+SELECT FIRST_NAME,
+       SALARY,
+       RPAD('*', SALARY / 1000, '*') AS RANKING
+FROM EMPLOYEES
+ORDER BY SALARY DESC;
+
+```
+
+### EXPLICACION
+
+La función `RPAD` rellena una cadena por la derecha hasta alcanzar una longitud específica. Te explico cada parámetro:
+
+## Sintaxis de RPAD:
+```sql
+RPAD(cadena_original, longitud_total, carácter_relleno)
+```
+
+## En tu ejemplo:
+```sql
+RPAD('*', SALARY / 1000, '*')
+```
+
+### Parámetros:
+1. **`'*'`** - Cadena original (un asterisco)
+2. **`SALARY / 1000`** - Longitud total deseada (salario dividido entre 1000)
+3. **`'*'`** - Carácter para rellenar (asterisco)
+
+### Funcionamiento:
+- Si un empleado gana **5000**, entonces `SALARY / 1000 = 5`
+- RPAD toma el primer `'*'` y lo rellena hasta llegar a 5 caracteres usando `'*'`
+- Resultado: `*****` (5 asteriscos)
+
+- Si gana **12000**, entonces `SALARY / 1000 = 12`
+- Resultado: `************` (12 asteriscos)
+
+## Ejemplo práctico:
+```sql
+-- Si SALARY = 8000
+RPAD('*', 8000/1000, '*') = RPAD('*', 8, '*') = '********'
+
+-- Si SALARY = 3500  
+RPAD('*', 3500/1000, '*') = RPAD('*', 3, '*') = '***'
+```
+
+## Propósito:
+Crear una representación visual del salario donde cada asterisco representa 1000 dólares, facilitando comparar salarios de forma gráfica.
+
+![imagen](images/4.png)

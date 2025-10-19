@@ -534,9 +534,20 @@ FROM EMPLOYEES;
 
 -- Mostrar empleados donde el nombre o apellido comienza con S..
 
-SELECT * FROM EMPLOYEES
-WHERE FIRST_NAME LIKE 'S%' OR LAST_NAME LIKE 'S%';
+SELECT *
+FROM EMPLOYEES
+WHERE FIRST_NAME LIKE 'S%'
+   OR LAST_NAME LIKE 'S%';
 
+-- Visualizar el nombre del empleado, su salario, y con asteriscos, el
+-- número miles de dólares que gana. Se asocia ejemplo. (PISTA: se
+-- puede usar RPAD. Ordenado por salario
+
+SELECT FIRST_NAME,
+       SALARY,
+       RPAD('*', SALARY / 1000, '*') AS RANKING
+FROM EMPLOYEES
+ORDER BY SALARY DESC;
 
 
 
