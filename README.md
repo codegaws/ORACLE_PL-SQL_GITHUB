@@ -413,3 +413,5 @@ SELECT FIRST_NAME, RTRIM(FIRST_NAME, 'm') FROM EMPLOYEES;
 ---
 
 > 🚀 **¡Guarda este archivo en tu repo y sigue mejorando tus habilidades con SQL!**
+
+## 📝 PRÁCTICA — Funciones de tipo carácter
