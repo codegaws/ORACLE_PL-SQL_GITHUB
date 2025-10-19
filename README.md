@@ -410,3 +410,105 @@ SELECT FIRST_NAME, RTRIM(FIRST_NAME, 'm') FROM EMPLOYEES;
 
 *(Agrega aquí tus propias consultas de práctica)*
 
+-- • En la tabla LOCATIONS, averiguar las ciudades que son de Canada o
+-- Estados unidos (Country_id=CA o US) y que la longitud del nombre de la
+-- calle sea superior a 15.
+
+SELECT CITY,COUNTRY_ID
+FROM LOCATIONS
+WHERE COUNTRY_ID IN('CA','US')
+AND LENGTH(STREET_ADDRESS) >15;
+
+/*
+• Muestra la longitud del nombre y el salario anual (por 14) para los
+empleados cuyo apellido contenga el carácter 'b' después de la 3ª
+posición.
+*/
+SELECT FIRST_NAME, LENGTH(FIRST_NAME), LAST_NAME, SALARY * 14 AS "SALARIO ANUAL"
+FROM EMPLOYEES
+WHERE INSTR(LAST_NAME, 'b') > 3;
+
+/*
+Averiguar los empleados que ganan entre 4000 y 7000 euros y que
+tienen alguna 'a' en el nombre. (Debemos usar INSTR y da igual que sea
+mayúscula que minúsculas) y que tengan comisión.
+*/
+
+SELECT *
+FROM EMPLOYEES
+WHERE SALARY BETWEEN 4000 AND 7000
+AND INSTR(LOWER(FIRST_NAME), 'a') <> 0
+AND COMMISSION_PCT IS NOT NULL;
+
+# EXPLICACION
+Si no pones `<> 0` en la función INSTR, obtienes un resultado diferente:
+
+## Sin `<> 0`:
+```sql
+SELECT *
+FROM EMPLOYEES
+WHERE SALARY BETWEEN 4000 AND 7000
+  AND INSTR(LOWER(FIRST_NAME), 'a')
+  AND COMMISSION_PCT IS NOT NULL;
+```
+
+## ¿Qué ocurre?
+
+**INSTR** devuelve:
+- **0** = La letra 'a' NO está en el nombre
+- **Número positivo** = La posición donde está la letra 'a'
+
+En Oracle, las condiciones se evalúan como:
+- **0** = FALSE
+- **Cualquier número distinto de 0** = TRUE
+
+## Resultado práctico:
+
+**CON `<> 0`**: Busca empleados que tienen la letra 'a' en el nombre
+**SIN `<> 0`**: También busca empleados que tienen la letra 'a' en el nombre
+
+En este caso específico, **el resultado es el mismo** porque:
+- Si INSTR encuentra 'a', devuelve posición (1,2,3...) = TRUE
+- Si INSTR no encuentra 'a', devuelve 0 = FALSE
+
+## Diferencia importante:
+
+```sql
+-- Estas dos consultas dan el mismo resultado:
+WHERE INSTR(LOWER(FIRST_NAME), 'a') <> 0  -- Explícito
+WHERE INSTR(LOWER(FIRST_NAME), 'a')       -- Implícito
+```
+
+La versión `<> 0` es más clara y explícita para entender qué estás buscando, pero funcionalmente son equivalentes en Oracle.
+
+
+- Visualizar las iniciales de nombre y apellidos separados por puntos. Por
+### ejemplo:
+
+![imagen](./images/img.png)
+
+### Solucion :
+
+```sql
+SELECT FIRST_NAME,
+       LAST_NAME,
+       SUBSTR(FIRST_NAME, 1, 1) || '.' || SUBSTR(LAST_NAME, 1, 1) || '.' AS "INICIALES"
+FROM EMPLOYEES;
+
+
+```
+![imagen](images/2.png)
+
+---
+
+- MOSTRAR EMPLEADOS DONDE EL NOMBRE O APELLIDO COMIENZA CON 'S'
+
+```sql
+SELECT * FROM EMPLOYEES
+WHERE FIRST_NAME LIKE 'S%' OR LAST_NAME LIKE 'S%';
+
+
+```
+
+![imagen](images/3.png)
+
