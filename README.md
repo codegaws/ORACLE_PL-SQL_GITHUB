@@ -1,5 +1,7 @@
 ![Mi Base de Datos](assets/title.svg)
 
+<details>
+<summary><strong>📝 SQL</strong></summary>
 # 📖 SQL — Consultas, Operadores y Funciones
 
 Un archivo con estilo para tu GitHub, manteniendo todo tu contenido original y enriqueciéndolo con títulos, secciones, y emojis para facilitar su lectura y uso.
@@ -703,6 +705,338 @@ FROM DUAL;
 ---
 
 > 🚀 **¡Sigue practicando y dominando funciones en SQL!**
+
+
+
+</details>
+
+
+
+<details>
+<summary><strong>📝 PL/SQL</strong></summary>
+
+# 🧾 PL/SQL — Bloques Anónimos y Funciones Básicas
+
+---
+
+--*******************************************************************************************************
+--*                         CLASE 30 :  BEGIN - END BLOQUES ANONIMOS                                    *
+--*******************************************************************************************************
+```sql
+BEGIN
+    NULL;-- NO HAGAS NADA
+
+END;
+```
+
+---
+
+--*******************************************************************************************************
+--*                         CLASE 31 :  VISUALIZAR SALIDA POR PANTALLA DBMS_OUTPUT                      *
+--*******************************************************************************************************
+```sql
+SET SERVEROUTPUT ON
+
+BEGIN
+    dbms_output.put_line(100);
+    dbms_output.put_line('AAAA' || 'XXXX');-- CONCATENACION
+END;
+```
+
+---
+
+--*******************************************************************************************************
+--*                         CLASE 32 :  PRACTICA BLOQUES ANONIMOS                                       *
+--*******************************************************************************************************
+```sql
+SET SERVEROUTPUT ON
+
+BEGIN
+    dbms_output.put_line('GEORGE');
+    dbms_output.put_line('CHINCHAYAN');
+    dbms_output.put_line('GEORGE'
+                         || ' '
+                         || 'CHINCHAYAN');
+END;
+```
+
+---
+
+--*******************************************************************************************************
+--*                         CLASE 33 :  VARIABLES                                                       *
+--*******************************************************************************************************
+```sql
+SET SERVEROUTPUT ON
+
+DECLARE
+    name     VARCHAR2(100);
+    lastname VARCHAR2(100);
+BEGIN
+    name := 'GEORGE';
+    lastname := 'CHINCHAYAN';
+    dbms_output.put_line(name
+                         || ' '
+                         || lastname);
+END;
+```
+
+---
+
+--*******************************************************************************************************
+--*                         CLASE 34 :  CONSTANTES - NULL                                               *
+--*******************************************************************************************************
+```sql
+SET SERVEROUTPUT ON
+
+DECLARE
+    x CONSTANT NUMBER := 10;-- ES CONSTANTE
+    z NUMBER NOT NULL := 20;--NO ES CONSTANTE
+BEGIN
+    dbms_output.put_line(x);
+    z := 30;
+    dbms_output.put_line(z);
+END;
+```
+
+---
+
+--*******************************************************************************************************
+--*                         CLASE 35 :  VARIABLE BOOLEAN                                                *
+--*******************************************************************************************************
+```sql
+SET SERVEROUTPUT ON
+
+DECLARE
+    b1 BOOLEAN;
+BEGIN
+    b1 := TRUE;
+    b1 := FALSE;
+    b1 := NULL;
+END;
+```
+## EXPLICACION :
+Sí. DBMS_OUTPUT.PUT_LINE no acepta valores BOOLEAN. Hay que convertir el BOOLEAN 
+a texto antes de imprimirlo. Ejemplo breve: usar un IF para mapear TRUE/FALSE/NULL,
+o crear una función que devuelva VARCHAR2.
+
+```sql
+
+-- sql
+-- Ejemplo A: mapeo con IF
+DECLARE
+    b1 BOOLEAN := TRUE; -- probar TRUE, FALSE, NULL
+BEGIN
+    IF b1 IS NULL THEN
+        dbms_output.put_line('NULL');
+    ELSIF b1 THEN
+        dbms_output.put_line('TRUE');
+    ELSE
+        dbms_output.put_line('FALSE');
+    END IF;
+END;
+/
+
+-- Ejemplo B: función reutilizable para convertir BOOLEAN a VARCHAR2
+DECLARE
+    FUNCTION bool_to_str(p_bool BOOLEAN) RETURN VARCHAR2 IS
+    BEGIN
+        IF p_bool IS NULL THEN
+            RETURN 'NULL';
+        ELSIF p_bool THEN
+            RETURN 'TRUE';
+        ELSE
+            RETURN 'FALSE';
+        END IF;
+    END;
+    b1 BOOLEAN := FALSE;
+BEGIN
+    dbms_output.put_line(bool_to_str(b1));
+END;
+/
+
+```
+Tienes razón, déjame explicar mejor el tema de `BOOLEAN` en PL/SQL:
+
+## ❌ Problema con BOOLEAN
+
+En PL/SQL **no puedes imprimir directamente un `BOOLEAN`** con `DBMS_OUTPUT.PUT_LINE`:
+
+```sql
+DECLARE
+    b1 BOOLEAN := TRUE;
+BEGIN
+    dbms_output.put_line(b1); -- ❌ ERROR: no se puede imprimir BOOLEAN
+END;
+```
+
+## ✅ Solución: Convertir BOOLEAN a texto
+
+Necesitas convertir el valor `BOOLEAN` a `VARCHAR2` antes de imprimirlo:
+
+```sql
+DECLARE
+    b1 BOOLEAN := TRUE;
+BEGIN
+    -- Opción 1: Con IF-ELSIF-ELSE
+    IF b1 IS NULL THEN
+        dbms_output.put_line('NULL');
+    ELSIF b1 THEN
+        dbms_output.put_line('TRUE');
+    ELSE
+        dbms_output.put_line('FALSE');
+    END IF;
+END;
+/
+```
+
+## 🔄 Función reutilizable
+
+Para no repetir código, puedes crear una función que convierta `BOOLEAN` a texto:
+
+```sql
+DECLARE
+    FUNCTION bool_to_str(p_bool BOOLEAN) RETURN VARCHAR2 IS
+    BEGIN
+        IF p_bool IS NULL THEN RETURN 'NULL';
+        ELSIF p_bool THEN RETURN 'TRUE';
+        ELSE RETURN 'FALSE';
+        END IF;
+    END;
+    
+    b1 BOOLEAN := FALSE;
+BEGIN
+    dbms_output.put_line(bool_to_str(b1)); -- Imprime: FALSE
+END;
+/
+```
+
+## 📋 Resumen
+
+- **BOOLEAN** en PL/SQL puede tener 3 valores: `TRUE`, `FALSE`, `NULL`
+- **No se puede imprimir directamente** con `DBMS_OUTPUT.PUT_LINE`
+- **Debes convertirlo a texto** usando `IF` o una función auxiliar
+
+--*******************************************************************************************************
+--*                         CLASE 37 :  %TYPE es del tipo                                               *
+--*******************************************************************************************************
+```sql
+SET SERVEROUTPUT ON
+
+DECLARE
+    x     NUMBER;
+    z     x%TYPE;
+    emple employees.salary%TYPE;--TABLA + COLUMNA Y TIPO
+BEGIN
+    emple := 100;
+END;
+```
+
+---
+
+--*******************************************************************************************************
+--*                         CLASE 38 :  Operadores                                                      *
+--*******************************************************************************************************
+```sql
+/*
+
++ SUMA
+- RESTA
+/ DIVISION
+* MULTIPLICACION
+** EXPONENTE
+|| CONCATENAR
+
+CONSIDERAR QUE CUALQUIER VARIABLE QUE NO SE INICIALICE VA A DEVOLVER UN NULL
+*/
+SET SERVEROUTPUT ON
+
+DECLARE
+    x NUMBER := 5;
+    z NUMBER := 10;
+    a VARCHAR2(100) := 'EXAMPLE';
+    d DATE := '10-01-1990';
+BEGIN
+    dbms_output.put_line(x * z);
+    dbms_output.put_line(a || ' HELLO');
+    dbms_output.put_line(d + 1);
+    dbms_output.put_line(sysdate);
+END;
+```
+
+---
+
+--*******************************************************************************************************
+--                     CLASE 41 :  BLOQUES ANIDADOS                                                     *
+--*******************************************************************************************************
+-- ES UN BLOQUE HIJO PRACTICAMENTE UN BLOQUE ANIDADO-
+```sql
+SET SERVEROUTPUT ON;
+
+BEGIN
+    dbms_output.put_line('EN EL PRIMER BLOQUE');
+    DECLARE
+        x NUMBER := 10;
+    BEGIN
+        dbms_output.put_line(x);
+    END;
+END;   
+```
+
+---
+
+--*******************************************************************************************************
+--                     CLASE 42 :  AMBITOS DE VARIABLES EN BLOQUES ANIDADOS                             *
+--*******************************************************************************************************
+```sql
+SET SERVEROUTPUT ON;
+
+DECLARE
+    x NUMBER := 20; --GLOBAL
+    z NUMBER := 30;
+BEGIN
+    dbms_output.put_line('X:=' || x);
+    DECLARE
+        x NUMBER := 10; --LOCAL
+        z NUMBER := 100;
+        y NUMBER := 200; -- LAS VARIABLES LOCALES NO TIENEN ACCESO LOS PADRES PERO SI ALREVEZ
+    BEGIN
+        dbms_output.put_line('X:=' || x);
+        dbms_output.put_line('Z:=' || z);
+    END;
+
+    --dbms_output.put_line('Y:=' || y); no puede imprimirse por que es una variable hija
+END;
+```
+
+---
+
+--*******************************************************************************************************
+--                     CLASE  :  USO DE FUNCIONES SQL DENTRO DE PL/SQL                                  *
+--*******************************************************************************************************
+```sql
+SET SERVEROUTPUT ON;
+
+DECLARE
+    x     VARCHAR(50);
+    mayus VARCHAR(100);
+    fecha DATE;
+    z     NUMBER := 109.80;
+BEGIN
+    x := 'Ejemplo';
+    dbms_output.put_line(substr(x, 2, 4));
+    mayus := upper(x);
+    dbms_output.put_line(mayus);
+    fecha := sysdate;
+    dbms_output.put_line(fecha);
+    dbms_output.put_line(floor(z));
+END;
+```
+
+---
+
+> ✅ Archivo convertido a Markdown manteniendo todo el contenido original. Si quieres que lo suba a un repositorio (por ejemplo codegaws/mi-repo), indícame el nombre del repo y la rama y procedo a crear el archivo allí.
+
+</details>
 
 
 
