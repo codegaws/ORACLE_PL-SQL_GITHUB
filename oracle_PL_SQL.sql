@@ -444,10 +444,74 @@ BEGIN
         /*IF x < 3 THEN
             CONTINUE;
         end if;*/
-        CONTINUE WHEN X < 3;
+        CONTINUE WHEN x < 3;
         DBMS_OUTPUT.PUT_LINE('DESPUES DEL CONTINUE: x = ' || TO_CHAR(x));
         EXIT WHEN x = 5;
     end loop;
     DBMS_OUTPUT.PUT_LINE(' DESPUES DEL LOOP : x = ' || TO_CHAR(x));
 end;
 
+--*******************************************************************************************************
+--                       CLASE 55 BUCLE FOR                                                     *       *
+--*******************************************************************************************************
+-- SET SERVEROUTPUT ON;
+DECLARE
+    I VARCHAR2(100) := 'aaaa';
+BEGIN
+    FOR i IN 5..15
+        LOOP
+            -- PLS INTEGER IMPLICITO NO SE DECLARA LA i
+            DBMS_OUTPUT.PUT_LINE('VALOR DE I: ' || TO_CHAR(i));
+            EXIT WHEN i = 10;-- aqui sale del loop
+        end loop;
+    DBMS_OUTPUT.PUT_LINE(i);-- ERROR PORQUE i NO ES VISIBLE FUERA DEL LOOP
+end;
+
+--*******************************************************************************************************
+--                       CLASE 56 WHILE                                                         *       *
+--*******************************************************************************************************
+-- WHILE NOS PERMITE HACER BUCLES MIENTRAS UNA CONDICION SEA VERDADERA
+-- SET SERVEROUTPUT ON;
+DECLARE
+    done BOOLEAN := FALSE;
+    x    NUMBER  := 0;
+BEGIN
+    WHILE x < 10
+        LOOP
+            DBMS_OUTPUT.PUT_LINE('VALOR DE X: ' || TO_CHAR(x));
+            x := x + 1;
+            EXIT WHEN x = 5;-- AQUI SALE DEL LOOP
+        end loop;
+    WHILE done
+        LOOP
+            dbms_output.put_line('NO IMPRIME ESTO');
+            done := TRUE;-- CAMBIAMOS LA CONDICION PARA QUE NO SEA VERDADERA Y SALGA DEL LOOP
+        end loop;
+
+    WHILE NOT done
+        LOOP
+            DBMS_OUTPUT.PUT_LINE('HE PASADO POR AQUI');
+            done := TRUE;-- CAMBIAMOS LA CONDICION PARA QUE NO SEA VERDADERA Y SALGA DEL LOOP
+        end loop;
+end;
+
+--*******************************************************************************************************
+--                       CLASE 57 COMANDO GOTO                                                  *       *
+--*******************************************************************************************************
+-- NO ES RECOMENDABLE USAR GOTO PORQUE GENERA CODIGO SPAGUETI
+-- SET SERVEROUTPUT ON;
+DECLARE
+    p VARCHAR2(30);
+    n PLS_INTEGER := 5;
+BEGIN
+    FOR j in 2..ROUND(SQRT(n))
+        LOOP
+            IF n MOD j = 0 THEN
+                p := ' no es un numero primo';
+                GOTO primt_now;
+            end if;
+        end loop;
+    p := ' es un numero primo';
+    <<primt_now>>
+        DBMS_OUTPUT.PUT_LINE(TO_CHAR(n) || p);
+end;
