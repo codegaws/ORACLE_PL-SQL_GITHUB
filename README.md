@@ -704,13 +704,57 @@ FROM DUAL;
 
 ---
 
-> 🚀 **¡Sigue practicando y dominando funciones en SQL!**
+ ## 🚀 **SQL-LAST_DAY, ROUND, TRUNC COMO FUNCIONAN!**
+- Estas consultas muestran la fecha actual (SYSDATE) y aplican funciones de redondeo y truncamiento sobre ella:
 
+- ROUND(SYSDATE, 'MONTH'): Redondea la fecha al mes más cercano. Si el día es 16 o mayor, pasa al siguiente mes.
 
+- ROUND(SYSDATE, 'YEAR'): Redondea la fecha al año más cercano. Si el mes es julio o mayor, pasa al siguiente año.
+
+- TRUNC(SYSDATE, 'MONTH'): Trunca la fecha al primer día del mes actual.
+
+- TRUNC(SYSDATE, 'YEAR'): Trunca la fecha al primer día del año actual.
+
+## PRACTICA
+
+-- SOLCION :
+
+-- • Indicar el número de días que los empleados llevan en la empresa
+
+SELECT FIRST_NAME, HIRE_DATE - SYSDATE AS "DIAS EN LA EMPRESA"
+FROM EMPLOYEES;
+
+-- • Indicar la fecha que será dentro de 15 días
+
+SELECT SYSDATE + 15 AS "FECHA DENTRO DE 15 DIAS"
+FROM DUAL;
+-- 2025-11-07 21:21:02
+
+--• ¿Cuántos MESES faltan para la navidad? La cifra debe salir
+-- redondeada, con 1 decimal
+
+SELECT ROUND(MONTHS_BETWEEN('25-12-2025', SYSDATE), 1)
+FROM DUAL;
+-- 2
+
+-- • Indicar la fecha de entrada de un empleado y el último día del mes que
+-- entró
+
+SELECT FIRST_NAME, HIRE_DATE, LAST_DAY(HIRE_DATE) AS "ULTIMO DIA DEL MES DE ENTRADA"
+FROM EMPLOYEES;
+
+-- Steven,2003-06-17,2003-06-30
+
+-- • Utilizando la función ROUND, indicar los empleados que entraron en los
+-- últimos 15 días de cada mes
+
+SELECT FIRST_NAME, HIRE_DATE, ROUND(HIRE_DATE, 'MONTH') AS "ULTIMOS 15 DIAS"
+FROM EMPLOYEES
+WHERE ROUND(HIRE_DATE, 'MONTH') > HIRE_DATE;
 
 </details>
 
-
+---
 
 <details>
 <summary><strong>📝 PL/SQL</strong></summary>
@@ -1620,7 +1664,7 @@ END LOOP;
 
 Como no encontró divisores, **5 es primo**.
 
-¿Te queda más claro ahora? 😊
+### 
 
 </details>
 
