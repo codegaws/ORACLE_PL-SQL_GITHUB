@@ -712,18 +712,156 @@ WHERE ROUND(HIRE_DATE, 'MONTH') > HIRE_DATE;
 --TO_DATE
 --TO_NUMBER
 
+SELECT '10' + 10
+FROM DUAL;
+
+--RESULTADO : 20
+
+SELECT MONTHS_BETWEEN(SYSDATE, '10-10-18')
+FROM DUAL;
+
+--RESPUESTA : 84.4490961021505376344086021505376344086
+
+SELECT 10 || '10'
+FROM DUAL;
+
+-- RESULTADO : 1010
+
+SELECT 'HOY ES:' || SYSDATE
+FROM DUAL;
+
+--RPTA:HOY ES:23/10/25
+
+--*******************************************************************************************************
+--                           CLASE 87 : COMVERTIR FECHAS A CARACTER : TO_CHAR                            *
+--*******************************************************************************************************
+--TO_CHAR(DATE/NUMBER,'FORMATO') CONVIERTELO Y DALE UN FORMATO
+
+--TO_CHAR(DATE,'FORMATO')
+/*
+ YYYY AÑO 4 NUMEROS
+ YEAR AÑO (INGLES)
+ MM MES 2 DIGITOS
+ MONTH MES EN TEXTO
+ MON ABREVIATURA DEL MES
+ DY ABREVIATURA DEL DIA
+ DAY DIA EN TEXTO
+ DD NUMERO DEL DIA
+ */
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'YYYY')
+FROM DUAL;
+--RPTA : 2025
+
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'MONTH')
+FROM DUAL;
+
+--RPTA :OCTUBRE
+
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'YEAR')
+FROM DUAL;
+--RPTA :TWENTY TWENTY-FIVE
+
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'DAY')
+FROM DUAL;
+--RPTA : JUEVES
+--*******************************************************************************************************
+--                           CLASE 88 : COMVERTIR FECHAS A CARACTER : TO_CHAR PARTE 2                   *
+--*******************************************************************************************************
+
+--TO_CHAR(DATE,'FORMATO')
+/*
+AM PM MERIDIAN
+HH FORMATO 12 HORAS
+HH24 FORMATO 24 HORAS
+MI MINUTOS
+SS SEGUNDOS
+ */
+
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'HH')
+FROM DUAL;
+--RPTA : 10
+
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'HH24')
+FROM DUAL;
+-- RPTA : 22
+
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'MI')
+FROM DUAL;
+-- RPTA : 21
+
+SELECT SYSDATE, TO_CHAR(SYSDATE, '"Son las" HH24:MI " del dia de hoy" YYYY')
+FROM DUAL;
+-- RPTA : Son las 22:24  del dia de hoy 2025
 
 
+--*******************************************************************************************************
+--                           CLASE 89 : COMVERTIR NUMEROS A CARACTER : TO_CHAR                          *
+--*******************************************************************************************************
+--TO_CHAR(NUMERO,'FORMATO')
+/*
+9 POSICION DE UN NUMERO
+0 POSICION DE UN NUMERO CON RELLENO DE CEROS
+D SEPARADOR DE DECIMALES
+, SEPARADOR DE MILES
+$ SIMBOLO DE MONEDA
+L MONEDA ACTUAL
+. PUNTO DECIMAL
+ */
+SELECT SALARY, TO_CHAR(SALARY, '99999')
+FROM EMPLOYEES;
+--RPTA : 24000.00, 24000
+
+SELECT SALARY
+     , TO_CHAR(SALARY, '99999')
+     , TO_CHAR(SALARY, '00000')
+     , TO_CHAR(SALARY, 'L00009.99')
+FROM EMPLOYEES;
+--RPTA :  24000,24000,S/24000.00
 
 
+--*******************************************************************************************************
+--                           CLASE 91 : COMVERTIR CARACTERES A FECHAS : TO_DATE             *
+--*******************************************************************************************************
+--TO_DATE(STRING,'FORMATO')
 
+SELECT TO_DATE('10-01-89')
+FROM DUAL;--1989-01-10
+SELECT TO_DATE('10-01-1989')
+FROM DUAL;--1989-01-10
+SELECT TO_DATE('10-JAN-89')
+FROM DUAL;--ERROR
+SELECT TO_DATE('12-22-1989', 'mm-dd-yy')
+FROM DUAL;--2089-12-22
+SELECT TO_DATE('JAN-22-89', 'MON-DD-YY', 'NLS_DATE_LANGUAGE=ENGLISH')
+FROM DUAL;
+-- FORZAMOS AL INGLES 2089-01-22
 
+SELECT TO_DATE('ENE-22-89', 'MON-DD-YY')
+FROM DUAL;
 
+--RR FORMATO NOS PERMITE DETERMINAR EN QUE SENTURIA ESTAMOS
 
+/*
+YY FORMATO 2 DIGITOS AÑO SIGLO ACTUAL
+RR FORMATO 2 DIGITOS AÑO SIGLO ACTUAL O SIGLO ANTERIOR
+0-49  2000
+50-59 1900
 
+*/
+SELECT TO_CHAR(TO_DATE('10-01-89', 'DD-MM-RR'), 'DD-MM-YYYY')
+FROM DUAL;
+-- 10-01-1989
 
+--*******************************************************************************************************
+--                           CLASE 92 : CONVERTIR CARCTERES A NUMEROS                                   *
+--*******************************************************************************************************
+--TO_NUMBER(STRING,'FORMATO')
 
+SELECT TO_NUMBER('1000.89', '9999.99')
+FROM DUAL;--1000.89
 
+SELECT TO_NUMBER('S/1000', 'L9999')
+FROM DUAL;--
 
 
 
