@@ -1367,9 +1367,12 @@ END;
 
 Este error tipográfico causará un **error de compilación** porque Oracle no reconocerá el procedimiento `DBMS_OUPUT` (sin la 'T').
 
-
-
-
+## NOTA
+Sí. PLS_INTEGER es un tipo de datos entero nativo de PL/SQL, 
+optimizado para rendimiento (más rápido que NUMBER en operaciones
+enteras). Rango típico: aproximadamente -2.147.483.647 a 2.147.483.647. 
+Se usa para contadores y cálculos enteros; si hay desbordamiento se
+lanza VALUE_ERROR.
 
 # ⏭️ CLASE 54: COMANDO CONTINUE
 
@@ -1664,7 +1667,26 @@ END LOOP;
 
 Como no encontró divisores, **5 es primo**.
 
-### 
+## MAS DETALLE
+Este código verifica si un número (`n`) es primo o no.  
+La parte `IF n MOD j = 0 THEN` significa:
+
+- `MOD` es el operador de módulo (resto de la división).
+- `n MOD j` calcula el resto de dividir `n` entre `j`.
+- Si el resto es `0`, significa que `j` es un divisor de `n` (aparte de 1 y `n`).
+
+Por ejemplo, si `n = 5` y `j = 2`, `5 MOD 2 = 1` (no entra al IF).  
+Si algún `j` divide exactamente a `n` (resto 0), entonces `n` no es primo.
+
+**Explicación paso a paso:**
+1. Declara variables: `p` (mensaje) y `n` (número a analizar).
+2. Recorre con un FOR desde 2 hasta la raíz cuadrada de `n`.
+3. Si encuentra un divisor exacto (`n MOD j = 0`), pone el mensaje "no es un número primo" y salta a imprimir.
+4. Si no encuentra divisores, pone el mensaje "es un número primo".
+5. Imprime el resultado.
+
+**Resumen:**  
+`IF n MOD j = 0 THEN` pregunta: ¿`j` divide exactamente a `n`? Si sí, entonces `n` no es primo.
 
 </details>
 

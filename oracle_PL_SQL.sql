@@ -150,7 +150,7 @@ SET SERVEROUTPUT ON;
 
 DECLARE
     x NUMBER := 20; --GLOBAL
-    z NUMBER := 30;
+    z NUMBER := 30; --GLOBAL
 BEGIN
     dbms_output.put_line('X:=' || x);
     DECLARE
@@ -166,7 +166,7 @@ BEGIN
 END;
 
 --*******************************************************************************************************
---                     CLASE  :  USO DE FUNCIONES SQL DENTRO DE PL/SQL                                  *
+--                     CLASE 43 :  USO DE FUNCIONES SQL DENTRO DE PL/SQL                                  *
 --*******************************************************************************************************
 SET SERVEROUTPUT ON;
 
@@ -244,7 +244,6 @@ BEGIN
     END IF;
 END;
 
--- 2. PRÁCTICA 2
 --2. PRÁCTICA 2
 --• Crear una variable CHAR(1) denominada TIPO_PRODUCTO.
 --• Poner un valor entre "A" Y "E"
@@ -291,9 +290,7 @@ BEGIN
         WHEN 'E' THEN dbms_output.put_line('POOR');
         ELSE dbms_output.put_line('NO SUCH VALUE');
         END CASE;
-
 END;
-
 --*******************************************************************************************************
 --                       CLASE 50 SEARCHED CASE : NOS PERMITE HACER BUSQUEDAS MAS COMPLEJAS             *
 --*******************************************************************************************************
@@ -355,7 +352,7 @@ BEGIN
     END LOOP;
 END;
 --*******************************************************************************************************
---                       CLASE 53 BUCLE LOOP ANIDADO                                                    *
+--                       CLASE 53 BUCLE LOOP ANIDADO - ETIQUETAS                                                   *
 --*******************************************************************************************************
 DECLARE
     s PLS_INTEGER := 0;
@@ -432,7 +429,7 @@ Este error tipográfico causará un **error de compilación** porque Oracle no r
 */
 
 --*******************************************************************************************************
---                       CLASE 54 COMANDO CONTINUE                                                      *       *
+--                       CLASE 54 COMANDO CONTINUE                                              *       *
 --*******************************************************************************************************
 DECLARE
     x NUMBER := 0;
@@ -450,7 +447,6 @@ BEGIN
     end loop;
     DBMS_OUTPUT.PUT_LINE(' DESPUES DEL LOOP : x = ' || TO_CHAR(x));
 end;
-
 --*******************************************************************************************************
 --                       CLASE 55 BUCLE FOR                                                     *       *
 --*******************************************************************************************************
@@ -466,7 +462,6 @@ BEGIN
         end loop;
     DBMS_OUTPUT.PUT_LINE(i);-- ERROR PORQUE i NO ES VISIBLE FUERA DEL LOOP
 end;
-
 --*******************************************************************************************************
 --                       CLASE 56 WHILE                                                         *       *
 --*******************************************************************************************************
@@ -508,10 +503,10 @@ BEGIN
         LOOP
             IF n MOD j = 0 THEN
                 p := ' no es un numero primo';
-                GOTO primt_now;
+                GOTO print_now;
             end if;
         end loop;
     p := ' es un numero primo';
-    <<primt_now>>
+    <<print_now>>
         DBMS_OUTPUT.PUT_LINE(TO_CHAR(n) || p);
 end;
