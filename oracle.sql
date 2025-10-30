@@ -861,7 +861,33 @@ SELECT TO_NUMBER('1000.89', '9999.99')
 FROM DUAL;--1000.89
 
 SELECT TO_NUMBER('S/1000', 'L9999')
-FROM DUAL;--
+FROM DUAL;
+
+--                           PRACTICA  DE CONVERTIR CARACTERES A NUMERO-                                *
+--*******************************************************************************************************
+
+
+--*******************************************************************************************************
+--                           CLASE 94 : OTRAS FUNCIONES SQL NULOS - TRATAR NULOS NVL                    *
+--*******************************************************************************************************
+-- TRATAR NULOS NVL ->
+
+SELECT NVL(NULL, 'ADIOS')
+FROM DUAL;
+
+SELECT FIRST_NAME, COMMISSION_PCT
+FROM EMPLOYEES;
+
+SELECT FIRST_NAME, NVL(COMMISSION_PCT, 0)
+FROM EMPLOYEES;
+
+SELECT FIRST_NAME, COMMISSION_PCT * SALARY , NVL(COMMISSION_PCT, 0) * SALARY
+FROM EMPLOYEES;
+
+
+
+
+
 
 
 

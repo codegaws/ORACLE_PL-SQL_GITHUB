@@ -752,6 +752,175 @@ SELECT FIRST_NAME, HIRE_DATE, ROUND(HIRE_DATE, 'MONTH') AS "ULTIMOS 15 DIAS"
 FROM EMPLOYEES
 WHERE ROUND(HIRE_DATE, 'MONTH') > HIRE_DATE;
 
+# ✨ Funciones de Conversión en Oracle SQL
+
+---
+
+## 🏷️ **Clase 86: LAST_DAY - ROUND - TRUNC**
+### 🔄 Funciones de Conversión Básicas
+
+- `TO_CHAR`
+- `TO_DATE`
+- `TO_NUMBER`
+
+```sql
+SELECT '10' + 10 FROM DUAL;
+-- 🟢 Resultado: 20
+
+SELECT MONTHS_BETWEEN(SYSDATE, '10-10-18') FROM DUAL;
+-- 🟢 Respuesta: 84.449096...
+
+SELECT 10 || '10' FROM DUAL;
+-- 🟢 Resultado: 1010
+
+SELECT 'HOY ES:' || SYSDATE FROM DUAL;
+-- 🟢 Rpta: HOY ES:23/10/25
+```
+
+---
+
+## 🗓️ **Clase 87: Convertir Fechas a Texto — `TO_CHAR`**
+> `TO_CHAR(DATE/NUMBER, 'FORMATO')` convierte y da formato personalizado.
+
+### 📅 Formatos principales:
+- `YYYY` ➡️ Año en 4 dígitos
+- `YEAR` ➡️ Año en texto (inglés)
+- `MM` ➡️ Mes en 2 dígitos
+- `MONTH` ➡️ Nombre del mes (texto)
+- `MON` ➡️ Mes abreviado
+- `DY` ➡️ Día abreviado
+- `DAY` ➡️ Día en texto
+- `DD` ➡️ Número del día
+
+```sql
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'YYYY') FROM DUAL;
+-- 🟢 Rpta: 2025
+
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'MONTH') FROM DUAL;
+-- 🟢 Rpta: OCTUBRE
+
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'YEAR') FROM DUAL;
+-- 🟢 Rpta: TWENTY TWENTY-FIVE
+
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'DAY') FROM DUAL;
+-- 🟢 Rpta: JUEVES
+```
+
+---
+
+## 🕒 **Clase 88: TO_CHAR Fechas — Parte 2**
+### ⏰ Formatos adicionales:
+- `AM`/`PM` ➡️ Meridian
+- `HH` ➡️ Hora (12h)
+- `HH24` ➡️ Hora (24h)
+- `MI` ➡️ Minutos
+- `SS` ➡️ Segundos
+
+```sql
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'HH') FROM DUAL;
+-- 🟢 Rpta: 10
+
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'HH24') FROM DUAL;
+-- 🟢 Rpta: 22
+
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'MI') FROM DUAL;
+-- 🟢 Rpta: 21
+
+SELECT SYSDATE, TO_CHAR(SYSDATE, '"Son las" HH24:MI " del dia de hoy" YYYY') FROM DUAL;
+-- 🟢 Rpta: Son las 22:24 del dia de hoy 2025
+```
+
+---
+
+## 🔢 **Clase 89: Convertir Números a Texto — `TO_CHAR`**
+> `TO_CHAR(NUMERO, 'FORMATO')`
+
+### 🧮 Caracteres de formato:
+- `9` ➡️ Posición de número
+- `0` ➡️ Número con relleno de ceros
+- `D` ➡️ Separador decimal
+- `,` ➡️ Separador de miles
+- `$` ➡️ Símbolo de moneda
+- `L` ➡️ Moneda local
+- `.` ➡️ Punto decimal
+
+```sql
+SELECT SALARY, TO_CHAR(SALARY, '99999') FROM EMPLOYEES;
+-- 🟢 Rpta: 24000
+
+SELECT SALARY
+     , TO_CHAR(SALARY, '99999')
+     , TO_CHAR(SALARY, '00000')
+     , TO_CHAR(SALARY, 'L00009.99')
+FROM EMPLOYEES;
+-- 🟢 Rpta: 24000, 24000, S/24000.00
+```
+
+---
+
+## 🗓️ **Clase 91: Convertir Texto a Fecha — `TO_DATE`**
+> `TO_DATE(STRING, 'FORMATO')`
+
+```sql
+SELECT TO_DATE('10-01-89') FROM DUAL; -- 🟢 1989-01-10
+SELECT TO_DATE('10-01-1989') FROM DUAL; -- 🟢 1989-01-10
+SELECT TO_DATE('10-JAN-89') FROM DUAL; -- 🔴 Error
+SELECT TO_DATE('12-22-1989', 'mm-dd-yy') FROM DUAL; -- 🟢 2089-12-22
+SELECT TO_DATE('JAN-22-89', 'MON-DD-YY', 'NLS_DATE_LANGUAGE=ENGLISH') FROM DUAL; -- 🟢 2089-01-22
+SELECT TO_DATE('ENE-22-89', 'MON-DD-YY') FROM DUAL; -- 🔴 Error (idioma)
+
+-- 📅 RR: Formato siglo actual o anterior
+/*
+YY: 2 dígitos - siglo actual
+RR: 2 dígitos - siglo actual o anterior
+  0-49 ➡️ 2000+
+  50-99 ➡️ 1900+
+*/
+
+SELECT TO_CHAR(TO_DATE('10-01-89', 'DD-MM-RR'), 'DD-MM-YYYY') FROM DUAL;
+-- 🟢 10-01-1989
+```
+
+---
+
+## #️⃣ **Clase 92: Convertir Texto a Número — `TO_NUMBER`**
+> `TO_NUMBER(STRING, 'FORMATO')`
+
+```sql
+SELECT TO_NUMBER('1000.89', '9999.99') FROM DUAL;
+-- 🟢 1000.89
+
+SELECT TO_NUMBER('S/1000', 'L9999') FROM DUAL;
+-- 🟢 1000
+```
+
+---
+
+  ## #️⃣📚**Clase 94: NVL — NULOS **
+- Cuando encuentra un nulo escoge el siguiente por ejemplo como una opcion devuelve ADIOS 
+- o en el otro Ejemplo 0.
+
+```sql
+
+SELECT NVL(NULL, 'ADIOS')
+FROM DUAL;
+
+SELECT FIRST_NAME, COMMISSION_PCT
+FROM EMPLOYEES;
+
+SELECT FIRST_NAME, NVL(COMMISSION_PCT, 0)
+FROM EMPLOYEES;
+
+SELECT FIRST_NAME, COMMISSION_PCT * SALARY , NVL(COMMISSION_PCT, 0) * SALARY
+FROM EMPLOYEES;
+```
+
+![img](/images/94.png)
+
+---
+## #️⃣📚**Clase 95: TRATAR NULOS : NVL2 — NULOS **
+
+
 </details>
 
 ---
