@@ -881,15 +881,105 @@ FROM EMPLOYEES;
 SELECT FIRST_NAME, NVL(COMMISSION_PCT, 0)
 FROM EMPLOYEES;
 
-SELECT FIRST_NAME, COMMISSION_PCT * SALARY , NVL(COMMISSION_PCT, 0) * SALARY
+SELECT FIRST_NAME, COMMISSION_PCT * SALARY, NVL(COMMISSION_PCT, 0) * SALARY
 FROM EMPLOYEES;
 
+--*******************************************************************************************************
+--                           CLASE 95 : TRATAR NULOS NVL2                                               *
+--*******************************************************************************************************
+-- TRATAR NULOS NVL2 ->
 
+-- NVL2 (EXPRESION,VALOR1,VALOR2)
 
+SELECT FIRST_NAME, SALARY, COMMISSION_PCT, NVL2(COMMISSION_PCT, SALARY * COMMISSION_PCT, SALARY * 0.1) AS CM
+FROM EMPLOYEES;
 
+--*******************************************************************************************************
+--                           CLASE 96 : TRATAR NULOS NULLIF                                             *
+--*******************************************************************************************************
 
+--NULLIF(V1,V2)
 
+SELECT NULLIF(1, 10)
+FROM DUAL;--RPTA : 1
+SELECT NULLIF(1, 1)
+FROM DUAL;--RPTA : NULL
 
+SELECT COUNTRY_ID, SUBSTR(COUNTRY_NAME, 1, 2)
+FROM COUNTRIES;
+--RPTA AR,Ar
+
+-- LO PONEMOS EN MAYUSCULAS Y SI ES IGUAL A COUNTRY_ID ME DEVUELVE NULL
+SELECT COUNTRY_ID,
+       UPPER(SUBSTR(COUNTRY_NAME, 1, 2)),--RPTA AR,AR
+       NULLIF(COUNTRY_ID, UPPER(SUBSTR(COUNTRY_NAME, 1, 2)))
+FROM COUNTRIES;
+--RPTA EG,EG,NULL O  DK,DE,DK
+
+--*******************************************************************************************************
+SELECT COUNTRY_ID,
+       UPPER(SUBSTR(COUNTRY_NAME, 1, 2)),--RPTA AR,AR
+       NULLIF(COUNTRY_ID, UPPER(SUBSTR(COUNTRY_NAME, 1, 2))),--RPTA ES NULL O UN COUNTRY_ID
+       NVL2(NULLIF(COUNTRY_ID, UPPER(SUBSTR(COUNTRY_NAME, 1, 2))), 'SON IGUALES', 'SON DISTINTOS') AS COMPARACION--SON DISTINTOS O SON IGUALES
+FROM COUNTRIES;
+--RPTA
+
+--*******************************************************************************************************
+--                           CLASE 97 : TRATAR NULOS COALESCE                                           *
+--*******************************************************************************************************
+
+SELECT COALESCE(NULL, NULL, 'VALOR3')
+FROM DUAL;
+
+SELECT FIRST_NAME, COMMISSION_PCT, TO_CHAR(COMMISSION_PCT)
+FROM EMPLOYEES;--RPTA John,0.40,",4"
+
+SELECT FIRST_NAME, MANAGER_ID, TO_CHAR(COMMISSION_PCT), TO_CHAR(MANAGER_ID)
+FROM EMPLOYEES;
+
+SELECT FIRST_NAME, COALESCE(TO_CHAR(COMMISSION_PCT), TO_CHAR(MANAGER_ID), 'SIN JEFE NI COMISION')
+FROM EMPLOYEES;
+
+--*******************************************************************************************************
+--                           PRACTICA                                          *
+--*******************************************************************************************************
+
+/*
+FUNCIONES DE NULOS
+• De la tabla LOCATIONS visualizar el nombre de la ciudad y el estadoprovincia.
+En el caso de que no tenga que aparezca el texto “No tiene”*/
+
+--SOLUCION :
+SELECT CITY, NVL(CITY, 'No tiene') AS "ESTADO PROVINCIA"
+FROM LOCATIONS;
+
+/*
+• Visualizar el salario de los empleados incrementado en la comisión
+(PCT_COMMISSION). Si no tiene comisión solo debe salir el salario
+*/
+
+SELECT FIRST_NAME,
+       COMMISSION_PCT,
+       SALARY + NVL2(COMMISSION_PCT, SALARY + SALARY * COMMISSION_PCT / 100, SALARY)
+           AS TOTAL
+FROM EMPLOYEES;
+
+/*
+• Seleccionar el nombre del departamento y el manager_id. Si no tiene,
+debe salir un -1 */
+
+SELECT JOB_ID, MANAGER_ID, NVL(MANAGER_ID, -1) AS "JEFE"
+FROM EMPLOYEES;
+
+/*
+• De la tabla LOCATIONS, devolver NULL si la ciudad y la provincia son
+iguales. Si no son iguales devolver la C
+*/
+
+SELECT CITY,
+       STATE_PROVINCE,
+       NULLIF(CITY, STATE_PROVINCE)
+FROM LOCATIONS;
 
 
 

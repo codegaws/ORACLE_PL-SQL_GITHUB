@@ -920,6 +920,162 @@ FROM EMPLOYEES;
 ---
 ## #️⃣📚**Clase 95: TRATAR NULOS : NVL2 — NULOS **
 
+-- TRATAR NULOS NVL2 ->
+
+-- NVL2 (EXPRESION,VALOR1,VALOR2)
+
+Esta consulta selecciona el nombre, salario, porcentaje de comisión y un cálculo condicional para cada empleado:
+
+- Si `COMMISSION_PCT` **no es nulo**, muestra `SALARY * COMMISSION_PCT`.
+- Si `COMMISSION_PCT` **es nulo**, muestra `SALARY * 0.1`.
+
+La función `NVL2` permite este comportamiento condicional en Oracle SQL.
+
+```sql
+SELECT FIRST_NAME,
+       SALARY,
+       COMMISSION_PCT,
+       NVL2(COMMISSION_PCT, SALARY * COMMISSION_PCT, SALARY * 0.1) AS CM
+FROM EMPLOYEES;
+```
+
+Esto ayuda a calcular una comisión real o un valor por defecto si no existe comisión.
+
+```SQL
+
+SELECT FIRST_NAME, SALARY,COMMISSION_PCT, NVL2(COMMISSION_PCT, SALARY * COMMISSION_PCT, SALARY * 0.1) AS CM
+FROM EMPLOYEES;
+
+```
+![img](/images/NVM.png)
+
+---
+## #️⃣📚**Clase 96: TRATAR NULOS : NULLIF **
+
+La función `NULLIF` en Oracle SQL compara dos expresiones:
+
+- Si **son iguales**, devuelve `NULL`.
+- Si **son diferentes**, devuelve el valor de la primera expresión.
+
+**Sintaxis:**
+```sql
+NULLIF(expr1, expr2)
+```
+
+**Ejemplo:**
+```sql
+SELECT NULLIF(10, 10) FROM DUAL; -- Devuelve: NULL
+SELECT NULLIF(10, 20) FROM DUAL; -- Devuelve: 10
+```
+
+**Uso típico:**  
+Evitar divisiones por cero:
+```sql
+SELECT SALARY / NULLIF(COMMISSION_PCT, 0) FROM EMPLOYEES;
+```
+Si `COMMISSION_PCT` es 0, devuelve `NULL` y evita el error de división por cero.
+
+---
+
+```sql
+
+SELECT COUNTRY_ID,
+       UPPER(SUBSTR(COUNTRY_NAME, 1, 2)),--RPTA AR,AR
+       NULLIF(COUNTRY_ID, UPPER(SUBSTR(COUNTRY_NAME, 1, 2))),
+       NVL2(NULLIF(COUNTRY_ID, UPPER(SUBSTR(COUNTRY_NAME, 1, 2))), 'SON IGUALES', 'SON DISTINTOS') AS COMPARACION
+FROM COUNTRIES;--RPTA
+
+```
+
+![image](/images/tt.png)
+
+---
+## #️⃣📚**Clase 97: TRATAR NULOS : COALESCE **
+
+La función `COALESCE` en Oracle SQL (y otros motores) devuelve el **primer valor no nulo** de una lista de expresiones. 
+Es útil para tratar valores nulos y establecer valores por defecto.
+
+**Sintaxis:**
+```sql
+COALESCE(expr1, expr2, ..., exprN)
+```
+- Devuelve el primer valor que **no es NULL**.
+- Si todos son NULL, devuelve NULL.
+
+**Ejemplo:**
+```sql
+SELECT COALESCE(NULL, NULL, 'Hola', 'Mundo') FROM DUAL; -- Devuelve: Hola
+
+SELECT FIRST_NAME, COALESCE(COMMISSION_PCT, 0) AS COMISION
+FROM EMPLOYEES;
+```
+En el segundo ejemplo, si `COMMISSION_PCT` es NULL, devuelve 0.
+
+**Resumen:**  
+`COALESCE` es ideal para manejar múltiples posibles valores nulos y elegir el primero que exista.
+
+```sql
+
+SELECT COALESCE(NULL, NULL, 'VALOR3')
+FROM DUAL;
+
+SELECT FIRST_NAME, COMMISSION_PCT, TO_CHAR(COMMISSION_PCT)
+FROM EMPLOYEES;--RPTA John,0.40,",4"
+
+SELECT FIRST_NAME, MANAGER_ID, TO_CHAR(COMMISSION_PCT), TO_CHAR(MANAGER_ID)
+FROM EMPLOYEES;
+
+SELECT FIRST_NAME, COALESCE(TO_CHAR(COMMISSION_PCT), TO_CHAR(MANAGER_ID), 'SIN JEFE NI COMISION')
+FROM EMPLOYEES;
+
+```
+
+![img](/images/coa.png)
+
+---
+
+## #️⃣📚**Clase 98: TRATAR NULOS : COALESCE **
+
+La función `COALESCE` en SQL devuelve el **primer valor que no es NULL** de una lista de expresiones. 
+Es útil para manejar valores nulos y establecer valores por defecto.
+
+**Sintaxis:**
+```sql
+COALESCE(expr1, expr2, ..., exprN)
+```
+- Devuelve el primer valor **no nulo** de la lista.
+- Si todos son NULL, devuelve NULL.
+
+**Ejemplo:**
+```sql
+SELECT COALESCE(NULL, NULL, 'Hola', 'Mundo') FROM DUAL; -- Devuelve: Hola
+
+SELECT FIRST_NAME, COALESCE(COMMISSION_PCT, 0) AS COMISION
+FROM EMPLOYEES;
+```
+En el segundo ejemplo, si `COMMISSION_PCT` es NULL, devuelve 0.
+
+**Resumen:**  
+`COALESCE` es ideal para elegir el primer valor disponible entre varios posibles nulos.
+
+```sql
+SELECT COALESCE(NULL, NULL, 'VALOR3')
+FROM DUAL;
+
+SELECT FIRST_NAME, COMMISSION_PCT, TO_CHAR(COMMISSION_PCT)
+FROM EMPLOYEES;--RPTA John,0.40,",4"
+
+SELECT FIRST_NAME, MANAGER_ID, TO_CHAR(COMMISSION_PCT), TO_CHAR(MANAGER_ID)
+FROM EMPLOYEES;
+
+SELECT FIRST_NAME, COALESCE(TO_CHAR(COMMISSION_PCT), TO_CHAR(MANAGER_ID), 'SIN JEFE NI COMISION')
+FROM EMPLOYEES;
+
+```
+---
+
+## #️⃣📚**Clase 99: EXPRESIONES CONDICIONALES : CASE **
+
 
 </details>
 
