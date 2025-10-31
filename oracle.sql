@@ -981,8 +981,99 @@ SELECT CITY,
        NULLIF(CITY, STATE_PROVINCE)
 FROM LOCATIONS;
 
+--*******************************************************************************************************
+--                           CLASE 99 : CASE                                                            *
+--*******************************************************************************************************
+
+-- CASE CLAUSULA QUE NOS PERMITE COMPROBAR DISTINTAS CONDICIONES Y DEVOLVER UN VALOR SEGUN CADA CONDICION
+-- FORMATO :
+/*
+CASE
+    WHEN CONDICION1 THEN VALOR1
+    WHEN CONDICION2 THEN VALOR2
+    ...
+    ELSE VALOR_POR_DEFECTO
+END
+ */
+SELECT FIRST_NAME,
+       JOB_ID,
+       CASE JOB_ID
+           WHEN 'SH_CLERK' THEN 'TIPO 1'
+           WHEN 'ST_MAN' THEN 'TIPO 2'
+           WHEN 'ST_CLERK' THEN 'TIPO 3'
+           ELSE 'SIN TIPO'
+           END AS "TIPO DE TRABAJO"
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 50;
 
 
+--*******************************************************************************************************
+--                           CLASE 100 : CASE SEARCHED                                                           *
+--*******************************************************************************************************
+
+-- DIREFENCIA CON CASE SIMPLE Y EL CASE SEARCHED ES POR QUE PUEDO PONER CONDICIONES MAS COMPLEJAS
+-- FORMATO :
+
+SELECT FIRST_NAME,
+       SALARY,
+       CASE
+           WHEN SALARY BETWEEN 0 AND 3000 THEN 'GANAS POCO'
+           WHEN SALARY BETWEEN 3001 AND 5000 THEN 'GANAS COMO LA MEDIA'
+           WHEN SALARY > 5001 THEN 'GANAS BASTANTE'
+           ELSE 'NO GANAS'
+           END AS "RANGO SALARIAL"
+FROM EMPLOYEES;
+
+--*******************************************************************************************************
+--                           CLASE 101 : DECODE                                                         *
+--*******************************************************************************************************
+--DECODE ES UNA FUNCION QUE SIMULA UN CASE SIMPLE
+-- FORMATO :
+/*
+DECODE(EXPRESION,VALOR1,RESULTADO1,VALOR2,RESULTADO2,...,VALOR_POR_DEFECTO)
+
+ */
+
+SELECT FIRST_NAME,
+       DEPARTMENT_ID,
+       DECODE(DEPARTMENT_ID, 50, 'INFORMATICA', 10, 'VENTAS', 'OTRO TRABAJO') AS "DEPARTAMENTO"
+FROM EMPLOYEES;
+
+--*******************************************************************************************************
+--                           CLASE 102 : EXPRESIONES CONDICIONALES-PRACTICA                             *
+--*******************************************************************************************************
+
+/**
+• Visualizar los siguientes datos con CASE.
+o Si el departamento es 50 ponemos Transporte
+o Si el departamento es 90 ponemos Dirección
+o Cualquier otro número ponemos “Otro departamento”
+*/
+SELECT FIRST_NAME,
+       DEPARTMENT_ID,
+       DECODE(DEPARTMENT_ID, 50, 'TRANSPORTE', 90, 'DIRECCION', 'OTRO DEPARTAMENTO') AS "DEPARTAMENTO"
+FROM EMPLOYEES;
+
+/*
+• Mostrar de la tabla LOCATIONS, la ciudad y el país. Ponemos los
+siguientes datos dependiendo de COUNTRY_ID.
+o Si es US y CA ponemos América del Norte
+o Si es CH, UK, DE,IT ponemos Europa
+o Si es BR ponemos América del Sur
+o Si no es ninguno ponemos ‘Otra zona’
+
+• Realizar el primer ejercicio con DECODE en vez de con CASE
+ */
+
+SELECT CITY,
+       COUNTRY_ID,
+       CASE
+           WHEN COUNTRY_ID IN ('US', 'CA') THEN 'AMERICA DEL NORTE'
+           WHEN COUNTRY_ID IN ('CH', 'UK') THEN 'EUROPA'
+           WHEN COUNTRY_ID = 'BR' THEN 'AMERICA DEL SUR'
+           ELSE 'OTRA ZONA'
+           END AS "ZONA"
+FROM LOCATIONS;
 
 
 
