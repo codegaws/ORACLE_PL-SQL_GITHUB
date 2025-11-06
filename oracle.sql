@@ -1110,4 +1110,69 @@ FROM EMPLOYEES;
 --*******************************************************************************************************
 --                           CLASE 104 : FUNCIONES DE GRUPO COUNT Y OTROS                               *
 --*******************************************************************************************************
+--COUNT ME CUENTA EL NUMERO DE FILAS QUE CUMPLEN UNA DETERMINADA CONDICION
+-- CUENTA TODO INCLUYENDO LAS FILAS DUPLICADAS
+
+SELECT COUNT(FIRST_NAME)
+FROM EMPLOYEES;
+
+SELECT COUNT(SALARY), COUNT(COMMISSION_PCT)
+FROM EMPLOYEES;
+
+-- PODEMOS ASEGURARNOS CONTANDO REALMENTE CON EL ID DE UNA TABLA
+SELECT COUNT(EMPLOYEE_ID)
+FROM EMPLOYEES;--RPTA : 107
+
+SELECT COUNT(*)
+FROM EMPLOYEES;
+-- EL"*" INDICA TODO
+
+-- CON ALGUNA CONDICION
+SELECT COUNT(*)
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 60;--RPTA : 5
+
+SELECT COUNT(*)
+FROM EMPLOYEES
+WHERE SALARY > 6000;
+--RPTA : 55
+
+-- USO DE LA CLAUSULA DISCTINCT
+SELECT COUNT(DISTINCT FIRST_NAME)
+FROM EMPLOYEES;--RPTA : 91
+
+SELECT COUNT(DISTINCT DEPARTMENT_ID)
+FROM EMPLOYEES;
+--RPTA :11 COUNT POR DEFECTO NO CUENTA NULOS
+/**
+  El DISTINCT en esta consulta implica que solo se cuentan los valores
+  únicos de la columna DEPARTMENT_ID en la tabla EMPLOYEES. Es decir,
+  si hay varios empleados en el mismo departamento, ese departamento
+  solo se cuenta una vez. El resultado es el número total de departamentos
+  diferentes presentes en la tabla.
+  Hay más de 11 departamentos en total, pero en la tabla `EMPLOYEES` solo **11 de
+  esos departamentos tienen empleados asignados**.
+  El `COUNT(DISTINCT DEPARTMENT_ID)` cuenta únicamente los departamentos que aparecen
+  en la tabla `EMPLOYEES`, no todos los departamentos que existen en la base de datos.
+  Es probable que algunos departamentos no tengan empleados o que los empleados estén
+  asignados solo a 11 de todos los departamentos disponibles.
+  Para verificar esto, puedes ejecutar:
+
+```sql
+SELECT DISTINCT DEPARTMENT_ID
+FROM EMPLOYEES
+ORDER BY DEPARTMENT_ID;
+```
+
+Esto te mostrará exactamente cuáles son esos 11 departamentos que tienen empleados.
+ */
+
+SELECT DISTINCT DEPARTMENT_ID
+FROM EMPLOYEES
+ORDER BY DEPARTMENT_ID;
+
+SELECT DISTINCT DEPARTMENT_ID
+FROM EMPLOYEES;--RPTA : 12 AQUI SI CUENTA NULL
+
+
 
