@@ -853,7 +853,7 @@ FROM DUAL;
 -- 10-01-1989
 
 --*******************************************************************************************************
---                           CLASE 92 : CONVERTIR CARCTERES A NUMEROS                                   *
+--                           CLASE 92 : CONVERTIR CARACTERES A NUMEROS                                   *
 --*******************************************************************************************************
 --TO_NUMBER(STRING,'FORMATO')
 
@@ -887,7 +887,7 @@ FROM EMPLOYEES;
 --*******************************************************************************************************
 --                           CLASE 95 : TRATAR NULOS NVL2                                               *
 --*******************************************************************************************************
--- TRATAR NULOS NVL2 ->
+-- TRATAR NULOS NVL2 -> FUNGE COMO UN TERNARIO.
 
 -- NVL2 (EXPRESION,VALOR1,VALOR2)
 
@@ -1075,5 +1075,39 @@ SELECT CITY,
            END AS "ZONA"
 FROM LOCATIONS;
 
+--*******************************************************************************************************
+--                           CLASE 103 : FUNCIONES DE GRUPO AVG,MAX,MIN                                 *
+--*******************************************************************************************************
 
+SELECT AVG(SALARY) AS PROMEDIO
+FROM EMPLOYEES;
+
+SELECT MAX(SALARY) AS "MAXIMO_SALARIO"
+FROM EMPLOYEES;
+
+SELECT MIN(SALARY) AS "MINIMO_SALARIO"
+FROM EMPLOYEES;
+
+SELECT AVG(SALARY), MAX(SALARY), MIN(SALARY)
+FROM EMPLOYEES;
+-- NO SE PUEDE MEZCLAR FUNCIONES DE GRUPO (SOLO TE SACAN UN VALOR)CON FUNCIONES O VALORES SIMPLES(TE SACAN VARIOS VALORES)
+-- POR ESO NO SE PUEDEN MEZCLAR.
+-- POR EJEMPLO :
+-- SELECT FIRST_NAME, AVG(SALARY), MAX(SALARY), MIN(SALARY)
+-- FROM EMPLOYEES;-- RPTA : ERROR
+
+-- PERO LO QUE SI PODEMOS USAR ES WHERE, POR QUE ESTAMOS LIMITANDO A ESTOS DEPARTMENT_ID.
+SELECT AVG(SALARY), MAX(SALARY), MIN(SALARY)
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 50;
+
+SELECT MAX(HIRE_DATE), MIN(HIRE_DATE)
+FROM EMPLOYEES;
+
+SELECT MAX(FIRST_NAME), MIN(FIRST_NAME)
+FROM EMPLOYEES;
+
+--*******************************************************************************************************
+--                           CLASE 104 : FUNCIONES DE GRUPO COUNT Y OTROS                               *
+--*******************************************************************************************************
 
