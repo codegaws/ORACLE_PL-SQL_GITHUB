@@ -1197,7 +1197,37 @@ FROM EMPLOYEES;
 --                           CLASE 107 : GROUP BY                                                       *
 --*******************************************************************************************************
 
+SELECT DEPARTMENT_ID
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID;
+-- SIEMPRE VA AL FINALIZAR UNA CONSULTA CON FUNCIONES DE GRUPO ES COMO HACER UN DISTINCT
 
+-- AQUI VIENE LO INTERESANTE HACER UN COUNT(*)
+SELECT DEPARTMENT_ID,
+       JOB_ID,
+       COUNT(*),
+       SUM(SALARY) AS "SUM SALARIO "-- PERO QUE RARO NO SE PODIA APLICAR FUNCIONES SIMPLES CON FUNCIONES DE GRUPO
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID, JOB_ID
+ORDER BY DEPARTMENT_ID;
+-- ESTA ES LA ULTIMA CLAUSULA
 
+--*******************************************************************************************************
+--                           CLASE 108 : HAVING                                                         *
+--*******************************************************************************************************
+-- NOTA WHERE SOLO FUNCIONA CON LAS FILAS CONCRETAS OSEA FILAS UNA CONTRA UNA
+-- HAVING ES EL WHERE DE LOS GROUP BY OSEA SE HACE CONDICIONES CON LOS GRUPOS
 
+SELECT DEPARTMENT_ID,
+       JOB_ID,
+       COUNT(*),
+       SUM(SALARY) AS "SUM SALARIO "
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID, JOB_ID
+HAVING SUM(SALARY) > 25000
+   AND COUNT(*) > 10-- HAVING ME PERMITE HACER CONDICIONES PERO SOBRE EL GRUPO
+ORDER BY DEPARTMENT_ID;
 
+--*******************************************************************************************************
+--                           CLASE 109 : PRACTICAS GRUPO                                                *
+--*******************************************************************************************************
