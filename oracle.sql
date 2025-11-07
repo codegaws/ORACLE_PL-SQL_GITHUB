@@ -1245,3 +1245,100 @@ WHERE DEPARTMENT_ID = 50;
 
 -- •Indicar el número de empleados que entraron en el año 2007 a trabajar
 
+SELECT *
+FROM EMPLOYEES;
+
+SELECT COUNT(*) AS "NUMERO DE EMPLEADOS 2007"
+FROM EMPLOYEES
+WHERE HIRE_DATE BETWEEN '01-01-2007' AND '31-12-2007';
+
+-- OTRA FORMA
+
+SELECT COUNT(*) AS "NUMERO DE EMPLEADOS 2007"
+FROM EMPLOYEES
+WHERE TO_CHAR(HIRE_DATE, 'YYYY') = '2007';
+
+--•Indicar la diferencia entre el sueldo más alto y al mínimo
+
+SELECT MAX(SALARY), MIN(SALARY), MAX(SALARY) - MIN(SALARY) AS "DIFERENCIA"
+FROM EMPLOYEES;
+
+-- •Visualizar la suma del salario del departamento 100
+
+SELECT SUM(SALARY) AS "SUMA SALARIO DPTO 100"
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 100;
+
+-- •Mostrar el salario medio por departamento, con dos decimales
+
+SELECT DEPARTMENT_ID, ROUND(AVG(SALARY), 2) AS "SALARIO MEDIO"
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID
+ORDER BY DEPARTMENT_ID;
+
+-- •Mostrar el country_id y el número de ciudades que hay en ese país.
+SELECT COUNTRY_ID, COUNT(DISTINCT CITY) AS "NUMERO DE CIUDADES"
+FROM LOCATIONS
+-- HAVING COUNTRY_ID = 'IT'
+GROUP BY COUNTRY_ID;
+
+SELECT COUNTRY_ID, COUNT(COUNTRY_ID)
+FROM LOCATIONS
+GROUP BY COUNTRY_ID;
+
+/*•Mostrar el promedio de salario de los empleados por departamento que
+tengan comisión*/
+
+SELECT DEPARTMENT_ID, ROUND(AVG(SALARY), 2) AS "PROMEDIO SALARIAL"
+FROM EMPLOYEES
+HAVING COUNT(COMMISSION_PCT) > 0
+GROUP BY DEPARTMENT_ID;
+
+--•Mostrar los años en que ingresaron más de 10 empleados
+SELECT *
+FROM EMPLOYEES;
+
+SELECT TO_CHAR(HIRE_DATE, 'YYYY') AS "AÑO INGRESADO", COUNT(*)
+FROM EMPLOYEES
+HAVING COUNT(*) > 10
+GROUP BY TO_CHAR(HIRE_DATE, 'YYYY')
+ORDER BY "AÑO INGRESADO";
+
+-- •Mostrar por departamento y año el número de empleados que
+-- ingresaron
+
+SELECT DEPARTMENT_ID,
+       TO_CHAR(HIRE_DATE, 'YYYY') AS "AÑO INGRESO",
+       COUNT(*)                   AS "NUMERO DE EMPLEADOS"
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID, TO_CHAR(HIRE_DATE, 'YYYY')
+ORDER BY DEPARTMENT_ID, "AÑO INGRESO";
+
+-- •Mostrar los departament_id de los departamentos que tienen managers
+-- que tienen a cargo más de 5 empleados
+SELECT *
+FROM EMPLOYEES;
+
+SELECT DEPARTMENT_ID AS "DEPARTAMENTO",
+       MANAGER_ID    AS "JEFE",
+       COUNT(*)      AS "NUMERO_EMPLEADOS"
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID, MANAGER_ID
+HAVING COUNT(*) > 5
+ORDER BY DEPARTMENT_ID;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
