@@ -27,7 +27,6 @@ FROM EMPLOYEES;
 SELECT 4 + 3, 'ES EL RESULTADO'
 FROM DUAL;
 
-DESC DUAL;
 
 --CLASE 48 NULOS-NULL
 
@@ -1172,7 +1171,33 @@ FROM EMPLOYEES
 ORDER BY DEPARTMENT_ID;
 
 SELECT DISTINCT DEPARTMENT_ID
-FROM EMPLOYEES;--RPTA : 12 AQUI SI CUENTA NULL
+FROM EMPLOYEES;
+--RPTA : 12 AQUI SI CUENTA NULL
+
+--*******************************************************************************************************
+--                           CLASE 106 : FUNCIONES DE GRUPO SUM Y OTROS                                 *
+--*******************************************************************************************************
+
+-- SUM
+
+SELECT SUM(SALARY)      AS "SALARY",
+       SUM(SALARY) * 12 AS "SUMA SALARIOS ANUALES",
+       COUNT(*)         AS "NUMERO DE EMPLEADOS",
+       AVG(SALARY)      AS "PROMEDIO"
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 50;
+--rpta : 156400
+
+-- ************** OTRO EJERCICIO CON MAX Y MIN ****************
+
+SELECT MAX(SALARY) - MIN(SALARY)
+FROM EMPLOYEES;
+
+--*******************************************************************************************************
+--                           CLASE 107 : GROUP BY                                                       *
+--*******************************************************************************************************
+
+
 
 
 
