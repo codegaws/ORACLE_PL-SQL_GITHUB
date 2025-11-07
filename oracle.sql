@@ -1231,3 +1231,17 @@ ORDER BY DEPARTMENT_ID;
 --*******************************************************************************************************
 --                           CLASE 109 : PRACTICAS GRUPO                                                *
 --*******************************************************************************************************
+-- •Indicar el número de empleados del departamento 50
+
+SELECT DEPARTMENT_ID AS "DEPARTAMENTO", COUNT(*) AS "NUMERO DE EMPLEADOS"
+FROM EMPLOYEES
+HAVING DEPARTMENT_ID = 50
+GROUP BY DEPARTMENT_ID;
+
+-- O ESTA FORMA
+SELECT COUNT(*) AS "NUMERO DE EMPLEADOS"
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 50;
+
+-- •Indicar el número de empleados que entraron en el año 2007 a trabajar
+
