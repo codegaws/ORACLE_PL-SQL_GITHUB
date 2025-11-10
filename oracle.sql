@@ -1327,12 +1327,51 @@ GROUP BY DEPARTMENT_ID, MANAGER_ID
 HAVING COUNT(*) > 5
 ORDER BY DEPARTMENT_ID;
 
+--*******************************************************************************************************
+--                           CLASE 110 : INTRODUCCION A LOS JOINS                                       *
+--*******************************************************************************************************
+-- SQL:1999 ANSI POR ESTO ES QUE ES UN STANDAR EL LENGUAGE SQL
+-- CREAMOS ALIAS TABLA PUNTO COLUMNO.
 
+SELECT EMP.SALARY
+FROM EMPLOYEES EMP;
 
+--*******************************************************************************************************
+--                           CLASE 111 : NATURAL JOINS                                                  *
+--*******************************************************************************************************
+-- NATURAL JOIN UNE DOS TABLAS POR LAS COLUMNAS QUE TIENEN EN COMUN
 
+-- JOINS REGIONS Y COUNTRIES
+SELECT *
+FROM REGIONS
+         NATURAL JOIN COUNTRIES;
 
+-- otra forma
 
+SELECT REGION_ID, REGION_NAME, COUNTRY_ID, COUNTRY_NAME
+FROM REGIONS RE
+         NATURAL JOIN COUNTRIES CO;
 
+SELECT REGION_NAME, COUNTRY_NAME
+FROM REGIONS RE
+         NATURAL JOIN COUNTRIES CO;
+
+--*******************************************************************************************************
+--                           CLASE 112 : CLAUSULA USING                                                *
+--*******************************************************************************************************
+
+SELECT * FROM DEPARTMENTS;
+SELECT * FROM EMPLOYEES;
+
+SELECT D.DEPARTMENT_NAME, E.FIRST_NAME
+FROM EMPLOYEES E
+         JOIN DEPARTMENTS D
+              USING (department_id);
+
+SELECT DEPARTMENT_NAME, FIRST_NAME
+FROM EMPLOYEES
+         NATURAL JOIN DEPARTMENTS;
+--*******************************************************************************************************
 
 
 

@@ -1145,8 +1145,335 @@ SELECT FIRST_NAME,
 FROM EMPLOYEES;
 
 ```
+---
+# 📚 SQL Prácticas: Funciones Condicionales, Agrupamientos y Más
 
+---
 
+## 🌟 **CLASE 102 : Expresiones Condicionales - Práctica**
+
+### 🎯 CASE y DECODE
+
+```sql
+-- Visualizar el nombre y el departamento
+SELECT FIRST_NAME,
+       DEPARTMENT_ID,
+       DECODE(DEPARTMENT_ID, 50, 'TRANSPORTE', 90, 'DIRECCION', 'OTRO DEPARTAMENTO') AS "DEPARTAMENTO"
+FROM EMPLOYEES;
+```
+
+```sql
+-- Mostrar ciudad y país agrupado en zonas específicas
+SELECT CITY,
+       COUNTRY_ID,
+       CASE
+           WHEN COUNTRY_ID IN ('US', 'CA') THEN 'AMERICA DEL NORTE'
+           WHEN COUNTRY_ID IN ('CH', 'UK') THEN 'EUROPA'
+           WHEN COUNTRY_ID = 'BR' THEN 'AMERICA DEL SUR'
+           ELSE 'OTRA ZONA'
+       END AS "ZONA"
+FROM LOCATIONS;
+```
+
+---
+
+## 📈 **CLASE 103 : Funciones de Grupo AVG, MAX, MIN**
+
+```sql
+SELECT AVG(SALARY) AS PROMEDIO FROM EMPLOYEES;
+SELECT MAX(SALARY) AS "MAXIMO_SALARIO" FROM EMPLOYEES;
+SELECT MIN(SALARY) AS "MINIMO_SALARIO" FROM EMPLOYEES;
+SELECT AVG(SALARY), MAX(SALARY), MIN(SALARY) FROM EMPLOYEES;
+SELECT AVG(SALARY), MAX(SALARY), MIN(SALARY) FROM EMPLOYEES WHERE DEPARTMENT_ID = 50;
+SELECT MAX(HIRE_DATE), MIN(HIRE_DATE) FROM EMPLOYEES;
+SELECT MAX(FIRST_NAME), MIN(FIRST_NAME) FROM EMPLOYEES;
+```
+
+> ⚠️ **Nota:** No se pueden mezclar funciones de grupo con columnas simples en una misma consulta
+>
+> ```sql
+> -- Esto genera error
+> SELECT FIRST_NAME, AVG(SALARY), MAX(SALARY), MIN(SALARY) FROM EMPLOYEES;
+> ```
+
+---
+
+## 🔢 **CLASE 104 : Función COUNT y Otros**
+
+```sql
+SELECT COUNT(FIRST_NAME) FROM EMPLOYEES;
+SELECT COUNT(SALARY), COUNT(COMMISSION_PCT) FROM EMPLOYEES;
+SELECT COUNT(EMPLOYEE_ID) FROM EMPLOYEES; -- Recomendado para contar empleados (ej: 107)
+SELECT COUNT(*) FROM EMPLOYEES;
+SELECT COUNT(*) FROM EMPLOYEES WHERE DEPARTMENT_ID = 60; -- Ej: 5
+SELECT COUNT(*) FROM EMPLOYEES WHERE SALARY > 6000;      -- Ej: 55
+SELECT COUNT(DISTINCT FIRST_NAME) FROM EMPLOYEES;        -- Ej: 91
+SELECT COUNT(DISTINCT DEPARTMENT_ID) FROM EMPLOYEES;     -- Ej: 11
+
+-- Para ver qué departamentos tienen empleados:
+SELECT DISTINCT DEPARTMENT_ID FROM EMPLOYEES ORDER BY DEPARTMENT_ID;
+```
+
+> ℹ️ **Notas sobre COUNT y DISTINCT**
+>
+> - `COUNT(DISTINCT DEPARTMENT_ID)` cuenta solo los departamentos con empleados.
+> - El total de departamentos puede ser mayor en la base de datos, pero sólo aquellos presentes en la tabla `EMPLOYEES` (con empleados asignados) serán contados.
+>
+> ```sql
+> SELECT DISTINCT DEPARTMENT_ID FROM EMPLOYEES ORDER BY DEPARTMENT_ID;
+> ```
+
+---
+
+## ➕ **CLASE 106 : SUM y Otros Ejercicios**
+
+```sql
+SELECT SUM(SALARY)      AS "SALARY",
+       SUM(SALARY) * 12 AS "SUMA SALARIOS ANUALES",
+       COUNT(*)         AS "NUMERO DE EMPLEADOS",
+       AVG(SALARY)      AS "PROMEDIO"
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 50;
+```
+
+```sql
+-- Diferencia entre el salario más alto y el mínimo
+SELECT MAX(SALARY) - MIN(SALARY) FROM EMPLOYEES;
+```
+
+---
+
+## 🗂️ **CLASE 107 : GROUP BY**
+
+```sql
+SELECT DEPARTMENT_ID FROM EMPLOYEES GROUP BY DEPARTMENT_ID;
+```
+
+```sql
+-- Agrupando y sumando salarios por departamento y puesto
+SELECT DEPARTMENT_ID,
+       JOB_ID,
+       COUNT(*),
+       SUM(SALARY) AS "SUM SALARIO"
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID, JOB_ID
+ORDER BY DEPARTMENT_ID;
+```
+> 📝 **Tip:** Usar `GROUP BY` permite aplicar funciones de grupo a subconjuntos de datos.
+
+---
+
+## 🛡️ **CLASE 108 : HAVING**
+
+```sql
+SELECT DEPARTMENT_ID,
+       JOB_ID,
+       COUNT(*),
+       SUM(SALARY) AS "SUM SALARIO"
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID, JOB_ID
+HAVING SUM(SALARY) > 25000
+   AND COUNT(*) > 10
+ORDER BY DEPARTMENT_ID;
+```
+> 📌 **HAVING** permite filtrar sobre los grupos generados, a diferencia de `WHERE` que filtra sobre filas individuales.
+
+---
+
+## 🏆 **CLASE 109 : Prácticas de Agrupaciones**
+
+- 🔢 **N° de empleados en el departamento 50:**
+    ```sql
+    SELECT DEPARTMENT_ID AS "DEPARTAMENTO", COUNT(*) AS "NUMERO DE EMPLEADOS"
+    FROM EMPLOYEES
+    HAVING DEPARTMENT_ID = 50
+    GROUP BY DEPARTMENT_ID;
+
+    -- o directo con WHERE
+    SELECT COUNT(*) AS "NUMERO DE EMPLEADOS" FROM EMPLOYEES WHERE DEPARTMENT_ID = 50;
+    ```
+
+- ⏳ **Empleados ingresados en 2007:**
+    ```sql
+    SELECT COUNT(*) AS "NUMERO DE EMPLEADOS 2007"
+    FROM EMPLOYEES
+    WHERE HIRE_DATE BETWEEN '01-01-2007' AND '31-12-2007';
+
+    -- Otra forma
+    SELECT COUNT(*) AS "NUMERO DE EMPLEADOS 2007"
+    FROM EMPLOYEES
+    WHERE TO_CHAR(HIRE_DATE, 'YYYY') = '2007';
+    ```
+
+- 💰 **Diferencia entre el sueldo más alto y el mínimo:**
+    ```sql
+    SELECT MAX(SALARY), MIN(SALARY), MAX(SALARY) - MIN(SALARY) AS "DIFERENCIA"
+    FROM EMPLOYEES;
+    ```
+
+- 💵 **Suma del salario del departamento 100:**
+    ```sql
+    SELECT SUM(SALARY) AS "SUMA SALARIO DPTO 100"
+    FROM EMPLOYEES
+    WHERE DEPARTMENT_ID = 100;
+    ```
+
+- 💹 **Salario medio por departamento (2 decimales):**
+    ```sql
+    SELECT DEPARTMENT_ID, ROUND(AVG(SALARY), 2) AS "SALARIO MEDIO"
+    FROM EMPLOYEES
+    GROUP BY DEPARTMENT_ID
+    ORDER BY DEPARTMENT_ID;
+    ```
+
+- 🗺️ **País y número de ciudades:**
+    ```sql
+    SELECT COUNTRY_ID, COUNT(DISTINCT CITY) AS "NUMERO DE CIUDADES"
+    FROM LOCATIONS
+    GROUP BY COUNTRY_ID;
+    ```
+
+- 📈 **Promedio salarial en departamentos con comisión:**
+    ```sql
+    SELECT DEPARTMENT_ID, ROUND(AVG(SALARY), 2) AS "PROMEDIO SALARIAL"
+    FROM EMPLOYEES
+    HAVING COUNT(COMMISSION_PCT) > 0
+    GROUP BY DEPARTMENT_ID;
+    ```
+
+- 📅 **Años donde ingresaron más de 10 empleados:**
+    ```sql
+    SELECT TO_CHAR(HIRE_DATE, 'YYYY') AS "AÑO INGRESADO", COUNT(*)
+    FROM EMPLOYEES
+    HAVING COUNT(*) > 10
+    GROUP BY TO_CHAR(HIRE_DATE, 'YYYY')
+    ORDER BY "AÑO INGRESADO";
+    ```
+
+- 🏢 **Número de empleados por departamento y año de ingreso:**
+    ```sql
+    SELECT DEPARTMENT_ID,
+           TO_CHAR(HIRE_DATE, 'YYYY') AS "AÑO INGRESO",
+           COUNT(*)                   AS "NUMERO DE EMPLEADOS"
+    FROM EMPLOYEES
+    GROUP BY DEPARTMENT_ID, TO_CHAR(HIRE_DATE, 'YYYY')
+    ORDER BY DEPARTMENT_ID, "AÑO INGRESO";
+    ```
+
+- 👔 **Departamentos cuyos managers tienen más de 5 empleados a cargo:**
+    ```sql
+    SELECT DEPARTMENT_ID AS "DEPARTAMENTO",
+           MANAGER_ID    AS "JEFE",
+           COUNT(*)      AS "NUMERO_EMPLEADOS"
+    FROM EMPLOYEES
+    GROUP BY DEPARTMENT_ID, MANAGER_ID
+    HAVING COUNT(*) > 5
+    ORDER BY DEPARTMENT_ID;
+    ```
+
+---
+
+## 🔗 ✨✨**CLASE 111 : Introducción a los Joins✨✨**
+
+# DATO ADICIONAL
+
+¡Claro! Vamos a analizar tu `CREATE TABLE` y las preguntas paso a paso:
+
+---
+
+### 1. ¿Por qué **MANAGER_ID** es FK a la misma tabla?
+
+Esto es totalmente **válido y común** en bases de datos: se llama **auto-relación** o **relación recursiva**.
+
+- **¿Qué sucede aquí?**  
+  El campo `MANAGER_ID` **hace referencia al campo `EMPLOYEE_ID` de la misma tabla** `EMPLOYEES`.
+- **¿Por qué hacerlo así?**  
+  Porque en la realidad, un empleado puede tener como **jefe (manager)** a otro empleado. Así, el **ID del jefe** es el `EMPLOYEE_ID` de otro registro dentro de la misma tabla.
+
+#### Ejemplo visual
+
+| EMPLOYEE_ID | FIRST_NAME | MANAGER_ID |
+|-------------|------------|------------|
+|      1      |  Juan      |   null     | ← Es el jefe máximo (no tiene manager)
+|      2      |  Pedro     |     1      | ← Juan es su jefe
+|      3      |  Ana       |     1      | ← Juan es su jefa
+|      4      |  Lucia     |     2      | ← Pedro es su jefe
+
+---
+
+### 2. ¿Qué significa **CONSTRAINT**?
+
+**CONSTRAINT** en SQL define una **restricción** o condición especial sobre una columna o tabla, para mantener la integridad de los datos.
+
+- **Tipos comunes de CONSTRAINT**:
+    - `PRIMARY KEY`: Cada valor debe ser único y no nulo (identificador único).
+    - `FOREIGN KEY`: El valor debe existir en otra tabla o, como en este caso, en la misma tabla (**relaciones**).
+    - `UNIQUE`: El valor debe ser único, no puede repetirse.
+    - `NOT NULL`: El valor no puede ser nulo (debe estar siempre presente).
+    - `CHECK`: Se debe cumplir una condición especificada (ej: salario > 0).
+
+#### Ejemplo de definición de CONSTRAINT
+
+```sql
+constraint NOMBRE_DE_LA_RESTRICCION tipo_de_restriccion (opción adicional)
+```
+
+En tu tabla:
+
+- `constraint EMP_EMP_ID_PK primary key`  
+  → El campo es la **clave primaria** (único y no nulo)
+
+- `constraint EMP_MANAGER_FK references EMPLOYEES`  
+  → El **manager** debe ser un empleado existente (auto-FK)
+
+- `constraint EMP_EMAIL_UK unique`  
+  → Nadie puede tener el mismo correo electrónico.
+
+- `constraint EMP_SALARY_MIN check (salary > 0)`  
+  → El salario debe ser mayor a cero.
+
+- ...y otros similares.
+
+---
+
+### 3. Resumen sencillo
+
+- **MANAGER_ID** es **clave foránea** que apunta a `EMPLOYEE_ID` dentro de la **misma tabla** (para indicar quién es el jefe).
+- **CONSTRAINT** es una **restricción** para garantizar la calidad e integridad de los datos.
+
+---
+## ✨ Imagen de una FK que estan dentro de la misma tabla y hace referencia a la PK de la misma tabla ✨
+
+![imagen](/images/di.png)
+
+---
+> - Se realiza un natural countries;
+> - mediante el REGION_ID
+
+![image](/images/c.png)
+
+---
+## 🔗 ✨✨**CLASE 112 : CLAUSULA USING✨✨**
+
+- HAY QUE USARLO PARA ESPECIFICAR LA COLUMNA EN COMUN ENTRE DOS TABLAS QUE VAMOS A UNIR
+
+en el ejemplo seria el departmen_id en el primer join salen mas y en el segundo salen menos 
+por que tienen el mismo nombre el MANAGER_ID AMBAS TABLAS POR ESO NOS ENVIA UN RESULTADO
+ERRONEO. POR ESO NO PUEDO USAR EL NATURAL JOIN POR QUE TIENEN EL MISMO NOMBRE LAS COLUMNAS.
+
+```sql
+SELECT * FROM DEPARTMENTS;
+SELECT * FROM EMPLOYEES;
+
+SELECT D.DEPARTMENT_NAME, E.FIRST_NAME
+FROM EMPLOYEES E
+         JOIN DEPARTMENTS D
+              USING (department_id);
+
+SELECT DEPARTMENT_NAME, FIRST_NAME
+FROM EMPLOYEES
+         NATURAL JOIN DEPARTMENTS;
+```
 
 </details>
 
