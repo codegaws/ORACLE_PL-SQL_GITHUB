@@ -1360,8 +1360,10 @@ FROM REGIONS RE
 --                           CLASE 112 : CLAUSULA USING                                                *
 --*******************************************************************************************************
 
-SELECT * FROM DEPARTMENTS;
-SELECT * FROM EMPLOYEES;
+SELECT *
+FROM DEPARTMENTS;
+SELECT *
+FROM EMPLOYEES;
 
 SELECT D.DEPARTMENT_NAME, E.FIRST_NAME
 FROM EMPLOYEES E
@@ -1372,13 +1374,71 @@ SELECT DEPARTMENT_NAME, FIRST_NAME
 FROM EMPLOYEES
          NATURAL JOIN DEPARTMENTS;
 --*******************************************************************************************************
+--                           CLASE 113 : CLAUSULA on                                                    *
+--*******************************************************************************************************
+-- CON EL ON PUEDO PONER CUALQUIER CONDICION DE UNION ENTRE TABLAS
+-- ON E.department_id <> D.department_id
+-- PUEDE HACER OTRO JOIN ADICIONAL UNION DE MAS DE UNA TABLA PUEDO RECUPERAR DATOS DE VARIAS TABLAS
 
+SELECT E.DEPARTMENT_ID, D.DEPARTMENT_NAME, E.FIRST_NAME
+FROM EMPLOYEES E
+         JOIN DEPARTMENTS D
+              ON E.department_id = D.department_id
+WHERE SALARY > 5000;
 
+SELECT E.DEPARTMENT_ID, D.DEPARTMENT_NAME, E.FIRST_NAME, CITY
+FROM EMPLOYEES E
+         JOIN DEPARTMENTS D
+              ON E.department_id = D.department_id
+         JOIN LOCATIONS L
+              ON D.LOCATION_ID = L.LOCATION_ID
+WHERE SALARY > 5000;
 
+SELECT E.DEPARTMENT_ID, D.DEPARTMENT_NAME, E.FIRST_NAME, CITY
+FROM EMPLOYEES E
+         JOIN DEPARTMENTS D
+              ON E.department_id = D.department_id
+         JOIN LOCATIONS L
+              ON D.LOCATION_ID = L.LOCATION_ID
+                  AND SALARY > 5000;
 
+--*******************************************************************************************************
+--                           PRACTICAS : JOINS - NATURAL - USING - ON                                   *
+--*******************************************************************************************************
+/*
+1. Joins-Natural-Using-On
+• Visualizar el nombre del país y el nombre de la región. (tablas COUNTRIES
+y REGIONS). Usar un natural join
+*/
 
+SELECT COUNTRY_NAME, REGION_NAME, CITY
+FROM REGIONS
+         NATURAL JOIN COUNTRIES C
+         JOIN LOCATIONS L
+              ON L.COUNTRY_ID = C.COUNTRY_ID;
 
+/*
+Usando el ejemplo anterior visualizar también el nombre de la ciudad,
+añadiendo una nueva tabla (LOCATIONS)
+*/
+SELECT COUNTRY_NAME, REGION_NAME, CITY
+FROM REGIONS
+         NATURAL JOIN COUNTRIES C
+         JOIN LOCATIONS L
+              ON L.COUNTRY_ID = C.COUNTRY_ID;
 
+-- OTRA FORMA
+Select COUNTRIES.COUNTRY_NAME, REGION_NAME, city
+From REGIONS
+         natural Join COUNTRIES
+         natural join LOCATIONS;
+
+-- • Indicar el nombre del departamento y  la media de sus salarios
+SELECT D.DEPARTMENT_NAME, ROUND(AVG(E.SALARY),2) AS "MEDIA SALARIAL"
+FROM DEPARTMENTS D
+         JOIN EMPLOYEES E
+              ON D.DEPARTMENT_ID = E.DEPARTMENT_ID
+GROUP BY D.DEPARTMENT_NAME;
 
 
 
