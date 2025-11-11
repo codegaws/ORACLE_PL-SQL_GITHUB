@@ -1474,6 +1474,366 @@ SELECT DEPARTMENT_NAME, FIRST_NAME
 FROM EMPLOYEES
          NATURAL JOIN DEPARTMENTS;
 ```
+---
+-- 🎯 ************************************************************************************************
+-- 📚                           CLASE 113 : CLÁUSULA ON                                                    
+-- 🎯 ************************************************************************************************
+
+-- 🔗 CON EL ON PUEDO PONER CUALQUIER CONDICIÓN DE UNIÓN ENTRE TABLAS
+-- 🚫 ON E.department_id <> D.department_id
+-- ➕ PUEDE HACER OTRO JOIN ADICIONAL - UNIÓN DE MÁS DE UNA TABLA PUEDO RECUPERAR DATOS DE VARIAS TABLAS
+
+-- 🏢 JOIN básico con filtro WHERE
+SELECT E.DEPARTMENT_ID, D.DEPARTMENT_NAME, E.FIRST_NAME
+FROM EMPLOYEES E
+JOIN DEPARTMENTS D
+ON E.department_id = D.department_id
+WHERE SALARY > 5000;
+
+-- 🌍 JOIN múltiple: EMPLOYEES + DEPARTMENTS + LOCATIONS
+SELECT E.DEPARTMENT_ID, D.DEPARTMENT_NAME, E.FIRST_NAME, CITY
+FROM EMPLOYEES E
+JOIN DEPARTMENTS D
+ON E.department_id = D.department_id
+JOIN LOCATIONS L
+ON D.LOCATION_ID = L.LOCATION_ID
+WHERE SALARY > 5000;
+
+-- 🔀 Condición movida al ON (comportamiento diferente)
+SELECT E.DEPARTMENT_ID, D.DEPARTMENT_NAME, E.FIRST_NAME, CITY
+FROM EMPLOYEES E
+JOIN DEPARTMENTS D
+ON E.department_id = D.department_id
+JOIN LOCATIONS L
+ON D.LOCATION_ID = L.LOCATION_ID
+AND SALARY > 5000;
+
+-- 🎯 ************************************************************************************************
+-- 💪                           PRÁCTICAS : JOINS - NATURAL - USING - ON                                   
+-- 🎯 ************************************************************************************************
+
+/*
+📝 1. Joins-Natural-Using-On
+• 🌎 Visualizar el nombre del país y el nombre de la región. (tablas COUNTRIES
+y REGIONS). Usar un natural join
+*/
+
+-- 🔄 NATURAL JOIN con 3 tablas
+SELECT COUNTRY_NAME, REGION_NAME, CITY
+FROM REGIONS
+NATURAL JOIN COUNTRIES C
+NATURAL JOIN LOCATIONS L;
+
+-- 🔗 JOIN explícito equivalente
+SELECT COUNTRY_NAME, REGION_NAME, CITY
+FROM REGIONS R
+JOIN COUNTRIES C
+ON R.REGION_ID = C.REGION_ID
+JOIN LOCATIONS L
+ON C.COUNTRY_ID = L.COUNTRY_ID;
+
+-- 🔀 JOIN mixto (NATURAL + ON)
+SELECT COUNTRY_NAME, REGION_NAME, CITY
+FROM REGIONS R
+NATURAL JOIN COUNTRIES C
+JOIN LOCATIONS L
+ON C.COUNTRY_ID = L.COUNTRY_ID;
+
+/*
+🏙️ Usando el ejemplo anterior visualizar también el nombre de la ciudad,
+añadiendo una nueva tabla (LOCATIONS)
+*/
+SELECT COUNTRY_NAME, REGION_NAME, CITY
+FROM REGIONS
+NATURAL JOIN COUNTRIES C
+JOIN LOCATIONS L
+ON L.COUNTRY_ID = C.COUNTRY_ID;
+
+-- 🔄 OTRA FORMA - Todo con NATURAL JOIN
+Select COUNTRIES.COUNTRY_NAME, REGION_NAME, city
+From REGIONS
+natural Join COUNTRIES
+natural join LOCATIONS;
+
+-- 💰 Indicar el nombre del departamento y la media de sus salarios
+SELECT D.DEPARTMENT_NAME, ROUND(AVG(E.SALARY), 2) AS "💵 MEDIA SALARIAL"
+FROM DEPARTMENTS D
+JOIN EMPLOYEES E
+ON D.DEPARTMENT_ID = E.DEPARTMENT_ID
+GROUP BY D.DEPARTMENT_NAME;
+
+-- 👑 Mostrar el nombre del departamento, el del manager a cargo y la ciudad a la
+--    que pertenece. Debemos usar la cláusula ON y/o la cláusula USING para
+--    realizar la operación.
+
+-- ❌ CONSULTA INCORRECTA (JOIN mal aplicado)
+SELECT D.DEPARTMENT_NAME, E.FIRST_NAME AS "👤 MANAGER"
+FROM DEPARTMENTS D
+JOIN EMPLOYEES E
+ON D.MANAGER_ID = E.MANAGER_ID;  -- ⚠️ INCORRECTO
+
+-- ✅ CONSULTA CORRECTA
+SELECT DEPARTMENT_NAME, FIRST_NAME AS "👤 MANAGER", CITY AS "🏙️ CIUDAD"
+FROM DEPARTMENTS D
+JOIN EMPLOYEES E
+ON D.MANAGER_ID = E.EMPLOYEE_ID  -- ✅ CORRECTO
+JOIN LOCATIONS L
+USING (LOCATION_ID);
+
+---
+
+## PRACTICA EXPLICACION SOBRE LA LLAVE FK AUTOREFERENCIA REFLEXIVA EN TABLA EMPLLOYEES
+
+--*******************************************************************************************************
+Te explico detalladamente el diagrama y las consultas SQL que tienes:
+
+## Explicación del Diagrama de Base de Datos
+
+### 1. Relación de Auto-referencia en EMPLOYEES
+En la tabla **EMPLOYEES**, el campo `MANAGER_ID` es una **clave foránea que apunta al mismo `EMPLOYEE_ID`** dentro de la misma tabla. Esto se llama **auto-referencia** o **relación reflexiva** y es muy común para representar jerarquías organizacionales:
+
+- Un empleado puede ser manager de otros empleados
+- El `MANAGER_ID` de un empleado contiene el `EMPLOYEE_ID` de su jefe
+- Si un empleado no tiene jefe (como el CEO), su `MANAGER_ID` será NULL
+
+**Ejemplo:**
+```
+EMPLOYEE_ID | FIRST_NAME | MANAGER_ID
+101         | John       | NULL       (CEO, no tiene jefe)
+102         | Maria      | 101        (Maria reporta a John)
+103         | Pedro      | 102        (Pedro reporta a Maria)
+```
+
+### 2. Relación entre DEPARTMENTS y EMPLOYEES
+En la tabla **DEPARTMENTS**, el campo `MANAGER_ID` es una clave foránea que apunta a `EMPLOYEE_ID` en la tabla EMPLOYEES. Esto significa que:
+- Cada departamento tiene un manager
+- Ese manager debe ser un empleado existente en la tabla EMPLOYEES
+- **Es diferente** del `MANAGER_ID` que está en EMPLOYEES (que indica el jefe directo del empleado)
+
+## Análisis de las Consultas SQL
+
+### Primera consulta:
+```sql
+SELECT D.DEPARTMENT_NAME, E.FIRST_NAME AS "MANAGER", L.CITY
+FROM DEPARTMENTS D
+         JOIN EMPLOYEES E
+              ON D.MANAGER_ID = E.EMPLOYEE_ID
+         JOIN LOCATIONS L
+              ON D.LOCATION_ID = L.LOCATION_ID;
+```
+
+### Segunda consulta:
+```sql
+SELECT DEPARTMENT_NAME, FIRST_NAME AS "MANAGER", CITY
+FROM DEPARTMENTS D
+         JOIN EMPLOYEES E
+              ON D.MANAGER_ID = E.EMPLOYEE_ID
+         JOIN LOCATIONS L
+              USING (LOCATION_ID);
+```
+
+### Diferencias entre las consultas:
+
+1. **Alias de tabla en SELECT**: La primera usa `D.`, `E.`, `L.` para clarificar de qué tabla viene cada campo. La segunda no los usa (funciona porque no hay ambigüedad de nombres).
+
+2. **Sintaxis de JOIN**:
+    - Primera: `ON D.LOCATION_ID = L.LOCATION_ID`
+    - Segunda: `USING (LOCATION_ID)`
+
+   Ambas son equivalentes cuando las columnas tienen el mismo nombre en ambas tablas.
+
+### Lo que hacen ambas consultas:
+- Obtienen el nombre del departamento
+- El nombre del empleado que es manager de ese departamento
+- La ciudad donde está ubicado el departamento
+
+### Resultado esperado:
+```
+DEPARTMENT_NAME | MANAGER | CITY
+IT              | John    | Seattle
+Sales           | Maria   | New York
+HR              | Pedro   | Chicago
+```
+
+**Conclusión**: Ambas consultas producen exactamente el mismo resultado, solo difieren en la sintaxis utilizada para expresar los JOINs.
+
+## ¿pregunta : Es diferente del MANAGER_ID que está en EMPLOYEES (que indica el jefe directo del empleado)
+## entonces manager_id de employees es distinto que el manager_id de departments?  eso no entiendo no deberian ser las mismas para que se relacionen y por que en la tabla employees me sale este mensaje
+## MANAGER_ID:EMPLOYEE_ID?
+¡Excelente pregunta! Te explico esto paso a paso porque es un concepto muy importante:
+
+## MANAGER_ID en ambas tablas: MISMO PROPÓSITO, DIFERENTES CONTEXTOS
+
+### 1. ¿Son los mismos campos?
+**SÍ y NO** - Déjame explicarte:
+
+- **Ambos son del mismo tipo de datos** (números que referencian EMPLOYEE_ID)
+- **Ambos apuntan a la misma tabla** (EMPLOYEES)
+- **Pero representan relaciones DIFERENTES**
+
+### 2. MANAGER_ID en EMPLOYEES
+```sql
+-- En la tabla EMPLOYEES
+EMPLOYEE_ID | FIRST_NAME | MANAGER_ID
+101         | John       | NULL       -- John es CEO
+102         | Maria      | 101        -- Maria reporta a John
+103         | Pedro      | 102        -- Pedro reporta a Maria
+104         | Ana        | 101        -- Ana también reporta a John
+```
+
+**Significa**: "¿Quién es el jefe DIRECTO de este empleado?"
+
+### 3. MANAGER_ID en DEPARTMENTS
+```sql
+-- En la tabla DEPARTMENTS
+DEPT_ID | DEPARTMENT_NAME | MANAGER_ID
+10      | IT              | 102        -- Maria es manager del dept IT
+20      | Sales           | 103        -- Pedro es manager del dept Sales
+30      | HR              | 104        -- Ana es manager del dept HR
+```
+
+**Significa**: "¿Quién es el manager/director de este departamento?"
+
+## El mensaje "MANAGER_ID:EMPLOYEE_ID"
+
+Ese mensaje te indica que:
+- **MANAGER_ID** es una clave foránea (FK)
+- Que apunta a **EMPLOYEE_ID** en la misma tabla EMPLOYEES
+- Es una **auto-referencia** (self-reference)
+
+## Ejemplo Práctico Completo
+
+Imagina esta situación real:
+
+```sql
+-- EMPLOYEES
+EMPLOYEE_ID | FIRST_NAME | MANAGER_ID | DEPARTMENT_ID
+101         | John       | NULL       | 10    -- CEO
+102         | Maria      | 101        | 10    -- IT Director, reporta a John
+103         | Pedro      | 102        | 10    -- Programador, reporta a Maria
+104         | Ana        | 102        | 10    -- Analista, reporta a Maria
+105         | Luis       | 101        | 20    -- Sales Director, reporta a John
+
+-- DEPARTMENTS
+DEPT_ID | DEPARTMENT_NAME | MANAGER_ID
+10      | IT              | 102        -- Maria es directora de IT
+20      | Sales           | 105        -- Luis es director de Sales
+```
+
+### ¿Ves la diferencia?
+
+1. **Maria (102)** reporta a **John (101)** ← Esto es MANAGER_ID en EMPLOYEES
+2. **Maria (102)** es directora del departamento **IT** ← Esto es MANAGER_ID en DEPARTMENTS
+
+## Por eso en el JOIN funciona:
+
+```sql
+SELECT D.DEPARTMENT_NAME, E.FIRST_NAME AS "MANAGER"
+FROM DEPARTMENTS D
+JOIN EMPLOYEES E ON D.MANAGER_ID = E.EMPLOYEE_ID
+```
+
+- `D.MANAGER_ID = 102` (Maria es directora de IT)
+- `E.EMPLOYEE_ID = 102` (Encuentra a Maria en EMPLOYEES)
+- Resultado: "IT - Maria"
+
+**Resumen**: Los dos MANAGER_ID apuntan a EMPLOYEE_ID, pero uno dice "quién es tu jefe" y el otro dice "quién dirige este departamento". ¡Son conceptos relacionados pero diferentes!
+
+## ¡OTRA DUDA : QUE PASA SI PONGO
+## SELECT D.DEPARTMENT_NAME, E.FIRST_NAME AS "MANAGER"
+## FROM DEPARTMENTS D
+## JOIN EMPLOYEES E ON D.MANAGER_ID = E.MANAGER_ID?
+## Y ENTONCES ESA FK DE EMPLOYEES NO SIRVE PARA RELACIONAR DEPARTMENTS NI EMPLOYEES SINO ES EMPLOYEE_ID?
+
+¡Excelente pregunta! Vamos a analizar esto paso a paso:
+
+## ¿Qué pasa si usas `D.MANAGER_ID = E.MANAGER_ID`?
+
+```sql
+SELECT D.DEPARTMENT_NAME, E.FIRST_NAME AS "MANAGER"
+FROM DEPARTMENTS D
+JOIN EMPLOYEES E ON D.MANAGER_ID = E.MANAGER_ID
+```
+
+### Resultado: ¡DATOS INCORRECTOS O VACÍOS!
+
+Te explico con un ejemplo:
+
+```sql
+-- EMPLOYEES
+EMPLOYEE_ID | FIRST_NAME | MANAGER_ID
+101         | John       | NULL       -- CEO
+102         | Maria      | 101        -- Maria reporta a John
+103         | Pedro      | 102        -- Pedro reporta a Maria
+104         | Ana        | 102        -- Ana reporta a Maria
+
+-- DEPARTMENTS
+DEPT_ID | DEPARTMENT_NAME | MANAGER_ID
+10      | IT              | 102        -- Maria dirige IT
+20      | Sales           | 103        -- Pedro dirige Sales
+```
+
+### Con el JOIN CORRECTO `D.MANAGER_ID = E.EMPLOYEE_ID`:
+```
+DEPARTMENT_NAME | MANAGER
+IT              | Maria    ✓ (102 = 102)
+Sales           | Pedro    ✓ (103 = 103)
+```
+
+### Con el JOIN INCORRECTO `D.MANAGER_ID = E.MANAGER_ID`:
+```sql
+-- Departamento IT busca MANAGER_ID = 102
+-- En EMPLOYEES busca quien tenga MANAGER_ID = 102
+-- Encuentra a Pedro y Ana (que reportan a Maria)
+DEPARTMENT_NAME | MANAGER
+IT              | Pedro    ❌ (INCORRECTO!)
+IT              | Ana      ❌ (INCORRECTO!)
+
+-- Departamento Sales busca MANAGER_ID = 103
+-- En EMPLOYEES busca quien tenga MANAGER_ID = 103
+-- No encuentra a nadie (nadie reporta a Pedro)
+-- RESULTADO VACÍO para Sales
+```
+
+## Sobre tu segunda pregunta:
+
+> **"¿ESA FK DE EMPLOYEES NO SIRVE PARA RELACIONAR DEPARTMENTS NI EMPLOYEES SINO ES EMPLOYEE_ID?"**
+
+**¡EXACTO!** Has entendido perfectamente:
+
+### Las relaciones correctas son:
+
+1. **DEPARTMENTS ↔ EMPLOYEES** (¿Quién dirige el departamento?)
+   ```sql
+   DEPARTMENTS.MANAGER_ID = EMPLOYEES.EMPLOYEE_ID
+   ```
+
+2. **EMPLOYEES ↔ EMPLOYEES** (¿Quién es el jefe de este empleado?)
+   ```sql
+   EMPLOYEES.MANAGER_ID = EMPLOYEES.EMPLOYEE_ID (auto-referencia)
+   ```
+
+3. **EMPLOYEES ↔ DEPARTMENTS** (¿A qué departamento pertenece el empleado?)
+   ```sql
+   EMPLOYEES.DEPARTMENT_ID = DEPARTMENTS.DEPARTMENT_ID
+   ```
+
+### La FK `MANAGER_ID` en EMPLOYEES:
+- **SÍ sirve para relacionar** EMPLOYEES consigo misma
+- **NO sirve para relacionar** DEPARTMENTS con EMPLOYEES
+- Es para la **jerarquía organizacional** (jefe-subordinado)
+
+## Ejemplo visual:
+
+```
+DEPARTMENTS.MANAGER_ID → EMPLOYEES.EMPLOYEE_ID  ← Relación correcta
+EMPLOYEES.MANAGER_ID → EMPLOYEES.EMPLOYEE_ID    ← Auto-referencia
+```
+
+**Conclusión**: Has captado el concepto perfectamente. El MANAGER_ID de EMPLOYEES es para la jerarquía interna, no para relacionar con DEPARTMENTS. Para eso usamos EMPLOYEE_ID como la clave primaria que recibe las referencias.
+
+---
+
 
 </details>
 

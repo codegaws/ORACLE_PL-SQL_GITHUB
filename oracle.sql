@@ -1414,8 +1414,20 @@ y REGIONS). Usar un natural join
 SELECT COUNTRY_NAME, REGION_NAME, CITY
 FROM REGIONS
          NATURAL JOIN COUNTRIES C
+         NATURAL JOIN LOCATIONS L;
+
+SELECT COUNTRY_NAME, REGION_NAME, CITY
+FROM REGIONS R
+         JOIN COUNTRIES C
+              ON R.REGION_ID = C.REGION_ID
          JOIN LOCATIONS L
-              ON L.COUNTRY_ID = C.COUNTRY_ID;
+              ON C.COUNTRY_ID = L.COUNTRY_ID;
+
+SELECT COUNTRY_NAME, REGION_NAME, CITY
+FROM REGIONS R
+         NATURAL JOIN COUNTRIES C
+         JOIN LOCATIONS L
+              ON C.COUNTRY_ID = L.COUNTRY_ID;
 
 /*
 Usando el ejemplo anterior visualizar también el nombre de la ciudad,
@@ -1434,11 +1446,55 @@ From REGIONS
          natural join LOCATIONS;
 
 -- • Indicar el nombre del departamento y  la media de sus salarios
-SELECT D.DEPARTMENT_NAME, ROUND(AVG(E.SALARY),2) AS "MEDIA SALARIAL"
+SELECT D.DEPARTMENT_NAME, ROUND(AVG(E.SALARY), 2) AS "MEDIA SALARIAL"
 FROM DEPARTMENTS D
          JOIN EMPLOYEES E
               ON D.DEPARTMENT_ID = E.DEPARTMENT_ID
 GROUP BY D.DEPARTMENT_NAME;
+
+-- • Mostrar el nombre del departamento, el del manager a cargo y la ciudad a la
+-- que pertenece. Debemos usar la cláusula ON y/o la cláusula USING para
+-- realizar la operación.
+
+SELECT D.DEPARTMENT_NAME, E.FIRST_NAME AS "MANAGER", CITY
+FROM DEPARTMENTS D
+         JOIN EMPLOYEES E
+              ON D.MANAGER_ID = E.MANAGER_ID
+         JOIN LOCATIONS L
+              ON D.LOCATION_ID = L.LOCATION_ID;
+
+
+SELECT DEPARTMENT_NAME, FIRST_NAME AS "MANAGER", CITY
+FROM DEPARTMENTS D
+         JOIN EMPLOYEES E
+              ON D.MANAGER_ID = E.EMPLOYEE_ID
+         JOIN LOCATIONS L
+              USING (LOCATION_ID);
+
+-- • Mostrar job_title, el department_name, el last_name de empleado y
+-- hire_date de todos los empleados que entraron entre el 2002 y el 2004.
+-- Usar cláusulas using
+
+SELECT DEPARTMENT_NAME, E.LAST_NAME, E.HIRE_DATE, J.JOB_TITLE
+FROM EMPLOYEES E
+         JOIN DEPARTMENTS D
+              USING (DEPARTMENT_ID)
+         JOIN JOBS J
+              USING (JOB_ID)
+WHERE TO_CHAR(HIRE_DATE, 'YYYY') BETWEEN '2002' AND '2004';
+
+
+
+-- funciona incluso si no hay relacion
+SELECT DEPARTMENT_NAME, E.LAST_NAME, E.HIRE_DATE, J.JOB_TITLE, E.JOB_ID
+FROM EMPLOYEES E
+         JOIN DEPARTMENTS D ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+         JOIN JOBS J ON E.JOB_ID = J.JOB_ID;
+
+
+
+
+
 
 
 
