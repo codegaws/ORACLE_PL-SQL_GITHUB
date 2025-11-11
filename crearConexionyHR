@@ -1,0 +1,43 @@
+Saber si tengo images
+- docker images
+
+-------------------------------------------------------
+
+- Saber si tienes instalado sqlPlus :
+
+ which sqlplus
+/home/codegaws/oracle_client/instantclient_21_20/sqlplus
+
+-------------------------------------------------------
+- Para levantar un contenedor:
+
+docker run -d \
+  --name oracle-xe \
+  -p 1521:1521 \
+  -e ORACLE_PWD=odb \
+  container-registry.oracle.com/database/express:latest
+
+-------------------------------------------------------
+
+- Ver si esta instalado sqlPlus
+sqlplus -v
+
+-------------------------------------------------------
+crear la tabla hr ->
+
+sqlplus system/odb@localhost:1521/xepdb1
+
+comandos :
+
+start tablas_hr.sql
+
+validalo qu se haya creado
+select tname from tab;
+
+luego ya conectando en el clinete datagrip
+
+no olvides que servicename :xepdb1
+localhost
+
+ALTER USER HR ACCOUNT UNLOCK;
+ALTER USER HR IDENTIFIED BY hr;
