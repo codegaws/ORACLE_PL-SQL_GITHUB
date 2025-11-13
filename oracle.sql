@@ -1475,14 +1475,13 @@ FROM DEPARTMENTS D
 -- hire_date de todos los empleados que entraron entre el 2002 y el 2004.
 -- Usar cláusulas using
 
-SELECT DEPARTMENT_NAME, E.LAST_NAME, E.HIRE_DATE, J.JOB_TITLE
+SELECT DEPARTMENT_NAME, E.LAST_NAME, E.HIRE_DATE, J.JOB_TITLE, JOB_ID
 FROM EMPLOYEES E
          JOIN DEPARTMENTS D
               USING (DEPARTMENT_ID)
          JOIN JOBS J
               USING (JOB_ID)
 WHERE TO_CHAR(HIRE_DATE, 'YYYY') BETWEEN '2002' AND '2004';
-
 
 
 -- funciona incluso si no hay relacion
