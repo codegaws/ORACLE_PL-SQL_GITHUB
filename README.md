@@ -1511,7 +1511,7 @@ AND SALARY > 5000;
 -- 🎯 ************************************************************************************************
 -- 💪                           PRÁCTICAS : JOINS - NATURAL - USING - ON                                   
 -- 🎯 ************************************************************************************************
-
+```sql
 /*
 📝 1. Joins-Natural-Using-On
 • 🌎 Visualizar el nombre del país y el nombre de la región. (tablas COUNTRIES
@@ -1580,6 +1580,7 @@ ON D.MANAGER_ID = E.EMPLOYEE_ID  -- ✅ CORRECTO
 JOIN LOCATIONS L
 USING (LOCATION_ID);
 
+```
 ---
 
 ## PRACTICA EXPLICACION SOBRE LA LLAVE FK AUTOREFERENCIA REFLEXIVA EN TABLA EMPLLOYEES
@@ -1833,7 +1834,103 @@ EMPLOYEES.MANAGER_ID → EMPLOYEES.EMPLOYEE_ID    ← Auto-referencia
 **Conclusión**: Has captado el concepto perfectamente. El MANAGER_ID de EMPLOYEES es para la jerarquía interna, no para relacionar con DEPARTMENTS. Para eso usamos EMPLOYEE_ID como la clave primaria que recibe las referencias.
 
 ---
+<<<<<<< HEAD
 # NOTAS INTERESANTE SOBRE EL CODIGO
+=======
+#RESUMEN
+Correcto.
+- `NATURAL JOIN` une automáticamente por todas las columnas con el mismo nombre en ambas tablas, sin necesidad de especificar `ON` ni `USING`.
+- `USING` se usa cuando quieres unir por una columna específica que tiene el mismo nombre en ambas tablas (por ejemplo, `DEPARTMENT_ID`). Es más seguro y claro que `NATURAL JOIN`, porque controlas la columna de unión.
+- `ON` te permite unir por cualquier condición, incluso si los nombres de las columnas son diferentes.
+
+**Resumen:**
+- `NATURAL JOIN`: automático, menos control.
+- `USING`: recomendado cuando los nombres de columna coinciden.
+- `ON`: máximo control, puedes unir por cualquier condición.
+
+-- ****
+--*******************************************************************************************************
+--                           PRACTICAS : SELF-JOINS                                                     *
+--*******************************************************************************************************
+
+/*
+QUEREMOS SABER EL NOMBRE DEL EMPLEADO Y DE SU JEFE RECUERDA QUE TIENES UN MANAGER_ID QUE ES EL ID DEL JEFE
+*/
+SELECT FIRST_NAME E,
+EMPLOYEE_ID,
+MANAGER_ID,
+(SELECT FIRST_NAME
+FROM EMPLOYEES
+WHERE EMPLOYEE_ID = E.MANAGER_ID) AS "JEFE"
+FROM EMPLOYEES E;
+
+-- MIRA UN ALIAS DISTINTO Y LLAMAMOS A LA MISMA TABLA DOS VECES Y LUEGO LAS UNIMOS
+SELECT TRABAJADOR.FIRST_NAME, JEFE.FIRST_NAME
+FROM EMPLOYEES TRABAJADOR
+JOIN EMPLOYEES JEFE
+ON TRABAJADOR.MANAGER_ID = JEFE.EMPLOYEE_ID;
+*/
+```sql
+
+SELECT FIRST_NAME E,
+       EMPLOYEE_ID,
+       MANAGER_ID,
+       (SELECT FIRST_NAME
+        FROM EMPLOYEES
+        WHERE EMPLOYEE_ID = E.MANAGER_ID) AS "JEFE"
+FROM EMPLOYEES E;
+
+-- MIRA UN ALIAS DISTINTO Y LLAMAMOS A LA MISMA TABLA DOS VECES Y LUEGO LAS UNIMOS
+SELECT TRABAJADOR.FIRST_NAME, JEFE.FIRST_NAME
+FROM EMPLOYEES TRABAJADOR
+         JOIN EMPLOYEES JEFE
+              ON TRABAJADOR.MANAGER_ID = JEFE.EMPLOYEE_ID;
+
+```
+---
+
+--*******************************************************************************************************
+--                           CLASE 117 : JOINS SIN IGUALDAD : NON-EQUIJOINS                             *
+--*******************************************************************************************************
+
+SOLO USAMOS CLAUSULA <> EN EL = Y ASI TRAEMOS LAS TABLAS QUE NO CUMPLEN LA CONDICION
+
+```sql
+-- SELECCIONA EL NOMBRE DE TODOS LOS DEPARTAMENTOS QUE SON Seattle
+SELECT D.DEPARTMENT_NAME
+FROM DEPARTMENTS D
+         JOIN LOCATIONS L
+              ON D.LOCATION_ID = L.LOCATION_ID
+                  AND L.CITY = 'Seattle';
+-- SELECCIONA EL NOMBRE DE TODOS DEPARTAMENTOS QUE NO SON Seattle
+SELECT D.DEPARTMENT_NAME
+FROM DEPARTMENTS D
+         JOIN LOCATIONS L
+              ON D.LOCATION_ID <> L.LOCATION_ID
+                  AND L.CITY = 'Seattle';
+```
+---
+--*******************************************************************************************************
+--                            CLASE 118 : OUTER JOINS                                                   *
+--*******************************************************************************************************
+
+Los **OUTER JOINS** permiten combinar filas de dos tablas, mostrando también las filas que no tienen coincidencia en una de ellas. Sirven para obtener todos los datos de una tabla y los relacionados de la otra, aunque no existan coincidencias.
+
+- **LEFT OUTER JOIN**: Muestra todas las filas de la tabla de la izquierda y las coincidentes de la derecha. Si no hay coincidencia, los valores de la derecha serán nulos.
+- **RIGHT OUTER JOIN**: Muestra todas las filas de la tabla de la derecha y las coincidentes de la izquierda.
+- **FULL OUTER JOIN**: Muestra todas las filas de ambas tablas, coincidan o no.
+
+Ejemplo de LEFT OUTER JOIN:
+
+```sql
+SELECT D.DEPARTMENT_NAME, E.FIRST_NAME
+FROM DEPARTMENTS D
+LEFT OUTER JOIN EMPLOYEES E
+ON D.DEPARTMENT_ID = E.DEPARTMENT_ID;
+```
+
+Así puedes ver todos los departamentos, aunque no tengan empleados asignados.
+>>>>>>> 75bf10f (Add SQL examples and documentation for various JOIN types and aggregate functions)
 
 ```sql
 -- • Mostrar job_title, el department_name, el last_name de empleado y

@@ -1484,11 +1484,140 @@ FROM EMPLOYEES E
 WHERE TO_CHAR(HIRE_DATE, 'YYYY') BETWEEN '2002' AND '2004';
 
 
--- funciona incluso si no hay relacion
+-- funciona incluso si no hay relacion con una FK
 SELECT DEPARTMENT_NAME, E.LAST_NAME, E.HIRE_DATE, J.JOB_TITLE, E.JOB_ID
 FROM EMPLOYEES E
          JOIN DEPARTMENTS D ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
          JOIN JOBS J ON E.JOB_ID = J.JOB_ID;
+
+-- •Mostrar el job_title y la media de los salarios de cada uno, siempre que la
+--  media supere los 7000
+
+SELECT JOB_TITLE, ROUND(AVG(SALARY), 2) AS "SALARIO MEDIO"
+FROM JOBS
+         NATURAL JOIN EMPLOYEES
+GROUP BY JOB_TITLE
+HAVING AVG(SALARY) > 7000;
+
+-- OTRA FORMA DE HACERLO SIN NATURAL JOIN
+SELECT JOB_TITLE, ROUND(AVG(SALARY), 2) AS "SALARIO MEDIO"
+FROM JOBS J
+         JOIN EMPLOYEES E
+              ON J.JOB_ID = E.JOB_ID
+HAVING AVG(SALARY) > 7000
+GROUP BY JOB_TITLE
+ORDER BY "SALARIO MEDIO";
+
+
+-- OTRO PROBLEMA
+-- 👑 Mostrar el nombre del departamento, el del manager a cargo y la ciudad a la
+--    que pertenece. Debemos usar la cláusula ON y/o la cláusula USING para
+--    realizar la operación.
+SELECT DEPARTMENT_NAME, FIRST_NAME AS "👤 MANAGER", CITY AS "🏙️ CIUDAD"
+FROM DEPARTMENTS D
+         JOIN EMPLOYEES E
+              ON D.MANAGER_ID = E.EMPLOYEE_ID -- ✅ CORRECTO
+         JOIN LOCATIONS L
+              USING (LOCATION_ID);
+
+-- OTRA FORMA
+
+SELECT DEPARTMENT_NAME, FIRST_NAME AS "👤 MANAGER", CITY AS "🏙️ CIUDAD"
+FROM DEPARTMENTS D
+         JOIN EMPLOYEES E
+              ON D.MANAGER_ID = E.EMPLOYEE_ID
+         JOIN LOCATIONS L
+              ON D.LOCATION_ID = L.LOCATION_ID;
+-- ✅ CORRECTO
+
+-- OTRA FORMA CON NATURAL JOIN NO ES RECOMENDABLE NO ES SEGURO MEJOR USAR ON
+
+/*SELECT DEPARTMENT_NAME, FIRST_NAME AS "👤 MANAGER", CITY AS "🏙️ CIUDAD"
+FROM DEPARTMENTS D
+         JOIN EMPLOYEES E
+              ON D.MANAGER_ID = E.EMPLOYEE_ID
+         NATURAL JOIN LOCATIONS L;*/
+
+SELECT DEPARTMENT_NAME, FIRST_NAME AS "👤 MANAGER", CITY AS "🏙️ CIUDAD"
+FROM DEPARTMENTS D
+         JOIN EMPLOYEES E
+              USING (EMPLOYEE_ID)
+
+--*******************************************************************************************************
+--                           CLASE 115 : JOINS CON WHERE                                                *
+--*******************************************************************************************************
+
+-- WHERE ES MEJOR USARLO PARA HACER FILTROS DE FILA AUNQUE SE PUEDE USAR PARA HACER JOINS
+-- ES MEJOR USAR ON PARA HACER JOINS Y NO TANTAS CONDICIONALES
+
+SELECT DEPARTMENT_NAME, FIRST_NAME, CITY
+FROM EMPLOYEES E,
+     DEPARTMENTS D,
+     LOCATIONS L
+WHERE E.DEPARTMENT_ID = D.DEPARTMENT_ID
+  AND L.LOCATION_ID = D.LOCATION_ID;
+
+--*******************************************************************************************************
+--                           PRACTICAS : SELF-JOINS                                                     *
+--*******************************************************************************************************
+
+/*
+ QUEREMOS SABER EL NOMBRE DEL EMPLEADO Y DE SU JEFE RECUERDA QUE TIENES UN MANAGER_ID QUE ES EL ID DEL JEFE
+ */
+SELECT FIRST_NAME                            E,
+       EMPLOYEE_ID,
+       MANAGER_ID,
+       (SELECT FIRST_NAME
+        FROM EMPLOYEES
+        WHERE EMPLOYEE_ID = E.MANAGER_ID) AS "JEFE"
+FROM EMPLOYEES E;
+
+-- MIRA UN ALIAS DISTINTO Y LLAMAMOS A LA MISMA TABLA DOS VECES Y LUEGO LAS UNIMOS
+SELECT TRABAJADOR.FIRST_NAME, JEFE.FIRST_NAME
+FROM EMPLOYEES TRABAJADOR
+         JOIN EMPLOYEES JEFE
+              ON TRABAJADOR.MANAGER_ID = JEFE.EMPLOYEE_ID;
+
+--*******************************************************************************************************
+--                           CLASE 117 : JOINS SIN IGUALDAD : NON-EQUIJOINS                             *
+--*******************************************************************************************************
+SELECT *
+FROM LOCATIONS;
+
+SELECT *
+FROM DEPARTMENTS;
+
+-- SELECCIONA EL NOMBRE DE TODOS LOS DEPARTAMENTOS QUE SON Seattle
+SELECT D.DEPARTMENT_NAME
+FROM DEPARTMENTS D
+         JOIN LOCATIONS L
+              ON D.LOCATION_ID = L.LOCATION_ID
+                  AND L.CITY = 'Seattle';
+-- SELECCIONA EL NOMBRE DE TODOS DEPARTAMENTOS QUE NO SON Seattle
+SELECT D.DEPARTMENT_NAME
+FROM DEPARTMENTS D
+         JOIN LOCATIONS L
+              ON D.LOCATION_ID <> L.LOCATION_ID
+                  AND L.CITY = 'Seattle';
+
+--*******************************************************************************************************
+--                           CLASE 118 : OUTER JOINS                                                    *
+--*******************************************************************************************************
+
+-- DIME EL NOMBRE DEL DEPARTAMENTO Y DEL EMPLEADO
+
+SELECT DEPARTMENT_NAME, FIRST_NAME
+FROM DEPARTMENTS D
+         JOIN EMPLOYEES E
+              ON D.DEPARTMENT_ID = E.DEPARTMENT_ID;
+-- RPTA : 106 REGISTROS PERO SI VAS A TABLA EMPLOYEES HAY 107 ¿QUE PASO?
+-- HAY UN EMPLEADO QUE NO TIENE DEPARTMEN_ID ES NULO
+
+-- TRES TIPOS DE OUTER JOIN
+-- LEFT JOIN
+-- RIGHT JOIN
+-- FULL JOIN
+
 
 
 
