@@ -2686,10 +2686,13 @@ CROSS JOIN FORMAS;
 --*******************************************************************************************************
 --                            CLASE 120 :  PRACTICA JOIN                                                *
 --*******************************************************************************************************
+--*******************************************************************************************************
+--                           CLASE 120 : PRACTICA OTROS JOINS                                           *
+--*******************************************************************************************************
 
+/*
 • Indicar el nombre del empleado y el de su jefe (SELF_JOIN de la tabla
 EMPLOYEES)
-HACEMOS UN SELF JOIN DE LA TABLA EMPLOYEES PARA OBTENER EL NOMBRE DEL EMPLEADO Y EL NOMBRE DE SU JEFE.
 */
 -- SOLUCION :
 SELECT E.FIRST_NAME AS EMPLEADO, J.FIRST_NAME AS JEFE
@@ -2697,7 +2700,84 @@ FROM EMPLOYEES E
 JOIN EMPLOYEES J ON
 E.MANAGER_ID = J.EMPLOYEE_ID;
 
-</details>
+
+/*
+• Indica el DEPARTMENT_NAME y la suma de salarios de ese departamento
+ordenados ascendentemente y que aparezcan también los
+DEPARTMENT_NAME que no tengan empleados.
+
+SELECT department_name,sum(salary) AS NUM_EMPLE FROM EMPLOYEES right
+outer JOIN departments USING (department_id) GROUP BY department_name ORDER
+BY sum(salary) ;
+
+DATO IMPORTANTE
+La cláusula `USING` se utiliza en los `JOIN` cuando las tablas tienen una
+columna con el **mismo nombre** y quieres unirlas por esa columna, sin tener
+que escribir el prefijo de la tabla. Simplifica la sintaxis y evita ambigüedades.
+
+**Ejemplo:**
+```sql
+SELECT department_name, sum(salary)
+FROM EMPLOYEES
+RIGHT OUTER JOIN DEPARTMENTS USING (department_id)
+GROUP BY department_name;
+```
+Aquí, `USING (department_id)` indica que la unión se hace por la columna `department_id`,
+que existe en ambas tablas. Así, no necesitas escribir `EMPLOYEES.department_id = DEPARTMENTS.department_id`.
+
+Correcto. El RIGHT OUTER JOIN asegura que todas las filas de la tabla de la derecha (departments)
+aparezcan en el resultado, aunque no tengan coincidencias en la tabla de la izquierda (employees).
+Si un departamento no tiene empleados, igual aparecerá en el resultado con NULL en la suma de salarios.
+En este caso, la consulta muestra todos los departamentos, tengan o no empleados.
+*/
+-- SOLUCION
+-- ************* FORMA 1 ***********************
+SELECT D.DEPARTMENT_NAME, SUM(E.SALARY) AS "SUMA SALARIOS"
+FROM EMPLOYEES E
+right outer JOIN DEPARTMENTS D ON
+D.DEPARTMENT_ID = E.DEPARTMENT_ID
+GROUP BY D.DEPARTMENT_NAME
+ORDER BY "SUMA SALARIOS" ASC;
+
+-- ************* FORMA 2 ***********************
+SELECT department_name, sum(salary) AS NUM_EMPLE
+FROM EMPLOYEES
+right outer JOIN departments USING (department_id)
+GROUP BY department_name
+ORDER BY sum(salary);
+
+/*
+• Visualizar la ciudad y el nombre del departamento, incluidas aquellas
+ciudades que no tengan departamentos
+*/
+SELECT CITY, DEPARTMENT_NAME
+FROM LOCATIONS
+RIGHT OUTER JOIN DEPARTMENTS USING (LOCATION_ID);
+
+--********************* OTRA FORMA
+SELECT CITY,DEPARTMENT_NAME FROM LOCATIONS LEFT JOIN
+DEPARTMENTS USING(LOCATION_ID);
+
+/**
+Es normal confundirse. La clave está en cuál tabla pones a la izquierda y cuál a la derecha del `JOIN`:
+
+- **LEFT JOIN**: Muestra **todas las filas de la tabla de la izquierda** (en este caso, `LOCATIONS`),
+  aunque no tengan coincidencia en `DEPARTMENTS`. Así, verás las ciudades aunque no tengan departamento.
+- **RIGHT JOIN**: Muestra **todas las filas de la tabla de la derecha** (`DEPARTMENTS`), aunque no tengan
+  coincidencia en `LOCATIONS`. Así, verás los departamentos aunque no tengan ciudad.
+
+Por lo tanto, si quieres ver **todas las ciudades** (aunque no tengan departamento), debes usar:
+
+```sql
+SELECT CITY, DEPARTMENT_NAME
+FROM LOCATIONS
+LEFT JOIN DEPARTMENTS USING (LOCATION_ID);
+```
+
+Esta consulta te mostrará todas las ciudades, y si alguna no tiene departamento, el campo `DEPARTMENT_NAME`
+aparecerá como `NULL`.
+*/
+
 
 ---
 
