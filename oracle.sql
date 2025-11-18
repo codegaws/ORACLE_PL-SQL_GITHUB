@@ -1604,7 +1604,7 @@ FROM DEPARTMENTS D
 --                           CLASE 118 : OUTER JOINS                                                    *
 --*******************************************************************************************************
 
-SELECT D.LOCATION_ID,D.DEPARTMENT_NAME, E.FIRST_NAME,E.EMAIL
+SELECT D.LOCATION_ID, D.DEPARTMENT_NAME, E.FIRST_NAME, E.EMAIL
 FROM DEPARTMENTS D
          FULL OUTER JOIN EMPLOYEES E
                          ON D.DEPARTMENT_ID = E.DEPARTMENT_ID;
@@ -1629,7 +1629,8 @@ FROM DEPARTMENTS D
 SELECT E1.FIRST_NAME AS "EMPLEADO_1", E2.FIRST_NAME AS "EMPLEADO_2", E1.SALARY
 FROM EMPLOYEES E1
          JOIN EMPLOYEES E2 ON E1.SALARY = E2.SALARY
-WHERE E1.EMPLOYEE_ID < E2.EMPLOYEE_ID;  -- Evitar duplicados
+WHERE E1.EMPLOYEE_ID < E2.EMPLOYEE_ID;
+-- Evitar duplicados
 
 -- 📅 Empleados contratados en el mismo año
 SELECT E1.FIRST_NAME, E2.FIRST_NAME, EXTRACT(YEAR FROM E1.HIRE_DATE) AS "AÑO"
@@ -1640,7 +1641,7 @@ WHERE E1.EMPLOYEE_ID != E2.EMPLOYEE_ID;
 -- 🔤 Empleados con apellidos que empiecen igual letra
 SELECT E1.LAST_NAME, E2.LAST_NAME
 FROM EMPLOYEES E1
-         JOIN EMPLOYEES E2 ON SUBSTR(E1.LAST_NAME,1,1) = SUBSTR(E2.LAST_NAME,1,1)
+         JOIN EMPLOYEES E2 ON SUBSTR(E1.LAST_NAME, 1, 1) = SUBSTR(E2.LAST_NAME, 1, 1)
 WHERE E1.EMPLOYEE_ID != E2.EMPLOYEE_ID;
 --*******************************************************************************
 -- 1️⃣ Relacionar por LONGITUD del nombre
@@ -1651,14 +1652,104 @@ FROM EMPLOYEES E
 -- 2️⃣ Relacionar por PRIMERA LETRA
 SELECT E.FIRST_NAME, J.JOB_TITLE
 FROM EMPLOYEES E
-         JOIN JOBS J ON SUBSTR(E.FIRST_NAME,1,1) = SUBSTR(J.JOB_TITLE,1,1);
+         JOIN JOBS J ON SUBSTR(E.FIRST_NAME, 1, 1) = SUBSTR(J.JOB_TITLE, 1, 1);
 
 -- 3️⃣ Relacionar por VALORES NUMÉRICOS arbitrarios
 SELECT E.FIRST_NAME, L.CITY
 FROM EMPLOYEES E
-         JOIN LOCATIONS L ON E.EMPLOYEE_ID = L.LOCATION_ID;  -- Si coinciden números
+         JOIN LOCATIONS L ON E.EMPLOYEE_ID = L.LOCATION_ID;
+-- Si coinciden números
+
+--*******************************************************************************************************
+--                           CLASE 119 : OUTER JOINS   left -right-full                                 *
+--*******************************************************************************************************
+
+SELECT DEPARTMENT_NAME, FIRST_NAME
+FROM DEPARTMENTS D
+         LEFT OUTER JOIN EMPLOYEES E
+                         ON D.DEPARTMENT_ID = E.DEPARTMENT_ID;
+-- RPTA : 106 REGISTROS PERO SI VAS A TABLA EMPLOYEES HAY 107 ¿QUE PASO?
+-- HAY UN EMPLEADO QUE NO TIENE DEPARTMEN_ID ES NULO
+
+-- TRES TIPOS DE OUTER JOIN
+-- LEFT JOIN
+-- RIGHT JOIN
+-- FULL JOIN
+
+--*******************************************************************************************************
+--                           CLASE 119 : CROSS JOIN                                                     *
+--*******************************************************************************************************
+
+-- TABLAS CRUZADAS O JOINS DE CARTESIANOS
+-- MUCHO CUIDADO CON ESTO POR QUE TE PUEDE CREAR MUCHISIMAS FILAS
+
+SELECT FIRST_NAME, DEPARTMENT_NAME
+FROM EMPLOYEES
+         CROSS JOIN DEPARTMENTS;
+
+--*******************************************************************************************************
+--                           CLASE 120 : PRACTICA OTROS JOINS                                           *
+--*******************************************************************************************************
+
+/*
+• Indicar el nombre del empleado y el de su jefe (SELF_JOIN de la tabla
+EMPLOYEES)
+ */
+-- SOLUCION :
+SELECT E.FIRST_NAME AS EMPLEADO, J.FIRST_NAME AS JEFE
+FROM EMPLOYEES E
+         JOIN EMPLOYEES J ON
+    E.MANAGER_ID = J.EMPLOYEE_ID;
 
 
+/*
+• Indica el DEPARTMENT_NAME y la suma de salarios de ese departamento
+ordenados ascendentemente y que aparezcan también los
+DEPARTMENT_NAME que no tengan empleados.
+
+SELECT department_name,sum(salary) AS NUM_EMPLE FROM EMPLOYEES right
+outer JOIN departments USING (department_id) GROUP BY department_name ORDER
+BY sum(salary) ;
+
+DATO IMPORTANTE
+La cláusula `USING` se utiliza en los `JOIN` cuando las tablas tienen una
+columna con el **mismo nombre** y quieres unirlas por esa columna, sin tener
+que escribir el prefijo de la tabla. Simplifica la sintaxis y evita ambigüedades.
+
+**Ejemplo:**
+```sql
+SELECT department_name, sum(salary)
+FROM EMPLOYEES
+RIGHT OUTER JOIN DEPARTMENTS USING (department_id)
+GROUP BY department_name;
+```
+Aquí, `USING (department_id)` indica que la unión se hace por la columna `department_id`,
+que existe en ambas tablas. Así, no necesitas escribir `EMPLOYEES.department_id = DEPARTMENTS.department_id`.
+
+Correcto. El RIGHT OUTER JOIN asegura que todas las filas de la tabla de la derecha (departments)
+aparezcan en el resultado, aunque no tengan coincidencias en la tabla de la izquierda (employees).
+Si un departamento no tiene empleados, igual aparecerá en el resultado con NULL en la suma de salarios.
+En este caso, la consulta muestra todos los departamentos, tengan o no empleados.
+ */
+-- SOLUCION
+SELECT D.DEPARTMENT_NAME, SUM(E.SALARY) AS "SUMA SALARIOS"
+FROM EMPLOYEES E
+         right outer JOIN DEPARTMENTS D ON
+    D.DEPARTMENT_ID = E.DEPARTMENT_ID
+GROUP BY D.DEPARTMENT_NAME
+ORDER BY "SUMA SALARIOS" ASC;
+
+-- *****************************************************************
+
+SELECT department_name, sum(salary) AS NUM_EMPLE
+FROM EMPLOYEES
+         right outer JOIN departments USING (department_id)
+GROUP BY department_name
+ORDER BY sum(salary);
 
 
+/*
+• Visualizar la ciudad y el nombre del departamento, incluidas aquellas
+ciudades que no tengan departamentos
 
+ */

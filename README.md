@@ -2562,6 +2562,141 @@ JOIN LETRAS L ON N.ID = L.ID;  -- ✅ ¡FUNCIONA!
 
 codegaws, acabas de entender algo que muchos programadores tardan años en descubrir. 🏆
 
+--*******************************************************************************************************
+--                            CLASE 119 : OUTER JOINS - left -right-full                                                  *
+--*******************************************************************************************************
+Las diferencias principales entre los tipos de JOIN en SQL son:
+
+- **JOIN (INNER JOIN)**: Devuelve solo las filas que tienen coincidencias en ambas tablas. Si no hay coincidencia, 
+- la fila no aparece en el resultado.
+
+- **LEFT OUTER JOIN (o LEFT JOIN)**: Devuelve todas las filas de la tabla de la izquierda y las coincidencias de la 
+- tabla de la derecha. Si no hay coincidencia, los valores de la derecha serán NULL.
+
+- **RIGHT OUTER JOIN (o RIGHT JOIN)**: Devuelve todas las filas de la tabla de la derecha y las coincidencias de la 
+- tabla de la izquierda. Si no hay coincidencia, los valores de la izquierda serán NULL.
+
+- **FULL OUTER JOIN**: Devuelve todas las filas de ambas tablas. Si no hay coincidencia en una de las tablas, los 
+- valores de esa tabla serán NULL.
+
+**Resumen visual:**
+
+| Tipo de JOIN         | Filas de la izquierda | Filas de la derecha | Coincidencias requeridas |
+|----------------------|----------------------|---------------------|--------------------------|
+| INNER JOIN           | Sí                   | Sí                  | Sí                       |
+| LEFT OUTER JOIN      | Sí                   | Opcional            | No                       |
+| RIGHT OUTER JOIN     | Opcional             | Sí                  | No                       |
+| FULL OUTER JOIN      | Sí                   | Sí                  | No                       |
+
+# nota adicional
+
+En un `INNER JOIN` (o simplemente `JOIN`), **solo se muestran las filas que tienen coincidencias** en ambas tablas según la condición de unión.  
+Si no hay coincidencia, esa fila **no aparece** en el resultado.
+
+Si quieres ver todas las filas de una tabla aunque no haya coincidencia en la otra, debes usar un `LEFT OUTER JOIN`, `RIGHT OUTER JOIN` o `FULL OUTER JOIN`.
+- `LEFT OUTER JOIN`: muestra todas las filas de la tabla izquierda, aunque no haya coincidencia en la derecha (los valores de la derecha serán `NULL`).
+- `RIGHT OUTER JOIN`: muestra todas las filas de la tabla derecha, aunque no haya coincidencia en la izquierda.
+- `FULL OUTER JOIN`: muestra todas las filas de ambas tablas, aunque no haya coincidencia.
+
+**Resumen:**
+- `JOIN` requiere coincidencias.
+- `OUTER JOIN` puede mostrar filas aunque no haya coincidencia.
+
+--*******************************************************************************************************
+--                            CLASE 120 :  CROSS JOIN                                                   *
+--*******************************************************************************************************
+
+**CROSS JOIN** (🔀) en SQL es una operación que combina todas las filas de una tabla con todas las filas de otra, generando el producto cartesiano.  
+No necesita condición de unión y puede generar muchas filas si las tablas son grandes.
+
+---
+
+### Ejemplo descriptivo
+
+Supón que tienes dos tablas:
+
+- **COLORES** 🎨  
+  | ID | COLOR   |
+  |----|---------|
+  | 1  | Rojo    |
+  | 2  | Azul    |
+
+- **FORMAS** 🔷  
+  | ID | FORMA   |
+  |----|---------|
+  | 1  | Círculo |
+  | 2  | Cuadro  |
+
+Consulta CROSS JOIN:
+
+```sql
+SELECT COLOR, FORMA
+FROM COLORES
+CROSS JOIN FORMAS;
+```
+
+**Resultado:**  
+| COLOR | FORMA   |
+|-------|---------|
+| Rojo  | Círculo |
+| Rojo  | Cuadro  |
+| Azul  | Círculo |
+| Azul  | Cuadro  |
+
+---
+
+> 🔎 **Resumen:**  
+Cada color se combina con cada forma. Si tienes 2 colores y 2 formas, obtienes 4 combinaciones (2x2).  
+¡Cuidado! Si las tablas son grandes, el resultado puede ser enorme.
+
+¡Perfecto! El `CROSS JOIN` **sí** cruza todas las filas de una tabla con todas las filas de la otra, **aunque no haya coincidencias**.  
+No necesita claves foráneas ni coincidencias de valores: simplemente hace el producto cartesiano.
+
+### Ejemplo visual
+
+Supón dos tablas:
+
+| 🟦 COLORES |   | 🟩 FORMAS   |
+|:----------:|:-:|:----------:|
+| Rojo       |   | Círculo    |
+| Azul       |   | Cuadro     |
+
+Consulta:
+
+```sql
+SELECT COLOR, FORMA
+FROM COLORES
+CROSS JOIN FORMAS;
+```
+
+**Resultado:**  
+| COLOR | FORMA   |
+|-------|---------|
+| Rojo  | Círculo |
+| Rojo  | Cuadro  |
+| Azul  | Círculo |
+| Azul  | Cuadro  |
+
+**Resumen:**
+- El `CROSS JOIN` **no busca coincidencias**.
+- Une todas las filas de ambas tablas, generando todas las combinaciones posibles.
+- Si tienes 2 colores y 2 formas, obtienes 4 filas (2x2).
+- ¡Cuidado! Si las tablas son grandes, el resultado puede ser enorme. 
+
+--*******************************************************************************************************
+--                            CLASE 120 :  PRACTICA JOIN                                                *
+--*******************************************************************************************************
+
+• Indicar el nombre del empleado y el de su jefe (SELF_JOIN de la tabla
+EMPLOYEES)
+HACEMOS UN SELF JOIN DE LA TABLA EMPLOYEES PARA OBTENER EL NOMBRE DEL EMPLEADO Y EL NOMBRE DE SU JEFE.
+*/
+-- SOLUCION :
+SELECT E.FIRST_NAME AS EMPLEADO, J.FIRST_NAME AS JEFE
+FROM EMPLOYEES E
+JOIN EMPLOYEES J ON
+E.MANAGER_ID = J.EMPLOYEE_ID;
+
 </details>
 
 ---
