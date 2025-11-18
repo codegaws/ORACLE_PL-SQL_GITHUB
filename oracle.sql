@@ -1756,8 +1756,10 @@ FROM LOCATIONS
          RIGHT OUTER JOIN DEPARTMENTS USING (LOCATION_ID);
 
 --********************* OTRA FORMA
-SELECT CITY,DEPARTMENT_NAME FROM LOCATIONS LEFT JOIN
-                                 DEPARTMENTS USING(LOCATION_ID);
+SELECT CITY, DEPARTMENT_NAME
+FROM LOCATIONS
+         LEFT JOIN
+     DEPARTMENTS USING (LOCATION_ID);
 
 /**
   Es normal confundirse. La clave está en cuál tabla pones a la izquierda y cuál a la derecha del `JOIN`:
@@ -1778,3 +1780,29 @@ LEFT JOIN DEPARTMENTS USING (LOCATION_ID);
 Esta consulta te mostrará todas las ciudades, y si alguna no tiene departamento, el campo `DEPARTMENT_NAME`
   aparecerá como `NULL`.
  */
+--*******************************************************************************************************
+--                           CLASE 122 : CLAUSULA WITH                                                  *
+--*******************************************************************************************************
+-- Calcula la suma de salarios por departamento desde la tabla `EMPLOYEES`.
+WITH SUMA_SALARIOS AS
+         (SELECT DEPARTMENT_ID, SUM(SALARY) AS SALARIO
+          FROM EMPLOYEES
+          GROUP BY DEPARTMENT_ID)
+SELECT DEPARTMENT_ID, DEPARTMENT_NAME, SALARIO
+FROM SUMA_SALARIOS
+         NATURAL JOIN DEPARTMENTS
+WHERE SALARIO > 20000;
+
+-- OTRO EJEMPLO
+WITH SUMA_SALARIOS AS (SELECT DEPARTMENT_ID, SUM(SALARY) AS SALARIOS FROM EMPLOYEES GROUP BY DEPARTMENT_ID),
+     NUM_EMPLEADOS AS (SELECT DEPARTMENT_ID, COUNT(*) AS EMPLEADOS FROM EMPLOYEES GROUP BY DEPARTMENT_ID)
+SELECT DEPARTMENT_NAME,
+       SALARIOS,
+       EMPLEADOS
+FROM DEPARTMENTS,
+     SUMA_SALARIOS,
+     NUM_EMPLEADOS
+WHERE DEPARTMENTS.DEPARTMENT_ID = SUMA_SALARIOS.DEPARTMENT_ID
+  AND DEPARTMENTS.DEPARTMENT_ID = NUM_EMPLEADOS.DEPARTMENT_ID
+-- ADEMAS PUEDO AGREGAR COMPARACIONES
+  AND EMPLEADOS < 10;

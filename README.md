@@ -2686,9 +2686,7 @@ CROSS JOIN FORMAS;
 --*******************************************************************************************************
 --                            CLASE 120 :  PRACTICA JOIN                                                *
 --*******************************************************************************************************
---*******************************************************************************************************
---                           CLASE 120 : PRACTICA OTROS JOINS                                           *
---*******************************************************************************************************
+
 
 /*
 • Indicar el nombre del empleado y el de su jefe (SELF_JOIN de la tabla
@@ -2777,6 +2775,46 @@ LEFT JOIN DEPARTMENTS USING (LOCATION_ID);
 Esta consulta te mostrará todas las ciudades, y si alguna no tiene departamento, el campo `DEPARTMENT_NAME`
 aparecerá como `NULL`.
 */
+
+--*******************************************************************************************************
+--                           CLASE 122 : CLAUSULA WITH                                                  *
+--*******************************************************************************************************
+
+La cláusula `WITH` en SQL se llama **subconsulta con nombre** o **Common Table Expression (CTE)**. Sirve para definir
+una consulta temporal que puedes reutilizar en la consulta principal, como si fuera una tabla virtual.
+
+**¿Qué hace tu ejemplo?**
+
+1. **Crea una CTE llamada `SUMA_SALARIOS`:**
+    - Calcula la suma de salarios por departamento desde la tabla `EMPLOYEES`.
+    - Resultado: una tabla con `DEPARTMENT_ID` y la suma de salarios (`SALARIO`) de cada departamento.
+
+2. **Consulta principal:**
+    - Hace un `NATURAL JOIN` entre la CTE `SUMA_SALARIOS` y la tabla `DEPARTMENTS` usando la columna común 
+    - `DEPARTMENT_ID`.
+    - Selecciona solo los departamentos donde la suma de salarios es mayor a 20,000.
+
+**Ventajas de usar `WITH`:**
+- Hace el código más legible y organizado.
+- Permite reutilizar subconsultas complejas.
+- Facilita el mantenimiento y depuración.
+
+**Resumen:**  
+La cláusula `WITH` te permite definir consultas intermedias reutilizables, 
+simplificando y estructurando mejor
+tus consultas SQL.
+
+```sql
+WITH SUMA_SALARIOS AS
+         (SELECT DEPARTMENT_ID, SUM(SALARY) AS SALARIO
+          FROM EMPLOYEES
+          GROUP BY DEPARTMENT_ID)
+SELECT DEPARTMENT_ID, DEPARTMENT_NAME, SALARIO
+FROM SUMA_SALARIOS
+         NATURAL JOIN DEPARTMENTS
+WHERE SALARIO > 20000;
+
+```
 
 
 ---
