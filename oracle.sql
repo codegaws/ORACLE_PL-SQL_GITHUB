@@ -1806,3 +1806,7 @@ WHERE DEPARTMENTS.DEPARTMENT_ID = SUMA_SALARIOS.DEPARTMENT_ID
   AND DEPARTMENTS.DEPARTMENT_ID = NUM_EMPLEADOS.DEPARTMENT_ID
 -- ADEMAS PUEDO AGREGAR COMPARACIONES
   AND EMPLEADOS < 10;
+
+--*******************************************************************************************************
+--                           CLASE 123 : SUBCONSULTAS                                                   *
+--*******************************************************************************************************
