@@ -1808,5 +1808,43 @@ WHERE DEPARTMENTS.DEPARTMENT_ID = SUMA_SALARIOS.DEPARTMENT_ID
   AND EMPLEADOS < 10;
 
 --*******************************************************************************************************
---                           CLASE 123 : SUBCONSULTAS                                                   *
+--                           CLASE 123 : SUBCONSULTAS I                                                  *
 --*******************************************************************************************************
+
+SELECT MAX(SALARY)
+FROM EMPLOYEES;
+
+SELECT FIRST_NAME, SALARY
+FROM EMPLOYEES
+WHERE SALARY = 24000;
+
+-- ENTONCES COMO HAGO PARA HACER EN UN SOLO SELECT TODA ESTA CONSULTA
+-- PARA ELLO USO UNA SUBCONSULTA
+
+SELECT FIRST_NAME, SALARY
+FROM EMPLOYEES
+WHERE SALARY = (SELECT MAX(SALARY) FROM EMPLOYEES);
+/**
+  DETALLE IMPORTANTE ESTE EJEMPLO FUNCIONA POR QUE DEVUELVE UN VALOR
+  POR ESO ES IMPORTANTE QUE SOLO SEA USADO LA SUBCONSULTA PARA QUE DEVUELVA
+  UN SOLO VALOR. SI DEVUELVE MAS DE UN VALOR DA ERROR
+  SI LE QUITAS EL MAX POR EJEMPLO DA ERROR POR QUE DEVUELVE VARIOS VALORES
+    ORA-01427: subquery returns more than one row
+
+ */
+-- SE USA EN :
+--WHERE
+--HAVING
+--FROM
+
+--*******************************************************************************************************
+--                           CLASE 124 : SUBCONSULTAS PARTE II                                                   *
+--*******************************************************************************************************
+
+
+
+
+
+
+
+
