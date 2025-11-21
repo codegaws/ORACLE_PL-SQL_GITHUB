@@ -1841,10 +1841,126 @@ WHERE SALARY = (SELECT MAX(SALARY) FROM EMPLOYEES);
 --                           CLASE 124 : SUBCONSULTAS PARTE II                                                   *
 --*******************************************************************************************************
 
+-- Que empleados trabajan donde trabaja Douglas Grant haciendo subconsulta.
+-- probando primero la subconsulta ->
+SELECT DEPARTMENT_ID
+FROM EMPLOYEES
+WHERE FIRST_NAME = 'Douglas'
+  AND LAST_NAME = 'Grant';
 
+SELECT FIRST_NAME, DEPARTMENT_ID
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = (SELECT DEPARTMENT_ID
+                       FROM EMPLOYEES
+                       WHERE FIRST_NAME = 'Douglas'
+                         AND LAST_NAME = 'Grant');
 
+---
+-- sin subconsulta haciendo un join con la misma tabla
+SELECT E1.FIRST_NAME, E1.DEPARTMENT_ID
+FROM EMPLOYEES E1
+         JOIN EMPLOYEES E2
+              ON E1.DEPARTMENT_ID = E2.DEPARTMENT_ID
+WHERE E2.FIRST_NAME = 'Douglas'
+  AND E2.LAST_NAME = 'Grant';
 
+/*
+Es posible hacer esta consulta sin subconsulta usando un **SELF JOIN**:
 
+```sql
+SELECT E1.FIRST_NAME, E1.DEPARTMENT_ID
+FROM EMPLOYEES E1
+         JOIN EMPLOYEES E2
+              ON E1.DEPARTMENT_ID = E2.DEPARTMENT_ID
+WHERE E2.FIRST_NAME = 'Douglas'
+  AND E2.LAST_NAME = 'Grant';
+```
 
+**Explicación:**
 
+- **E1**: Representa los empleados que queremos mostrar
+- **E2**: Representa el empleado Douglas Grant
+- **JOIN**: Une ambas "versiones" de la tabla por `DEPARTMENT_ID`
+- **WHERE**: Filtra para que E2 sea específicamente Douglas Grant
 
+Ambas consultas devuelven el mismo resultado: todos los empleados que trabajan en el mismo departamento que Douglas Grant.
+
+La diferencia es que:
+- **Subconsulta**: Primero encuentra el departamento de Douglas, luego busca empleados en ese departamento
+- **Self Join**: Une la tabla consigo misma para encontrar empleados en el mismo departamento
+
+Ambas son válidas, pero la subconsulta suele ser más clara conceptualmente para este tipo de consultas.
+*/
+--*********************************************************************************************************************
+/**
+  saber la media de empleados
+ */
+-- CUANTOS EMPLEADOS GANAN MAS QUE LA MEDIA DE 6461.83
+SELECT ROUND(AVG(SALARY), 2) AS SALARIO
+FROM EMPLOYEES;
+
+SELECT FIRST_NAME, LAST_NAME, SALARY
+FROM EMPLOYEES
+WHERE SALARY > (SELECT ROUND(AVG(SALARY), 2)
+                FROM EMPLOYEES);
+
+-- CUANTOS EMPLEADOS GANAN MAS QUE LA MEDIA DE 6461.83 Y QUE PERTENEZCAN AL DEPARTAMENTO 50
+SELECT FIRST_NAME, LAST_NAME, SALARY
+FROM EMPLOYEES
+WHERE SALARY > (SELECT ROUND(AVG(SALARY), 2)
+                FROM EMPLOYEES)
+  AND DEPARTMENT_ID = 50;
+
+---
+--*******************************************************************************************************
+--                           CLASE 125 : SUBCONSULTAS EN LA CLAUSULA HAVING                             *
+--*******************************************************************************************************
+
+-- saber todos los departamentos cuyos empleados gana mas que la media
+SELECT DEPARTMENT_ID, ROUND(AVG(SALARY), 2) AS "MEDIA DEPARTAMENTO"
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID-- LUEGO APLICAMOS EL HAVING , EL HAVING ES EL WHERE DE LOS GROUP BY NO PUEDES USAR WHERE
+HAVING AVG(SALARY) > (SELECT ROUND(AVG(SALARY), 2) FROM EMPLOYEES);
+---
+--*******************************************************************************************************
+--                           CLASE 126 : SUBCONSULTAS MULTIPLES FILAS CON LA CLAUSULA IN                 *
+--*******************************************************************************************************
+-- SUBCONSULTAS QUE DEVUELVEN MAS DE UNA FILA
+
+-- USAR MULTIPLES ROW SE USAN OPERADORES ESPECIALES : ANY - IN - ALL PERMITEN RECUPERAR VARIOS VALORES
+
+SELECT MAX(SALARY)
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID;
+
+-- EJEMPLO :
+SELECT FIRST_NAME, SALARY, DEPARTMENT_ID
+FROM EMPLOYEES
+WHERE SALARY IN (SELECT MAX(SALARY)
+                 FROM EMPLOYEES
+                 GROUP BY DEPARTMENT_ID);
+
+-- MEJORANDO LA CONSULTA AQUI COMPARA CON DOS COLUMNAS
+-- ES MAS ESPECIFICO.
+SELECT FIRST_NAME, SALARY, DEPARTMENT_ID
+FROM EMPLOYEES
+WHERE (DEPARTMENT_ID, SALARY) IN (SELECT DEPARTMENT_ID, MAX(SALARY)
+                                  FROM EMPLOYEES
+                                  GROUP BY DEPARTMENT_ID);
+
+-- ejercicio : ->
+-- CONOCER TODOS LOS EMPLEADOS QUE ESTAN SITUADOS EN Seattle
+SELECT DEPARTMENT_ID, DEPARTMENT_NAME
+FROM DEPARTMENTS D
+         JOIN LOCATIONS L
+              ON (D.LOCATION_ID = L.LOCATION_ID)
+                  AND CITY = 'Seattle';
+
+SELECT FIRST_NAME, DEPARTMENT_ID
+FROM EMPLOYEES
+WHERE (DEPARTMENT_ID) IN
+      (SELECT DEPARTMENT_ID
+       FROM DEPARTMENTS D
+                JOIN LOCATIONS L
+                     ON (D.LOCATION_ID = L.LOCATION_ID)
+                         AND CITY = 'Seattle');

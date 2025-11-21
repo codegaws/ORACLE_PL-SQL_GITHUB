@@ -2834,11 +2834,202 @@ WHERE DEPARTMENTS.DEPARTMENT_ID = SUMA_SALARIOS.DEPARTMENT_ID
 
 ```
 ---
---*******************************************************************************************************
---                           CLASE 123 SUBCONSULTAS                                                     *
---*******************************************************************************************************
+# 🧑‍💻 SQL Subconsultas: Resumen Visual y Ejemplos
+
+---
+
+## 🔹 **CLASE 123: SUBCONSULTAS I**
+> ### ¿Cómo buscar el salario máximo y quién lo gana?
+
+```sql
+SELECT MAX(SALARY)
+FROM EMPLOYEES;
+```
+🔎 **Obtén el mayor salario en la tabla**
+
+```sql
+SELECT FIRST_NAME, SALARY
+FROM EMPLOYEES
+WHERE SALARY = 24000;
+```
+👤 **Busca por un salario específico**
+
+### 🔁 ¿Cómo unir ambos pasos en una consulta con subconsulta?
+
+```sql
+SELECT FIRST_NAME, SALARY
+FROM EMPLOYEES
+WHERE SALARY = (SELECT MAX(SALARY) FROM EMPLOYEES);
+```
+
+> ⚠️ **IMPORTANTE**  
+> Esta subconsulta funciona porque devuelve solo **un valor**.  
+> Si devuelve más de uno, obtendrás el error:  
+> `ORA-01427: subquery returns more than one row`
+
+**Sintaxis válida para subconsultas:**
+- `WHERE`
+- `HAVING`
+- `FROM`
+
+---
+
+## 🔹 **CLASE 124: SUBCONSULTAS PARTE II**
+
+### 👔 ¿Qué empleados trabajan donde trabaja Douglas Grant?
+
+**Primero obtenemos el departamento de Douglas Grant:**
+```sql
+SELECT DEPARTMENT_ID
+FROM EMPLOYEES
+WHERE FIRST_NAME = 'Douglas'
+  AND LAST_NAME = 'Grant';
+```
+
+**Luego, los empleados de ese departamento:**
+```sql
+SELECT FIRST_NAME, DEPARTMENT_ID
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = (SELECT DEPARTMENT_ID
+                       FROM EMPLOYEES
+                       WHERE FIRST_NAME = 'Douglas'
+                         AND LAST_NAME = 'Grant');
+```
+
+### 🔄 Alternativa: SELF JOIN en vez de subconsulta
+
+```sql
+SELECT E1.FIRST_NAME, E1.DEPARTMENT_ID
+FROM EMPLOYEES E1
+         JOIN EMPLOYEES E2
+              ON E1.DEPARTMENT_ID = E2.DEPARTMENT_ID
+WHERE E2.FIRST_NAME = 'Douglas'
+  AND E2.LAST_NAME = 'Grant';
+```
+
+#### 📝 **Explicación Visual**
+- 🟦 **E1**: empleados buscados
+- 🟥 **E2**: Douglas Grant
+- 🪝 **JOIN**: une por `DEPARTMENT_ID`
+- 🎯 **WHERE**: filtra usando E2=D.G.
+
+> Ambas consultas devuelven empleados del mismo departamento que Douglas Grant.  
+> **Subconsulta**: Primero busca el departamento, luego a los empleados.  
+> **Self Join**: Une la tabla consigo misma para el mismo resultado.
+
+---
+
+## 🔹 **CLASE 125: SUBCONSULTAS EN LA CLAUSULA HAVING**
+
+### 📊 Saber qué departamentos pagan más que la media
+
+```sql
+SELECT DEPARTMENT_ID, ROUND(AVG(SALARY), 2) AS "MEDIA DEPARTAMENTO"
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID
+HAVING AVG(SALARY) > (SELECT ROUND(AVG(SALARY), 2) FROM EMPLOYEES);
+```
+> **HAVING** es como el **WHERE** pero para resultados agrupados
+
+---
+
+## 🔹 **CLASE 126: SUBCONSULTAS MULTIFILA CON CLAUSULA IN**
+
+### ⚡ Subconsultas que devuelven varias filas
+
+- Se usan operadores: `ANY`, `IN`, `ALL`  
+  para recuperar múltiples valores.
+
+**Ejemplo: Salarios máximos por departamento**
+```sql
+SELECT MAX(SALARY)
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID;
+```
+
+![img](/images/20.png)
+
+**Buscar empleados que ganan algún salario máximo de departamento:**
+```sql
+SELECT FIRST_NAME, SALARY, DEPARTMENT_ID
+FROM EMPLOYEES
+WHERE SALARY IN (SELECT MAX(SALARY)
+                FROM EMPLOYEES
+                GROUP BY DEPARTMENT_ID);
+```
+> ## NOTA : 
+> Date cuenta que hay tres departamentos con salario maximo
+> y deberia devolver 1 solo pero salen 3 con 100 ¿Como es posible?
+> y es por que mientras que salgan en la lista los tomara
+> toca ser mas especificos de esta manera 
+
+![img](/images/21.png)
+
+```sql
+
+SELECT FIRST_NAME, SALARY, DEPARTMENT_ID
+FROM EMPLOYEES
+WHERE (DEPARTMENT_ID, SALARY) IN (SELECT DEPARTMENT_ID, MAX(SALARY)
+                                  FROM EMPLOYEES
+                                  GROUP BY DEPARTMENT_ID);
+```
+> MEJORANDO LA CONSULTA AQUI COMPARA CON DOS COLUMNAS
+> ES MAS ESPECIFICO.
+
+![img](/images/22.png)
 
 
+---
+
+## 📌 Resumen Visual
+
+| Subconsulta | Uso Principal | Operadores Permitidos | Ejemplo |
+|-------------|---------------|----------------------|---------|
+| 🟢 Escalar (1 valor) | WHERE, HAVING, FROM | `=`, `<`, `>` | `WHERE SALARY = (SELECT MAX(SALARY) ...)` |
+| 🔵 Multivalor | WHERE, HAVING, FROM | `IN`, `ANY`, `ALL` | `WHERE SALARY IN (SELECT ...)` |
+
+---
+
+## 🧠 **Notas Clave**
+- Usa subconsultas para filtrar resultados con dinámicos y anidados.
+- Subconsulta escalar (un valor): `=`, `<`, `>`
+- Subconsulta multivalor: `IN`, `ANY`, `ALL`
+- Cuida que la subconsulta retorne la cantidad de valores correcta para cada operador.
+
+---
+```sql
+
+-- ejercicio : ->
+-- CONOCER TODOS LOS EMPLEADOS QUE ESTAN SITUADOS EN Seattle
+SELECT DEPARTMENT_ID, DEPARTMENT_NAME
+FROM DEPARTMENTS D
+         JOIN LOCATIONS L
+              ON (D.LOCATION_ID = L.LOCATION_ID)
+                  AND CITY = 'Seattle';
+
+SELECT FIRST_NAME, DEPARTMENT_ID
+FROM EMPLOYEES
+WHERE (DEPARTMENT_ID) IN
+      (SELECT DEPARTMENT_ID
+       FROM DEPARTMENTS D
+                JOIN LOCATIONS L
+                     ON (D.LOCATION_ID = L.LOCATION_ID)
+                         AND CITY = 'Seattle');
+```
+![img](/images/23.png)
+
+---
+
+> **💾 ÍCONOS:**
+> - 🧑‍💻 : Programador
+> - 💾 : Base de datos
+> - 🔍 : Búsqueda
+> - 🔄 : Alternativa/Self Join
+> - 📊 : Agrupamiento
+> - ⚡ : Multifila
+> - 🧠 : Notas clave
+> - 📌 : Resumen
+> - 🟢🔵🟦🟥🪝🎯: Visualización y/o referencia explicativa
 
 
 
