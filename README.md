@@ -1475,38 +1475,55 @@ FROM EMPLOYEES
          NATURAL JOIN DEPARTMENTS;
 ```
 ---
--- 🎯 ************************************************************************************************
--- 📚                           CLASE 113 : CLÁUSULA ON                                                    
--- 🎯 ************************************************************************************************
+# 📚 CLASE 113 · CLÁUSULA ON
 
--- 🔗 CON EL ON PUEDO PONER CUALQUIER CONDICIÓN DE UNIÓN ENTRE TABLAS
--- 🚫 ON E.department_id <> D.department_id
--- ➕ PUEDE HACER OTRO JOIN ADICIONAL - UNIÓN DE MÁS DE UNA TABLA PUEDO RECUPERAR DATOS DE VARIAS TABLAS
+---
 
--- 🏢 JOIN básico con filtro WHERE
+## 🎯 ¿Qué es la cláusula ON?
+
+- 🔗 **Con el ON puedes poner cualquier condición** de unión entre tablas.
+    - Ejemplo:  
+      `ON E.department_id <> D.department_id`
+- ➕ **Permite hacer JOIN adicionales** entre varias tablas.
+- 📦 **Recupera datos de varias tablas** en un solo SELECT.
+
+---
+
+## 🏢 JOIN básico con filtro WHERE
+
+```sql
 SELECT E.DEPARTMENT_ID, D.DEPARTMENT_NAME, E.FIRST_NAME
 FROM EMPLOYEES E
-JOIN DEPARTMENTS D
-ON E.department_id = D.department_id
+JOIN DEPARTMENTS D ON E.department_id = D.department_id
 WHERE SALARY > 5000;
+```
 
--- 🌍 JOIN múltiple: EMPLOYEES + DEPARTMENTS + LOCATIONS
+---
+
+## 🌍 JOIN múltiple: EMPLOYEES + DEPARTMENTS + LOCATIONS
+
+```sql
 SELECT E.DEPARTMENT_ID, D.DEPARTMENT_NAME, E.FIRST_NAME, CITY
 FROM EMPLOYEES E
-JOIN DEPARTMENTS D
-ON E.department_id = D.department_id
-JOIN LOCATIONS L
-ON D.LOCATION_ID = L.LOCATION_ID
+JOIN DEPARTMENTS D ON E.department_id = D.department_id
+JOIN LOCATIONS L ON D.LOCATION_ID = L.LOCATION_ID
 WHERE SALARY > 5000;
+```
 
--- 🔀 Condición movida al ON (comportamiento diferente)
+---
+
+## 🔀 Condición movida al ON (comportamiento diferente)
+
+```sql
 SELECT E.DEPARTMENT_ID, D.DEPARTMENT_NAME, E.FIRST_NAME, CITY
 FROM EMPLOYEES E
-JOIN DEPARTMENTS D
-ON E.department_id = D.department_id
-JOIN LOCATIONS L
-ON D.LOCATION_ID = L.LOCATION_ID
-AND SALARY > 5000;
+JOIN DEPARTMENTS D ON E.department_id = D.department_id
+JOIN LOCATIONS L ON D.LOCATION_ID = L.LOCATION_ID AND SALARY > 5000;
+```
+> ☝️ **Nota:**  
+> Mover condiciones al ON puede cambiar el comportamiento del resultado, ya que el filtro afecta la unión y no el resultado final.
+
+---
 
 -- 🎯 ************************************************************************************************
 -- 💪                           PRÁCTICAS : JOINS - NATURAL - USING - ON                                   
@@ -2683,126 +2700,262 @@ CROSS JOIN FORMAS;
 - Si tienes 2 colores y 2 formas, obtienes 4 filas (2x2).
 - ¡Cuidado! Si las tablas son grandes, el resultado puede ser enorme. 
 
---*******************************************************************************************************
---                            CLASE 120 :  PRACTICA JOIN                                                *
---*******************************************************************************************************
+# 📚 SQL — JOINs, WITH (CTE) y práctica (Clases 120–122)
 
+Este documento reúne un comparativo de tipos de JOIN, la explicación de la cláusula WITH (CTE) y la práctica de la Clase 120 con ejemplos SQL y explicaciones. Incluye iconos y cuadros diseñados para facilitar la lectura.
 
-/*
-• Indicar el nombre del empleado y el de su jefe (SELF_JOIN de la tabla
-EMPLOYEES)
-*/
--- SOLUCION :
+---
+
+## 📊 Comparativo de tipos de JOIN
+
+| Tipo de JOIN | ¿Qué muestra? | ¿Incluye nulos? | ¿Cuándo usarlo? |
+|--------------|----------------|------------------|------------------|
+| 🔗 INNER JOIN | Solo filas que coinciden en ambas tablas | ❌ No | Cuando solo quieres coincidencias exactas |
+| 🧩 NATURAL JOIN | Igual que INNER JOIN, pero une por columnas con el mismo nombre automáticamente | ❌ No | Cuando las columnas coinciden por nombre y quieres evitar listar condiciones |
+| ⬅️ LEFT OUTER JOIN | Todas las filas de la tabla izquierda y las que coinciden de la derecha | ✅ Sí (columnas de la derecha) | Para ver todo lo de la izquierda aunque no tenga coincidencia |
+| ➡️ RIGHT OUTER JOIN | Todas las filas de la tabla derecha y las que coinciden de la izquierda | ✅ Sí (columnas de la izquierda) | Para ver todo lo de la derecha aunque no tenga coincidencia |
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                      Resumen visual — ¿por qué cambia la cuenta?             │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ • INNER / NATURAL JOIN : solo se cuentan filas que emparejan en ambas tablas │
+│   => la cantidad equivale al número de coincidencias.                        │
+│ • LEFT JOIN : se muestran todas las filas de la izquierda; si no hay match,  │
+│   las columnas de la derecha aparecen como NULL.                             │
+│ • RIGHT JOIN : simétrico al LEFT JOIN; muestra todas las filas de la derecha│
+│   y pone NULL en columnas de la izquierda cuando no hay match.               │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+Ejemplo práctico:
+- Si tienes una tabla DEPARTMENTS y una subconsulta de EMPLOYEES y hay departamentos sin empleados:
+    - Con `LEFT JOIN` verás esos departamentos aunque no tengan empleados (aparecerá `NULL` en las columnas de empleados).
+    - Con `RIGHT JOIN` verás todos los resultados de la subconsulta aunque no tengan departamento asociado.
+- Por eso la cantidad de valores en `DEPARTMENT_ID` puede variar: depende de si existen filas sin coincidencia en alguna de las tablas.
+
+🔎 Consejo rápido:
+- Usa INNER/NATURAL cuando solo te interesen coincidencias.
+- Usa LEFT/RIGHT cuando quieras incluir filas "sin pareja" de uno de los lados y revisar valores NULL resultantes.
+
+---
+
+## 🧾 CLASE 122 — Cláusula WITH (CTE)
+
+La cláusula WITH en SQL se llama subconsulta con nombre o Common Table Expression (CTE). Sirve para definir una consulta temporal que puedes reutilizar en la consulta principal, como si fuera una tabla virtual.
+
+```sql
+-- Ejemplo esquemático
+WITH SUMA_SALARIOS AS (
+  SELECT DEPARTMENT_ID, SUM(SALARY) AS SALARIO
+  FROM EMPLOYEES
+  GROUP BY DEPARTMENT_ID
+)
+SELECT d.DEPARTMENT_ID, d.DEPARTMENT_NAME, s.SALARIO
+FROM SUMA_SALARIOS s
+NATURAL JOIN DEPARTMENTS d
+WHERE s.SALARIO > 20000;
+```
+
+Qué hace el ejemplo:
+- Crea una CTE llamada `SUMA_SALARIOS` que agrupa por `DEPARTMENT_ID` y calcula la suma de salarios.
+- La consulta principal une (aquí con `NATURAL JOIN`) la CTE con `DEPARTMENTS` por la columna común `DEPARTMENT_ID` y filtra por suma > 20,000.
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                       Ventajas de usar WITH (CTE)                            │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ • Legibilidad: separa lógica intermedia en nombres claros.                   │
+│ • Reutilización: la misma CTE puede usarse varias veces en la consulta.      │
+│ • Depuración: permite aislar subconsultas complejas para probarlas.         │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+Resumen:
+La cláusula WITH te permite definir consultas intermedias reutilizables, simplificando y estructurando mejor tus consultas SQL.
+
+---
+# 📝 **CLASE 121 · PRÁCTICA JOIN**
+
+---
+
+## 1️⃣ 👤👔 Mostrar el nombre del empleado y el de su jefe (SELF JOIN)
+
+> **Descripción:**  
+> 🔁 Se usa una **auto-unión (self-join)** de la tabla EMPLOYEES:
+> - Una instancia actúa como empleado (E) y otra como jefe (J).
+> - Relación clave: `E.MANAGER_ID = J.EMPLOYEE_ID`.
+
+```sql
+-- SOLUCIÓN: Self-join para empleado y su jefe
 SELECT E.FIRST_NAME AS EMPLEADO, J.FIRST_NAME AS JEFE
 FROM EMPLOYEES E
-JOIN EMPLOYEES J ON
-E.MANAGER_ID = J.EMPLOYEE_ID;
-
-
-/*
-• Indica el DEPARTMENT_NAME y la suma de salarios de ese departamento
-ordenados ascendentemente y que aparezcan también los
-DEPARTMENT_NAME que no tengan empleados.
-
-SELECT department_name,sum(salary) AS NUM_EMPLE FROM EMPLOYEES right
-outer JOIN departments USING (department_id) GROUP BY department_name ORDER
-BY sum(salary) ;
-
-DATO IMPORTANTE
-La cláusula `USING` se utiliza en los `JOIN` cuando las tablas tienen una
-columna con el **mismo nombre** y quieres unirlas por esa columna, sin tener
-que escribir el prefijo de la tabla. Simplifica la sintaxis y evita ambigüedades.
-
-**Ejemplo:**
-```sql
-SELECT department_name, sum(salary)
-FROM EMPLOYEES
-RIGHT OUTER JOIN DEPARTMENTS USING (department_id)
-GROUP BY department_name;
+JOIN EMPLOYEES J ON E.MANAGER_ID = J.EMPLOYEE_ID;
 ```
-Aquí, `USING (department_id)` indica que la unión se hace por la columna `department_id`,
-que existe en ambas tablas. Así, no necesitas escribir `EMPLOYEES.department_id = DEPARTMENTS.department_id`.
 
-Correcto. El RIGHT OUTER JOIN asegura que todas las filas de la tabla de la derecha (departments)
-aparezcan en el resultado, aunque no tengan coincidencias en la tabla de la izquierda (employees).
-Si un departamento no tiene empleados, igual aparecerá en el resultado con NULL en la suma de salarios.
-En este caso, la consulta muestra todos los departamentos, tengan o no empleados.
-*/
--- SOLUCION
--- ************* FORMA 1 ***********************
+> ℹ️ **Explicación breve:**
+> - Cada empleado busca su jefe según MANAGER_ID.
+> - Si un empleado no tiene jefe (`NULL`), no aparece con INNER JOIN.
+> - Para incluir empleados sin jefe, usa LEFT JOIN.
+
+---
+
+## 2️⃣ 🏢💰 DEPARTMENT_NAME y suma de salarios, incluyendo departamentos sin empleados
+
+> **Nota importante sobre `USING`:**  
+> 🪄 `USING(columna)` simplifica la sintaxis cuando ambas tablas tienen la misma columna. Evita repetir prefijos.
+
+**Forma 1 (JOIN con ON):**
+```sql
 SELECT D.DEPARTMENT_NAME, SUM(E.SALARY) AS "SUMA SALARIOS"
 FROM EMPLOYEES E
-right outer JOIN DEPARTMENTS D ON
-D.DEPARTMENT_ID = E.DEPARTMENT_ID
+RIGHT OUTER JOIN DEPARTMENTS D ON D.DEPARTMENT_ID = E.DEPARTMENT_ID
 GROUP BY D.DEPARTMENT_NAME
 ORDER BY "SUMA SALARIOS" ASC;
+```
 
--- ************* FORMA 2 ***********************
-SELECT department_name, sum(salary) AS NUM_EMPLE
+**Forma 2 (USING):**
+```sql
+SELECT department_name, SUM(salary) AS NUM_EMPLE
 FROM EMPLOYEES
-right outer JOIN departments USING (department_id)
+RIGHT OUTER JOIN DEPARTMENTS USING (department_id)
 GROUP BY department_name
-ORDER BY sum(salary);
+ORDER BY SUM(salary);
+```
 
-/*
-• Visualizar la ciudad y el nombre del departamento, incluidas aquellas
-ciudades que no tengan departamentos
-*/
-SELECT CITY, DEPARTMENT_NAME
-FROM LOCATIONS
-RIGHT OUTER JOIN DEPARTMENTS USING (LOCATION_ID);
+> 🧠 **Explicación:**
+> - `RIGHT OUTER JOIN DEPARTMENTS` incluye **todos** los departamentos, tengan o no empleados (si no hay empleados, suma será `NULL`).
+> - Usar `COALESCE` permite mostrar **0 en vez de NULL**:
 
---********************* OTRA FORMA
-SELECT CITY,DEPARTMENT_NAME FROM LOCATIONS LEFT JOIN
-DEPARTMENTS USING(LOCATION_ID);
+```sql
+SELECT d.department_name,
+       COALESCE(SUM(e.salary), 0) AS suma_salarios
+FROM departments d
+LEFT JOIN employees e ON d.department_id = e.department_id
+GROUP BY d.department_name
+ORDER BY suma_salarios;
+```
 
-/**
-Es normal confundirse. La clave está en cuál tabla pones a la izquierda y cuál a la derecha del `JOIN`:
+---
 
-- **LEFT JOIN**: Muestra **todas las filas de la tabla de la izquierda** (en este caso, `LOCATIONS`),
-  aunque no tengan coincidencia en `DEPARTMENTS`. Así, verás las ciudades aunque no tengan departamento.
-- **RIGHT JOIN**: Muestra **todas las filas de la tabla de la derecha** (`DEPARTMENTS`), aunque no tengan
-  coincidencia en `LOCATIONS`. Así, verás los departamentos aunque no tengan ciudad.
+## 3️⃣ 🏙️🏢 Visualizar la ciudad y el nombre del departamento, incluidas ciudades sin departamentos
 
-Por lo tanto, si quieres ver **todas las ciudades** (aunque no tengan departamento), debes usar:
-
+**Consulta para todas las ciudades:**
 ```sql
 SELECT CITY, DEPARTMENT_NAME
 FROM LOCATIONS
 LEFT JOIN DEPARTMENTS USING (LOCATION_ID);
 ```
+**Alternativa: mostrar todos los departamentos (aunque no tengan ciudad):**
+```sql
+SELECT CITY, DEPARTMENT_NAME
+FROM LOCATIONS
+RIGHT OUTER JOIN DEPARTMENTS USING (LOCATION_ID);
+```
 
-Esta consulta te mostrará todas las ciudades, y si alguna no tiene departamento, el campo `DEPARTMENT_NAME`
-aparecerá como `NULL`.
-*/
+> 📝 **Explicación:**
+>
+> - **LEFT JOIN** → conserva todas las filas de la tabla izquierda (`LOCATIONS`).
+> - **RIGHT JOIN** → conserva todas las filas de la tabla derecha (`DEPARTMENTS`).
+> - Para ver **todas las ciudades**, la tabla LEFT es `LOCATIONS`.
 
---*******************************************************************************************************
---                           CLASE 122 : CLAUSULA WITH                                                  *
---*******************************************************************************************************
+---
 
-La cláusula `WITH` en SQL se llama **subconsulta con nombre** o **Common Table Expression (CTE)**. Sirve para definir
-una consulta temporal que puedes reutilizar en la consulta principal, como si fuera una tabla virtual.
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                      Consejos prácticos rápidos                              │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ • Usa COALESCE(SUM(...), 0) si prefieres 0 en lugar de NULL para agregados.  │
+│ • Prefiere LEFT JOIN en lectura mental (poner la "tabla principal" a la izq).│
+│ • Evita NATURAL JOIN en entornos con columnas ambigüas: puede unir columnas  │
+│   inesperadas si comparten nombre.                                           │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
 
-**¿Qué hace tu ejemplo?**
+---
 
-1. **Crea una CTE llamada `SUMA_SALARIOS`:**
-    - Calcula la suma de salarios por departamento desde la tabla `EMPLOYEES`.
-    - Resultado: una tabla con `DEPARTMENT_ID` y la suma de salarios (`SALARIO`) de cada departamento.
 
-2. **Consulta principal:**
-    - Hace un `NATURAL JOIN` entre la CTE `SUMA_SALARIOS` y la tabla `DEPARTMENTS` usando la columna común 
-    - `DEPARTMENT_ID`.
+
+# 📚 SQL: JOINs y cláusula WITH (CTE)
+
+A continuación tienes un archivo que reúne ambos temas: un cuadro comparativo de los tipos de JOIN y una explicación ilustrada de la cláusula WITH (CTE). Incluye iconos y cuadros diseñados para facilitar la lectura.
+
+---
+
+## 📊 Comparativo de tipos de JOIN
+
+| Tipo de JOIN | ¿Qué muestra? | ¿Incluye nulos? | ¿Cuándo usarlo? |
+|--------------|----------------|------------------|------------------|
+| 🔗 INNER JOIN | Solo filas que coinciden en ambas tablas | ❌ No | Cuando solo quieres coincidencias exactas |
+| 🧩 NATURAL JOIN | Igual que INNER JOIN, pero une por columnas con el mismo nombre automáticamente | ❌ No | Cuando las columnas coinciden por nombre y quieres evitar listar condiciones |
+| ⬅️ LEFT OUTER JOIN | Todas las filas de la tabla izquierda y las que coinciden de la derecha | ✅ Sí (columnas de la derecha) | Para ver todo lo de la izquierda aunque no tenga coincidencia |
+| ➡️ RIGHT OUTER JOIN | Todas las filas de la tabla derecha y las que coinciden de la izquierda | ✅ Sí (columnas de la izquierda) | Para ver todo lo de la derecha aunque no tenga coincidencia |
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                      Resumen visual — ¿por qué cambia la cuenta?             │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ • INNER / NATURAL JOIN : solo se cuentan filas que emparejan en ambas tablas │
+│   => la cantidad equivale al número de coincidencias.                        │
+│ • LEFT JOIN : se muestran todas las filas de la izquierda; si no hay match,  │
+│   las columnas de la derecha aparecen como NULL.                             │
+│ • RIGHT JOIN : simétrico al LEFT JOIN; muestra todas las filas de la derecha│
+│   y pone NULL en columnas de la izquierda cuando no hay match.              │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+Ejemplo práctico:
+- Si tienes una tabla DEPARTMENTS y una subconsulta de EMPLOYEES y hay departamentos sin empleados:
+    - Con `LEFT JOIN` verás esos departamentos aunque no tengan empleados (aparecerá `NULL` en las columnas de empleados).
+    - Con `RIGHT JOIN` verás todos los resultados de la subconsulta aunque no tengan departamento asociado.
+- Por eso la cantidad de valores en `DEPARTMENT_ID` puede variar: depende de si existen filas sin coincidencia en alguna de las tablas.
+
+🔎 Consejo rápido:
+- Usa INNER/NATURAL cuando solo te interesen coincidencias.
+- Usa LEFT/RIGHT cuando quieras incluir filas "sin pareja" de uno de los lados y revisar valores NULL resultantes.
+
+---
+
+## 🧾 CLASE 122 — Cláusula WITH (CTE)
+
+La cláusula WITH en SQL se llama subconsulta con nombre o Common Table Expression (CTE). Sirve para definir una consulta temporal que puedes reutilizar en la consulta principal, como si fuera una tabla virtual.
+
+```sql
+-- Ejemplo esquemático
+WITH SUMA_SALARIOS AS (
+  SELECT DEPARTMENT_ID, SUM(SALARY) AS SALARIO
+  FROM EMPLOYEES
+  GROUP BY DEPARTMENT_ID
+)
+SELECT d.DEPARTMENT_ID, d.DEPARTMENT_NAME, s.SALARIO
+FROM SUMA_SALARIOS s
+NATURAL JOIN DEPARTMENTS d
+WHERE s.SALARIO > 20000;
+```
+
+Qué hace tu ejemplo:
+- Crea una CTE llamada SUMA_SALARIOS:
+    - Calcula la suma de salarios por departamento desde la tabla EMPLOYEES.
+    - Resultado: una tabla temporal con DEPARTMENT_ID y la suma de salarios (SALARIO) de cada departamento.
+- Consulta principal:
+    - Hace un NATURAL JOIN entre la CTE SUMA_SALARIOS y la tabla DEPARTMENTS usando la columna común DEPARTMENT_ID.
     - Selecciona solo los departamentos donde la suma de salarios es mayor a 20,000.
 
-**Ventajas de usar `WITH`:**
-- Hace el código más legible y organizado.
-- Permite reutilizar subconsultas complejas.
-- Facilita el mantenimiento y depuración.
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                       Ventajas de usar WITH (CTE)                            │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ • Legibilidad: separa lógica intermedia en nombres claros.                   │
+│ • Reutilización: la misma CTE puede usarse varias veces en la consulta.      │
+│ • Depuración: permite aislar subconsultas complejas para probarlas.         │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
 
-**Resumen:**  
-La cláusula `WITH` te permite definir consultas intermedias reutilizables, 
-simplificando y estructurando mejor
-tus consultas SQL.
+Resumen:
+La cláusula WITH te permite definir consultas intermedias reutilizables, simplificando y estructurando mejor tus consultas SQL.
+
+---
+
 
 ```sql
 WITH SUMA_SALARIOS AS
@@ -2871,6 +3024,45 @@ WHERE SALARY = (SELECT MAX(SALARY) FROM EMPLOYEES);
 - `WHERE`
 - `HAVING`
 - `FROM`
+
+# CUADRO COMPARATIVO PARA SABER COMO USAR JOIN
+# 📊 Comparativo de tipos de JOIN
+
+A continuación tienes un cuadro comparativo con iconos y un cuadro diseñado para visualizar rápidamente qué devuelve cada tipo de JOIN y cuándo usarlo.
+
+| Tipo de JOIN | ¿Qué muestra? | ¿Incluye nulos? | ¿Cuándo usarlo? |
+|--------------|----------------|------------------|------------------|
+| 🔗 INNER JOIN | Solo filas que coinciden en ambas tablas | ❌ No | Cuando solo quieres coincidencias exactas |
+| 🧩 NATURAL JOIN | Igual que INNER JOIN, pero une por columnas con el mismo nombre automáticamente | ❌ No | Cuando las columnas coinciden por nombre y quieres evitar listar condiciones |
+| ⬅️ LEFT OUTER JOIN | Todas las filas de la tabla izquierda y las que coinciden de la derecha | ✅ Sí (columnas de la derecha) | Para ver todo lo de la izquierda aunque no tenga coincidencia |
+| ➡️ RIGHT OUTER JOIN | Todas las filas de la tabla derecha y las que coinciden de la izquierda | ✅ Sí (columnas de la izquierda) | Para ver todo lo de la derecha aunque no tenga coincidencia |
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                      Resumen visual — ¿por qué cambia la cuenta?             │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ • INNER / NATURAL JOIN : solo se cuentan filas que emparejan en ambas tablas │
+│   => la cantidad equivale al número de coincidencias.                        │
+│ • LEFT JOIN : se muestran todas las filas de la izquierda; si no hay match,  │
+│   las columnas de la derecha aparecen como NULL.                             │
+│ • RIGHT JOIN : simétrico al LEFT JOIN; muestra todas las filas de la derecha│
+│   y pone NULL en columnas de la izquierda cuando no hay match.              │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+Ejemplo práctico:
+- Si tienes una tabla DEPARTMENTS y una subconsulta de EMPLOYEES y hay departamentos sin empleados:
+    - Con `LEFT JOIN` verás esos departamentos aunque no tengan empleados (aparecerá `NULL` en las columnas de empleados).
+    - Con `RIGHT JOIN` verás todos los resultados de la subconsulta aunque no tengan departamento asociado.
+- Por eso la cantidad de valores en `DEPARTMENT_ID` puede variar: depende de si existen filas sin coincidencia en alguna de las tablas.
+
+🔎 Consejo rápido:
+- Usa INNER/NATURAL cuando solo te interesen coincidencias.
+- Usa LEFT/RIGHT cuando quieras incluir filas "sin pareja" de uno de los lados y revisar valores NULL resultantes.
+
+¡Listo! Si quieres, puedo:
+- Generar ejemplos SQL con datos de ejemplo y resultados mostrados.
+- Incluir una versión con colores (HTML) para presentaciones.
 
 ---
 
@@ -3017,6 +3209,186 @@ WHERE (DEPARTMENT_ID) IN
                          AND CITY = 'Seattle');
 ```
 ![img](/images/23.png)
+
+# 📚 CLASE 127 · SUBCONSULTAS Y CTEs (WITH)
+
+---
+
+## 🔎 Diferencias entre `WITH` y subconsultas en `WHERE`
+
+- La cláusula `WITH` se usa para definir **subconsultas reutilizables** (CTE, Common Table Expression) al inicio de la consulta, especialmente cuando necesitas usar la misma subconsulta varias veces o quieres que el código sea más legible.
+- La cláusula `WHERE` se usa para **filtrar filas** en la consulta principal y puede contener **subconsultas** que devuelven valores para comparar o filtrar.
+
+### 📝 **Resumen:**
+- 💡 Usa `WITH` para subconsultas complejas, reutilizables o que mejoran la legibilidad.
+- 🎯 Usa subconsultas en `WHERE` para filtrar resultados según condiciones específicas.
+
+---
+
+| Tipo         | ¿Para qué se usa?         | Ejemplo             | Ventaja principal        |
+|--------------|--------------------------|---------------------|-------------------------|
+| 🗂️ WITH (CTE)   | Reutilizar/ordenar lógica | Ver abajo           | Legibilidad y modularidad|
+| 🎚️ WHERE/subconsulta | Filtrar resultados      | Ver abajo           | Precisión en los filtros |
+
+---
+
+**Ejemplo con `WITH`:**
+```sql
+WITH empleados_altos AS (
+  SELECT * FROM EMPLOYEES WHERE SALARY > 7000
+)
+SELECT FIRST_NAME FROM empleados_altos;
+```
+**Ejemplo con subconsulta en `WHERE`:**
+```sql
+SELECT FIRST_NAME FROM EMPLOYEES
+WHERE SALARY > (SELECT AVG(SALARY) FROM EMPLOYEES);
+```
+
+---
+
+# 🏋️‍♂️ **Práctica: SUBCONSULTAS**
+
+# 1️⃣ NOTA ->
+-- Usa = si la subconsulta devuelve una sola fila.
+-- Usa IN si la subconsulta puede devolver varias filas.
+
+---
+
+## 1️⃣ 👥 Compañeros que trabajan en el mismo departamento que John Chen
+
+```sql
+SELECT FIRST_NAME, LAST_NAME, DEPARTMENT_ID
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = (
+  SELECT DEPARTMENT_ID
+  FROM EMPLOYEES
+  WHERE FIRST_NAME = 'John'
+    AND LAST_NAME = 'Chen'
+);
+```
+
+---
+
+## 2️⃣ 🏙️ ¿Qué departamentos tienen sede en Toronto?
+
+```sql
+SELECT DEPARTMENT_NAME, CITY
+FROM DEPARTMENTS D
+JOIN LOCATIONS L ON D.LOCATION_ID = L.LOCATION_ID
+WHERE L.CITY = 'Toronto';
+```
+```sql
+SELECT DEPARTMENT_NAME
+FROM DEPARTMENTS
+WHERE LOCATION_ID = (
+  SELECT LOCATION_ID
+  FROM LOCATIONS
+  WHERE CITY = 'Toronto'
+);
+```
+
+---
+
+### 👔 Empleados que tengan más de 5 empleados a su cargo (subordinados)
+
+**Subordinados de managers con > 5 empleados:**
+```sql
+SELECT FIRST_NAME, LAST_NAME, MANAGER_ID
+FROM EMPLOYEES
+WHERE MANAGER_ID IN (
+  SELECT MANAGER_ID
+  FROM EMPLOYEES
+  GROUP BY MANAGER_ID
+  HAVING COUNT(*) > 5
+);
+```
+
+**Managers que tienen > 5 empleados a su cargo:**
+```sql
+SELECT FIRST_NAME
+FROM EMPLOYEES
+WHERE EMPLOYEE_ID IN (
+  SELECT MANAGER_ID
+  FROM EMPLOYEES
+  GROUP BY MANAGER_ID
+  HAVING COUNT(*) > 5
+);
+```
+
+---
+
+## 3️⃣ 🗺️ ¿En qué ciudad trabaja Adam Fripp?
+
+```sql
+SELECT CITY
+FROM LOCATIONS
+WHERE LOCATION_ID = (
+  SELECT LOCATION_ID
+  FROM DEPARTMENTS
+  WHERE DEPARTMENT_ID = (
+    SELECT DEPARTMENT_ID
+    FROM EMPLOYEES
+    WHERE FIRST_NAME = 'Adam'
+      AND LAST_NAME = 'Fripp'
+  )
+);
+```
+
+---
+
+## 4️⃣ 💸 ¿Qué empleados tienen el salario mínimo?
+
+```sql
+SELECT LAST_NAME, JOB_ID, SALARY
+FROM EMPLOYEES
+WHERE SALARY = (
+  SELECT MIN(SALARY)
+  FROM EMPLOYEES
+);
+```
+
+---
+
+## 5️⃣ 🏢 Departamentos donde el salario máximo sea mayor a 10,000
+
+```sql
+SELECT *
+FROM DEPARTMENTS
+WHERE DEPARTMENT_ID IN (
+  SELECT DEPARTMENT_ID
+  FROM EMPLOYEES
+  GROUP BY DEPARTMENT_ID
+  HAVING MAX(SALARY) > 10000
+);
+```
+
+---
+
+## 6️⃣ 💼 Tipos de trabajo de empleados que entraron entre 2002 y 2003
+
+```sql
+SELECT *
+FROM JOBS
+WHERE JOB_ID IN (
+  SELECT JOB_ID
+  FROM EMPLOYEES
+  WHERE TO_CHAR(HIRE_DATE, 'YYYY') BETWEEN 2002 AND 2003
+);
+```
+
+---
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                 Consejos de subconsultas y CTEs                             │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ • Prefiere CTE (`WITH`) para lógica compleja y código reutilizable.          │
+│ • Usa subconsultas en `WHERE` cuando necesitas filtrar por valores dinámicos.│
+│ • Agrupa y filtra con HAVING para comparar agregados en subconsultas.        │
+│ • Combina JOINs y subconsultas para consultas ricas y precisas.              │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 

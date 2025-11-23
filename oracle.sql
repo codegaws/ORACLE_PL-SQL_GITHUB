@@ -1783,7 +1783,7 @@ Esta consulta te mostrará todas las ciudades, y si alguna no tiene departamento
 --*******************************************************************************************************
 --                           CLASE 122 : CLAUSULA WITH                                                  *
 --*******************************************************************************************************
--- Calcula la suma de salarios por departamento desde la tabla `EMPLOYEES`.
+-- Calcula la suma de salarios por departamento desde la tabla `EMPLOYEES` y que indique el nombre del departamento.
 WITH SUMA_SALARIOS AS
          (SELECT DEPARTMENT_ID, SUM(SALARY) AS SALARIO
           FROM EMPLOYEES
@@ -1792,6 +1792,16 @@ SELECT DEPARTMENT_ID, DEPARTMENT_NAME, SALARIO
 FROM SUMA_SALARIOS
          NATURAL JOIN DEPARTMENTS
 WHERE SALARIO > 20000;
+
+/*WITH SUMA_SALARIOS AS
+         (SELECT DEPARTMENT_ID, SUM(SALARY) AS SALARIO
+          FROM EMPLOYEES
+          GROUP BY DEPARTMENT_ID)
+SELECT D.DEPARTMENT_ID, D.DEPARTMENT_NAME, S.SALARIO
+FROM DEPARTMENTS D
+         INNER JOIN SUMA_SALARIOS S ON D.DEPARTMENT_ID = S.DEPARTMENT_ID
+WHERE S.SALARIO > 20000;*/
+
 
 -- OTRO EJEMPLO
 WITH SUMA_SALARIOS AS (SELECT DEPARTMENT_ID, SUM(SALARY) AS SALARIOS FROM EMPLOYEES GROUP BY DEPARTMENT_ID),
@@ -1968,11 +1978,125 @@ WHERE (DEPARTMENT_ID) IN
 
 -- CONOCER nombre - ciudad - DEPARTMENT_ID de los empleados QUE ESTAN SITUADOS EN Seattle USANDO SOLO JOIN NO SUBCONSULTAS
 --  es mejor usar JOINS
-SELECT D.DEPARTMENT_NAME, L.CITY, E.FIRST_NAME
+SELECT D.DEPARTMENT_ID, D.DEPARTMENT_NAME, E.FIRST_NAME
 FROM DEPARTMENTS D
-         JOIN LOCATIONS L
-              ON D.LOCATION_ID = L.LOCATION_ID
-         JOIN EMPLOYEES E
-              ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
-                  AND L.CITY = 'Seattle';
+         JOIN LOCATIONS L ON D.LOCATION_ID = L.LOCATION_ID AND L.CITY = 'Seattle'
+         JOIN EMPLOYEES E ON D.DEPARTMENT_ID = E.DEPARTMENT_ID;
+
+--*******************************************************************************************************
+--                           CLASE 127 : SUBCONSULTAS PRACTICA                                          *
+--*******************************************************************************************************
+-- # NOTA ->
+-- Usa = si la subconsulta devuelve una sola fila.
+-- Usa IN si la subconsulta puede devolver varias filas.
+
+-- PREGUNTA 1 ->
+-- • Mostrar los compañeros que trabajan en el mismo departamento que
+-- John Chen
+
+SELECT DEPARTMENT_ID
+FROM EMPLOYEES
+WHERE FIRST_NAME = 'John'
+  AND LAST_NAME = 'Chen';--> DEPARTMENT_ID = 100
+
+SELECT FIRST_NAME, LAST_NAME, DEPARTMENT_ID
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = (SELECT DEPARTMENT_ID
+                       FROM EMPLOYEES
+                       WHERE FIRST_NAME = 'John'
+                         AND LAST_NAME = 'Chen');
+
+-- PREGUNTA 2 ->
+--• ¿Qué departamentos tienen su sede en Toronto?
+--• Visualizar los empleados que tengan más de 5 empleados a su cargo.
+
+SELECT DEPARTMENT_NAME, CITY
+FROM DEPARTMENTS D
+         JOIN LOCATIONS L ON D.LOCATION_ID = L.LOCATION_ID
+WHERE L.CITY = 'Toronto';
+
+SELECT DEPARTMENT_NAME
+FROM DEPARTMENTS
+WHERE LOCATION_ID = (SELECT LOCATION_ID
+                     FROM LOCATIONS
+                     WHERE CITY = 'Toronto');
+/**
+  La primera consulta muestra los subordinados de los managers con más de 5 empleados.
+ */
+SELECT FIRST_NAME, LAST_NAME, MANAGER_ID
+FROM EMPLOYEES
+WHERE MANAGER_ID IN (SELECT MANAGER_ID
+                     FROM EMPLOYEES
+                     GROUP BY MANAGER_ID
+                     HAVING COUNT(*) > 5);
+
+/**
+  La segunda consulta muestra los managers que tienen más de 5 empleados a su cargo.
+ */
+SELECT FIRST_NAME
+FROM EMPLOYEES
+WHERE EMPLOYEE_ID IN
+      (SELECT MANAGER_ID
+       FROM EMPLOYEES
+       GROUP BY MANAGER_ID
+       HAVING COUNT(*) > 5);
+
+-- ¿En qué ciudad trabajar Guy Himuro?
+
+SELECT DEPARTMENT_ID
+FROM EMPLOYEES
+WHERE first_name = 'Adam'
+  and last_name = 'Fripp';--> DEPARTMENT_ID = 50
+
+SELECT LOCATION_ID
+FROM DEPARTMENTS
+WHERE DEPARTMENT_ID = 50;
+
+
+SELECT CITY
+FROM LOCATIONS
+WHERE LOCATION_ID =
+      (SELECT LOCATION_ID
+       FROM DEPARTMENTS
+       WHERE DEPARTMENT_ID =
+             (SELECT DEPARTMENT_ID
+              FROM EMPLOYEES
+              WHERE first_name = 'Adam'
+                and last_name = 'Fripp'));
+
+
+-- • ¿Qué empleados tienen el salario mínimo?
+SELECT last_name, job_id, salary
+FROM employees
+WHERE salary =
+      (SELECT MIN(salary)
+       FROM employees);
+
+-- • Visualizar los departamentos en los cuales el salario máximo sea mayor 1000
+
+SELECT *
+FROM DEPARTMENTS
+WHERE DEPARTMENT_ID IN
+      (SELECT DEPARTMENT_ID
+       FROM EMPLOYEES
+       GROUP BY DEPARTMENT_ID
+       HAVING MAX(SALARY) > 10000);
+
+--• Indicar los tipos de trabajo de los empleados que entraron en la empresa
+--entre 2002 y 2003
+
+SELECT *
+FROM JOBS
+WHERE JOB_ID IN
+      (SELECT JOB_ID
+       FROM EMPLOYEES
+       WHERE TO_CHAR(HIRE_DATE, 'YYYY') between 2002 and 2003);
+
+
+
+
+
+
+
+
 
