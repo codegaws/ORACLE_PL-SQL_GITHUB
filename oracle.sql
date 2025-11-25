@@ -2096,9 +2096,57 @@ WHERE JOB_ID IN
 --                           CLASE 128 : SUBCONSULTAS MULTIPLES FILAS CON LAS CLAUSULAS ANY-ALL         *
 --*******************************************************************************************************
 
+-- any no puede ir solo siempre va acompañado de un operador de comparacion
+-- <> == > <
+-- > ANY < ANY
+
+-- TODOS AQUELLOS EMPLEADOS CUYO SALARIO SEA MAYOR QUE CUALQUIERA DE LOS SALARIOS DE LOS PROGRAMADORES
+-- ANY ->
+SELECT FIRST_NAME, LAST_NAME, JOB_ID, SALARY
+FROM EMPLOYEES
+WHERE SALARY > ANY (SELECT SALARY FROM EMPLOYEES WHERE JOB_ID = 'IT_PROG')
+  AND JOB_ID <> 'IT_PROG';
+
+-- ALL -> TIENE CUMPLIRSE TODOS LA CONDICION
+SELECT FIRST_NAME, LAST_NAME, JOB_ID, SALARY
+FROM EMPLOYEES
+WHERE SALARY > ALL (SELECT SALARY FROM EMPLOYEES WHERE JOB_ID = 'IT_PROG')
+  AND JOB_ID <> 'IT_PROG';
+
+--*******************************************************************************************************
+--                           CLASE 129 : SUBCONSULTAS SINCRONIZADAS       *
+--*******************************************************************************************************
+
+-- QUEREMOS SABER LOS EMPLEADOS QUE GANA MAS EN SU DEPARMENTO
+SELECT DEPARTMENT_ID, MAX(SALARY)
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID;
 
 
+SELECT DEPARTMENT_ID, FIRST_NAME, SALARY
+FROM EMPLOYEES
+WHERE (DEPARTMENT_ID, SALARY) IN (SELECT DEPARTMENT_ID, MAX(SALARY)
+                                  FROM EMPLOYEES
+                                  GROUP BY DEPARTMENT_ID)
 
+-- USANDO SUBCONSULTA SINCRONIZADAS DEBES CREAR UN ALIAS PARA LA TABLA ¿POR QUE?
+SELECT DEPARTMENT_ID, FIRST_NAME, SALARY
+FROM EMPLOYEES EMP
+WHERE SALARY = (SELECT MAX(SALARY)
+                FROM EMPLOYEES
+                WHERE DEPARTMENT_ID = EMP.DEPARTMENT_ID);
+--10 TOMAS 100
+--20 JONES 200
 
+--*******************************************************************************************************
+--                           CLASE 130 : SUBCONSULTA EXIST                                              *
+--*******************************************************************************************************
+-- OPERADOR EXIST NO EXIST EN EL EJEMPLO BUSCA EMPLEADOS QUE NO ESTEN EN EMPLOYEES Y DEVUELVE LOS NOMBRES
+-- DEL DEPARTAMENTO.
+
+SELECT DEPARTMENT_NAME
+FROM DEPARTMENTS DEPT
+WHERE NOT EXISTS (SELECT * FROM EMPLOYEES
+                  WHERE DEPARTMENT_ID=DEPT.DEPARTMENT_ID);
 
 
