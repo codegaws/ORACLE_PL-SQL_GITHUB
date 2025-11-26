@@ -3216,8 +3216,10 @@ WHERE (DEPARTMENT_ID) IN
 
 ## 🔎 Diferencias entre `WITH` y subconsultas en `WHERE`
 
-- La cláusula `WITH` se usa para definir **subconsultas reutilizables** (CTE, Common Table Expression) al inicio de la consulta, especialmente cuando necesitas usar la misma subconsulta varias veces o quieres que el código sea más legible.
-- La cláusula `WHERE` se usa para **filtrar filas** en la consulta principal y puede contener **subconsultas** que devuelven valores para comparar o filtrar.
+- La cláusula `WITH` se usa para definir **subconsultas reutilizables** (CTE, Common Table Expression) al inicio de la
+- consulta, especialmente cuando necesitas usar la misma subconsulta varias veces o quieres que el código sea más legible.
+- La cláusula `WHERE` se usa para **filtrar filas** en la consulta principal y puede contener **subconsultas** que devuelven
+- valores para comparar o filtrar.
 
 ### 📝 **Resumen:**
 - 💡 Usa `WITH` para subconsultas complejas, reutilizables o que mejoran la legibilidad.
@@ -3402,8 +3404,343 @@ WHERE JOB_ID IN (
 > - 🧠 : Notas clave
 > - 📌 : Resumen
 > - 🟢🔵🟦🟥🪝🎯: Visualización y/o referencia explicativa
+---
+# 📚 CLASE 128 · SUBCONSULTAS Y CTEs (WITH)
+# 📚 Clases 128-130: Subconsultas Múltiples Filas
+
+## 🎯 Clase 128: Cláusulas ANY y ALL
+
+### 🔧 Operadores de Comparación con Subconsultas
+
+> 💡 **Importante:** ANY y ALL siempre van acompañados de un operador de comparación (`>`, `<`, `=`, `<>`, `>=`, `<=`)
+
+### 🔹 Operador ANY
+**📝 Concepto:** Verdadero si la condición se cumple con **al menos uno** de los valores de la subconsulta.
+
+```sql
+-- 🎯 Empleados que ganen MÁS que CUALQUIER programador (excepto programadores)
+SELECT FIRST_NAME, LAST_NAME, JOB_ID, SALARY
+FROM EMPLOYEES
+WHERE SALARY > ANY (SELECT SALARY FROM EMPLOYEES WHERE JOB_ID = 'IT_PROG')
+  AND JOB_ID <> 'IT_PROG';
+```
+
+**🔍 Equivale a:** `SALARY > MIN(salarios_programadores)`
+
+---
+
+### 🔹 Operador ALL
+**📝 Concepto:** Verdadero si la condición se cumple con **todos** los valores de la subconsulta.
+
+```sql
+-- 🎯 Empleados que ganen MÁS que TODOS los programadores (excepto programadores)
+SELECT FIRST_NAME, LAST_NAME, JOB_ID, SALARY
+FROM EMPLOYEES
+WHERE SALARY > ALL (SELECT SALARY FROM EMPLOYEES WHERE JOB_ID = 'IT_PROG')
+  AND JOB_ID <> 'IT_PROG';
+```
+
+**🔍 Equivale a:** `SALARY > MAX(salarios_programadores)`
+
+---
+
+## 📊 Comparación ANY vs ALL
+
+| 🔍 Operador | 📝 Condición | 🎯 Equivalencia | 📈 Ejemplo |
+|-------------|--------------|-----------------|-------------|
+| **> ANY** | Mayor que al menos uno | `> MIN(valores)` | Supera al más bajo |
+| **> ALL** | Mayor que todos | `> MAX(valores)` | Supera al más alto |
+| **< ANY** | Menor que al menos uno | `< MAX(valores)` | Menor que el más alto |
+| **< ALL** | Menor que todos | `< MIN(valores)` | Menor que el más bajo |
+
+---
+
+## 🔄 Clase 129: Subconsultas Sincronizadas
+
+### 🎯 Empleados con Salario Máximo por Departamento
+
+#### 🔹 Método 1: Subconsulta Independiente
+```sql
+-- 📊 Primero vemos los salarios máximos por departamento
+SELECT DEPARTMENT_ID, MAX(SALARY)
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID;
+
+-- 🎯 Empleados con salario máximo de su departamento
+SELECT DEPARTMENT_ID, FIRST_NAME, SALARY
+FROM EMPLOYEES
+WHERE (DEPARTMENT_ID, SALARY) IN (SELECT DEPARTMENT_ID, MAX(SALARY)
+                                  FROM EMPLOYEES
+                                  GROUP BY DEPARTMENT_ID);
+```
+
+#### 🔹 Método 2: Subconsulta Correlacionada/Sincronizada
+```sql
+-- 🔄 Usando subconsulta sincronizada (REQUIERE ALIAS)
+SELECT DEPARTMENT_ID, FIRST_NAME, SALARY
+FROM EMPLOYEES EMP
+WHERE SALARY = (SELECT MAX(SALARY)
+                FROM EMPLOYEES
+                WHERE DEPARTMENT_ID = EMP.DEPARTMENT_ID);
+```
+
+### 🚨 ¿Por qué se necesita ALIAS en subconsultas sincronizadas?
+
+| 📍 Aspecto | 📝 Explicación |
+|------------|----------------|
+| **🔍 Referencia Externa** | Para distinguir la tabla externa de la interna |
+| **🔄 Correlación** | La subconsulta necesita referenciar cada fila específica |
+| **⚡ Ejecución** | Se ejecuta una vez por cada fila de la consulta principal |
+
+**Ejemplo del proceso:**
+```sql
+-- Fila 1: EMP.DEPARTMENT_ID = 10 → busca MAX(SALARY) WHERE DEPARTMENT_ID = 10
+-- Fila 2: EMP.DEPARTMENT_ID = 20 → busca MAX(SALARY) WHERE DEPARTMENT_ID = 20
+-- Fila 3: EMP.DEPARTMENT_ID = 10 → busca MAX(SALARY) WHERE DEPARTMENT_ID = 10
+```
+
+---
+
+## 🔍 Clase 130: Operador EXISTS
+
+### 🎯 Concepto de EXISTS
+**📝 Función:** Verifica si una subconsulta devuelve **al menos una fila**.  No importa el contenido, solo la existencia.
+
+### 🔹 Departamentos sin Empleados
+```sql
+-- 🏢 Buscar departamentos que NO tienen empleados asignados
+SELECT DEPARTMENT_NAME
+FROM DEPARTMENTS DEPT
+WHERE NOT EXISTS (SELECT *
+                  FROM EMPLOYEES
+                  WHERE DEPARTMENT_ID = DEPT.DEPARTMENT_ID);
+```
+
+### 📊 EXISTS vs IN
+
+| 🔍 Operador | 📝 Propósito | ⚡ Rendimiento | 🎯 Uso Ideal |
+|-------------|--------------|----------------|--------------|
+| **EXISTS** | Verificar existencia | ✅ Más rápido | Relaciones uno a muchos |
+| **IN** | Comparar valores | ⚠️ Puede ser lento | Listas pequeñas de valores |
+
+---
+
+## 🔄 Tipos de Subconsultas
+
+### 1️⃣ Subconsulta Independiente
+```sql
+-- ✅ Se ejecuta UNA sola vez
+WHERE SALARY > (SELECT AVG(SALARY) FROM EMPLOYEES)
+```
+
+### 2️⃣ Subconsulta Correlacionada/Sincronizada
+```sql
+-- 🔄 Se ejecuta UNA vez por cada fila externa
+WHERE SALARY = (SELECT MAX(SALARY) 
+                FROM EMPLOYEES 
+                WHERE DEPARTMENT_ID = EMP.DEPARTMENT_ID)
+```
+
+---
+
+## 💡 Mejores Prácticas
+
+### ✅ Recomendaciones
+- **🎯 Usar EXISTS** para verificar existencia en lugar de IN cuando sea posible
+- **📝 Alias obligatorio** en subconsultas correlacionadas
+- **⚡ Preferir subconsultas independientes** cuando el rendimiento sea crítico
+- **🧪 Probar subconsultas por separado** antes de integrarlas
+
+### ⚠️ Consideraciones de Rendimiento
+- **ANY/ALL:** Eficientes para comparaciones con conjuntos pequeños
+- **EXISTS:** Muy eficiente porque se detiene al encontrar la primera coincidencia
+- **Subconsultas correlacionadas:** Pueden ser lentas en tablas grandes
+
+---
+
+## 🎯 Casos de Uso Comunes
+
+| 🔍 Escenario | 💡 Solución Recomendada |
+|--------------|-------------------------|
+| **Comparar con rango de valores** | `> ANY` o `> ALL` |
+| **Empleados top por departamento** | Subconsulta correlacionada |
+| **Verificar relaciones** | `EXISTS` / `NOT EXISTS` |
+| **Filtrar por múltiples criterios** | Subconsulta independiente con `IN` |
 
 
+---
+# 📚 Clase 131: Prácticas Otras Subconsultas
+
+## 🎯 Ejercicios de Subconsultas Avanzadas
+
+### 1️⃣ Subconsulta con Operador ANY
+**📝 Objetivo:** Seleccionar empleados que ganen más que cualquier salario máximo de los departamentos 50, 60 y 70.
+
+```sql
+-- ✅ Consulta corregida
+SELECT FIRST_NAME, SALARY, DEPARTMENT_ID
+FROM EMPLOYEES E
+WHERE SALARY > ANY (SELECT MAX(SALARY)
+                    FROM EMPLOYEES
+                    GROUP BY DEPARTMENT_ID
+                    HAVING DEPARTMENT_ID IN ('50', '60', '70'));
+```
+
+> 💡 **Nota importante:** Se requiere usar `IN` en lugar de paréntesis simples para la comparación múltiple.
+
+---
+
+### 2️⃣ Subconsulta con Operador IN
+**📝 Objetivo:** Departamentos con salario medio superior a 9000.
+
+```sql
+SELECT DEPARTMENT_NAME
+FROM DEPARTMENTS
+WHERE DEPARTMENT_ID IN (SELECT DEPARTMENT_ID
+                        FROM EMPLOYEES
+                        GROUP BY DEPARTMENT_ID
+                        HAVING AVG(SALARY) > 9000);
+```
+
+---
+
+### 3️⃣ Empleados con Salario Máximo por Departamento
+**📝 Objetivo:** Mostrar empleados que tienen el salario máximo de su departamento.
+
+#### 🔹 Versión con Subconsulta Independiente
+```sql
+SELECT FIRST_NAME, DEPARTMENT_NAME, SALARY
+FROM EMPLOYEES
+         JOIN DEPARTMENTS USING (DEPARTMENT_ID)
+WHERE (DEPARTMENT_ID, SALARY) IN (SELECT DEPARTMENT_ID, MAX(SALARY)
+                                  FROM EMPLOYEES
+                                  GROUP BY DEPARTMENT_ID)
+ORDER BY SALARY DESC;
+```
+
+#### 🔹 Versión con Subconsulta Correlacionada
+```sql
+SELECT FIRST_NAME, DEPARTMENT_NAME, SALARY
+FROM EMPLOYEES EMP
+         JOIN DEPARTMENTS DEPT ON (DEPT.DEPARTMENT_ID = EMP.DEPARTMENT_ID)
+WHERE SALARY = (SELECT MAX(SALARY)
+                FROM EMPLOYEES
+                WHERE DEPARTMENT_ID = EMP.DEPARTMENT_ID
+                GROUP BY DEPARTMENT_ID)
+ORDER BY SALARY DESC;
+```
+
+---
+
+### 4️⃣ Operador ALL
+**📝 Objetivo:** Empleados que ganen más que TODOS los empleados del departamento 100.
+
+```sql
+SELECT *
+FROM EMPLOYEES
+WHERE SALARY > ALL (SELECT SALARY
+                    FROM EMPLOYEES
+                    WHERE DEPARTMENT_ID = 100);
+```
+
+---
+
+### 5️⃣ Subconsultas Sincronizadas
+**📝 Objetivo:** Empleados con mayor salario de su departamento usando subconsultas correlacionadas.
+
+```sql
+SELECT DEPARTMENT_ID, FIRST_NAME, SALARY
+FROM EMPLOYEES EMP
+WHERE SALARY = (SELECT MAX(SALARY)
+                FROM EMPLOYEES
+                WHERE DEPARTMENT_ID = EMP.DEPARTMENT_ID);
+```
+
+---
+
+### 6️⃣ Operador EXISTS
+**📝 Objetivo:** Ciudades donde hay algún departamento.
+
+```sql
+SELECT CITY
+FROM LOCATIONS LOC
+WHERE EXISTS (SELECT *
+              FROM DEPARTMENTS DPT
+              WHERE DPT.LOCATION_ID = LOC.LOCATION_ID);
+```
+
+---
+
+### 7️⃣ Operador NOT EXISTS
+**📝 Objetivo:** Regiones donde NO hay departamentos.
+
+```sql
+SELECT REGION_NAME
+FROM REGIONS REGIONES
+WHERE NOT EXISTS (SELECT *
+                  FROM COUNTRIES
+                           NATURAL JOIN LOCATIONS
+                           NATURAL JOIN DEPARTMENTS
+                  WHERE REGION_ID = REGIONES.REGION_ID);
+```
+
+---
+
+## 📊 Comparación de Enfoques
+
+| 🔍 Tipo | ⚡ Rendimiento | 📖 Legibilidad | 🎯 Uso Recomendado |
+|---------|---------------|----------------|---------------------|
+| **Subconsulta Independiente** | ✅ Rápida | ✅ Clara | Comparaciones múltiples |
+| **Subconsulta Correlacionada** | ⚠️ Más lenta | ⚠️ Compleja | Comparaciones por fila |
+| **EXISTS/NOT EXISTS** | ✅ Eficiente | ✅ Intuitiva | Verificar existencia |
+
+---
+
+## 🔧 Tipos de JOIN
+
+### 🟢 JOIN con ON (Explícito)
+```sql
+FROM EMPLOYEES E JOIN DEPARTMENTS D 
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+```
+**✅ Recomendado:** Máximo control y claridad
+
+### 🟡 JOIN con USING (Simplificado)
+```sql
+FROM EMPLOYEES JOIN DEPARTMENTS USING (DEPARTMENT_ID)
+```
+**✅ Bueno:** Cuando las columnas tienen el mismo nombre
+
+### 🔴 NATURAL JOIN (Automático)
+```sql
+FROM EMPLOYEES NATURAL JOIN DEPARTMENTS
+```
+**❌ Evitar:** Puede causar resultados inesperados
+
+---
+
+## 💡 Conceptos Clave
+
+### 🔄 Subconsulta Correlacionada/Sincronizada
+- Se ejecuta **una vez por cada fila** de la consulta principal
+- Depende de valores de la consulta externa
+- Usa alias obligatorio para referenciar la tabla externa
+
+### 🎯 Operadores de Comparación
+- **ANY:** Verdadero si cumple con al menos uno de los valores
+- **ALL:** Verdadero si cumple con todos los valores
+- **EXISTS:** Verdadero si la subconsulta devuelve al menos una fila
+- **IN:** Verdadero si el valor está en la lista de resultados
+
+---
+
+## 🚀 Mejores Prácticas
+
+1. **🎯 Preferir subconsultas independientes** cuando sea posible (mejor rendimiento)
+2. **📝 Usar alias descriptivos** para mejorar legibilidad
+3. **🔍 Elegir JOIN explícito (ON)** para mayor claridad
+4. **⚡ Considerar EXISTS** en lugar de IN para verificar existencia
+5. **🧪 Probar consultas por partes** antes de combinarlas
 
 ---
 

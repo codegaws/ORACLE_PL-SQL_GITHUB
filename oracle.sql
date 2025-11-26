@@ -2146,7 +2146,404 @@ WHERE SALARY = (SELECT MAX(SALARY)
 
 SELECT DEPARTMENT_NAME
 FROM DEPARTMENTS DEPT
-WHERE NOT EXISTS (SELECT * FROM EMPLOYEES
-                  WHERE DEPARTMENT_ID=DEPT.DEPARTMENT_ID);
+WHERE NOT EXISTS (SELECT *
+                  FROM EMPLOYEES
+                  WHERE DEPARTMENT_ID = DEPT.DEPARTMENT_ID);
+
+--*******************************************************************************************************
+--                           CLASE 131 : PRACTICAS OTRAS SUBCONSULTAS                                   *
+--*******************************************************************************************************
+
+/*
+  1. Otras Subconsultas
+• Seleccionar el nombre, salario y departamento de los empleados que
+ganen mas que cualquiera de los salarios máximos de los
+departamentos 50, 60 y 70. Usar el operador ANY
+ */
+---
+-- primero realizo una prueba
+SELECT MAX(SALARY)
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID
+HAVING DEPARTMENT_ID('50', '60', '70');
+
+SELECT FIRST_NAME, SALARY, DEPARTMENT_ID
+FROM EMPLOYEES E
+WHERE SALARY > ANY (SELECT MAX(SALARY)
+                    FROM EMPLOYEES
+                    GROUP BY DEPARTMENT_ID
+                    HAVING DEPARTMENT_ID IN ('50', '60', '70'));
+
+/*
+  El problema en tu consulta es que estás usando `HAVING DEPARTMENT_ID ('50', '60', '70')`
+  cuando debería ser `HAVING DEPARTMENT_ID IN ('50', '60', '70')`.
+
+## ¿Por qué es necesario el IN?
+
+**Sin IN (incorrecto):**
+```sql
+HAVING DEPARTMENT_ID ('50', '60', '70')
+```
+Esta sintaxis es **inválida** porque Oracle no entiende qué hacer con los valores entre paréntesis.
+No es una función ni una expresión válida.
+
+**Con IN (correcto):**
+```sql
+HAVING DEPARTMENT_ID IN ('50', '60', '70')
+```
+
+## Explicación del operador IN
+
+El operador `IN` significa "**está contenido en**" y permite verificar si un valor coincide con **cualquiera**
+  de los valores de una lista:
+
+```sql
+-- Esto es equivalente a:
+DEPARTMENT_ID = '50' OR DEPARTMENT_ID = '60' OR DEPARTMENT_ID = '70'
+```
+
+## Tu consulta corregida:
+
+```sql
+SELECT MAX(SALARY)
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID
+HAVING DEPARTMENT_ID IN ('50', '60', '70');
+```
+
+**Lo que hace:**
+1. Agrupa empleados por departamento (`GROUP BY DEPARTMENT_ID`)
+2. Calcula el salario máximo de cada departamento (`SELECT MAX(SALARY)`)
+3. Filtra solo los departamentos 50, 60 y 70 (`HAVING DEPARTMENT_ID IN (...)`)
+
+**Resultado:** Los salarios máximos de los departamentos 50, 60 y 70.
+
+Sin el `IN`, Oracle no puede interpretar la sintaxis y genera un error de SQL.
+ */
+---
+/*
+  2. Otras Subconsultas
+  Indicar el nombre de los departamentos cuyo salario medio sea superior
+  a 9000. Usar el operador IN
+  SELECT DEPARTMENT_NAME FROM DEPARTMENTS
+  WHERE DEPARTMENT_ID IN (SELECT DEPARTMENT_ID FROM EMPLOYEES
+  GROUP BY DEPARTMENT_ID
+  HAVING AVG(SALARY)> 9000);
+
+ */
+
+SELECT DEPARTMENT_NAME
+FROM DEPARTMENTS
+WHERE DEPARTMENT_ID IN (SELECT DEPARTMENT_ID
+                        FROM EMPLOYEES
+                        GROUP BY DEPARTMENT_ID
+                        HAVING AVG(SALARY) > 9000);
+
+/**
+  3.- Indicar el nombre del empleado, el nombre del departamento, el salario
+de los empleados que tengan el salario máximo de su departamento.
+Ordenado por salario descendentemente. Usar el operador IN
+
+ SELECT FIRST_NAME,DEPARTMENT_NAME,SALARY
+ FROM EMPLOYEES JOIN DEPARTMENTS USING (DEPARTMENT_ID)
+ WHERE (DEPARTMENT_ID,SALARY) IN(SELECT
+ DEPARTMENT_ID,MAX(SALARY)
+    FROM EMPLOYEES
+     GROUP BY DEPARTMENT_ID)
+     ORDER BY SALARY DESC;
+ */
+
+SELECT FIRST_NAME, DEPARTMENT_NAME, SALARY
+FROM EMPLOYEES
+         JOIN DEPARTMENTS USING (DEPARTMENT_ID)
+WHERE (DEPARTMENT_ID, SALARY) IN (SELECT DEPARTMENT_ID, MAX(SALARY)
+                                  FROM EMPLOYEES
+                                  GROUP BY DEPARTMENT_ID)
+ORDER BY SALARY DESC;
+
+/**
+  ¿cuando usar JOIN?
+  Conclusión: USING es una forma abreviada de escribir la condición
+  de JOIN cuando las columnas se llaman igual en ambas tablas
+ */
+
+/**
+ 4.- Realizar la misma consulta anterior pero usando una subconsulta
+sincronizada
+SELECT FIRST_NAME,DEPARTMENT_NAME,SALARY
+FROM EMPLOYEES EMPLE JOIN DEPARTMENTS DEPT ON
+(EMPLE.DEPARTMENT_ID=DEPT.DEPARTMENT_ID)
+WHERE SALARY =(SELECT MAX(SALARY)
+ FROM EMPLOYEES
+ WHERE DEPARTMENT_ID=EMPLE.DEPARTMENT_ID
+ GROUP BY DEPARTMENT_ID)
+ORDER BY SALARY DESC;
+********************************************************************
+Una **subconsulta sincronizada** (también llamada **correlacionada**) es cuando
+la subconsulta **depende** de la consulta principal y se ejecuta **una vez por
+cada fila** de la consulta externa.
+
+## Diferencia clave:
+
+**Subconsulta normal (independiente):**
+```sql
+SELECT FIRST_NAME, SALARY
+FROM EMPLOYEES
+WHERE SALARY > (SELECT AVG(SALARY) FROM EMPLOYEES);
+```
+- La subconsulta se ejecuta **una sola vez**
+- Devuelve un valor fijo (el promedio)
+- No depende de cada fila de la consulta principal
+
+**Subconsulta sincronizada/correlacionada:**
+
+```sql
+SELECT FIRST_NAME, SALARY, DEPARTMENT_ID
+FROM EMPLOYEES EMP-- obligado alias
+WHERE SALARY = (SELECT MAX(SALARY)
+                FROM EMPLOYEES
+                WHERE DEPARTMENT_ID = EMP.DEPARTMENT_ID);
+```
+
+## ¿Cómo funciona la sincronización?
+
+1. **Para cada empleado** de la consulta principal
+2. La subconsulta toma el `DEPARTMENT_ID` de **ese empleado específico**
+3. Busca el salario máximo **solo de ese departamento**
+4. Compara si el salario del empleado actual es igual a ese máximo
+
+## Ejemplo paso a paso:
+
+```sql
+-- Empleado Steven (DEPT 90) → subconsulta busca MAX(SALARY) WHERE DEPT=90
+-- Empleado Neena (DEPT 90)  → subconsulta busca MAX(SALARY) WHERE DEPT=90
+-- Empleado Lex (DEPT 90)    → subconsulta busca MAX(SALARY) WHERE DEPT=90
+-- Empleado Bruce (DEPT 60)  → subconsulta busca MAX(SALARY) WHERE DEPT=60
+```
+
+## Ventajas:
+- Más específica y precisa
+- Permite comparaciones por grupos dinámicos
+
+## Desventajas:
+- **Menos eficiente** porque se ejecuta múltiples veces
+- Puede ser más lenta en tablas grandes
+
+**Resumen:** "Sincronizada" significa que la subconsulta está **sincronizada** con cada
+  fila de la consulta principal, usando valores de esa fila específica.
+ */
+
+SELECT FIRST_NAME, DEPARTMENT_NAME, SALARY
+FROM EMPLOYEES EMP
+         JOIN DEPARTMENTS DEPT ON (DEPT.DEPARTMENT_ID = EMP.DEPARTMENT_ID)
+WHERE SALARY = (SELECT MAX(SALARY)
+                FROM EMPLOYEES
+                WHERE DEPARTMENT_ID = EMP.DEPARTMENT_ID
+                GROUP BY DEPARTMENT_ID)
+ORDER BY SALARY DESC;
+
+/**
+  ## Diferencias entre las dos consultas
+
+Las dos consultas obtienen **el mismo resultado** (empleados con salario máximo por
+  departamento), pero usan **diferentes enfoques técnicos**:
+
+### **1️⃣ Primera consulta - Subconsulta correlacionada**
+
+```sql
+SELECT FIRST_NAME, DEPARTMENT_NAME, SALARY
+FROM EMPLOYEES EMP
+JOIN DEPARTMENTS DEPT ON (DEPT.DEPARTMENT_ID = EMP.DEPARTMENT_ID)
+WHERE SALARY = (SELECT MAX(SALARY)
+                FROM EMPLOYEES
+                WHERE DEPARTMENT_ID = EMP.DEPARTMENT_ID
+                GROUP BY DEPARTMENT_ID)
+ORDER BY SALARY DESC;
+```
+
+**Características:**
+- **JOIN con ON**: Sintaxis explícita `ON (DEPT.DEPARTMENT_ID = EMP.DEPARTMENT_ID)`
+- **Subconsulta correlacionada**: Se ejecuta **una vez por cada empleado**
+- **Referencia externa**: Usa `EMP.DEPARTMENT_ID` desde la consulta principal
+
+### **2️⃣ Segunda consulta - Subconsulta independiente**
+
+```sql
+SELECT FIRST_NAME, DEPARTMENT_NAME, SALARY
+FROM EMPLOYEES
+JOIN DEPARTMENTS USING (DEPARTMENT_ID)
+WHERE (DEPARTMENT_ID, SALARY) IN (SELECT DEPARTMENT_ID, MAX(SALARY)
+                                  FROM EMPLOYEES
+                                  GROUP BY DEPARTMENT_ID)
+ORDER BY SALARY DESC;
+```
+
+**Características:**
+- **JOIN con USING**: Sintaxis simplificada `USING (DEPARTMENT_ID)`
+- **Subconsulta independiente**: Se ejecuta **una sola vez**
+- **Comparación múltiple**: Compara dos columnas `(DEPARTMENT_ID, SALARY)`
+
+## **Diferencias clave:**
+
+| Aspecto | Primera (correlacionada) | Segunda (independiente) |
+|---------|-------------------------|------------------------|
+| **Ejecución** | Una vez por empleado | Una sola vez |
+| **Rendimiento** | Generalmente más lenta | Generalmente más rápida |
+| **Sintaxis JOIN** | `ON` explícito | `USING` simplificado |
+| **Legibilidad** | Más compleja | Más clara |
+
+## **Recomendación:**
+
+La **segunda consulta** es preferible porque:
+- ✅ **Mejor rendimiento**: Subconsulta se ejecuta una sola vez
+- ✅ **Más legible**: Sintaxis más limpia con `USING`
+- ✅ **Más eficiente**: Comparación directa con `IN`
+ */
 
 
+/**
+  ejercicio 4 .-
+  • Indicar los datos de los empleados que ganen más que todos los
+empleados del departamento 100. Usar el operador ALL
+SELECT * FROM EMPLOYEES
+WHERE SALARY > ALL (SELECT SALARY FROM EMPLOYEES WHERE
+DEPARTMENT_ID=100);
+ */
+
+SELECT SALARY
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 100;
+
+SELECT *
+FROM EMPLOYEES
+WHERE SALARY > ALL (SELECT SALARY
+                    FROM EMPLOYEES
+                    WHERE DEPARTMENT_ID = 100);
+
+--*******************************************************************************************************
+/**
+  • Mostrar los empleados que tienen el mayor salario de su departamento.
+Usar subconsultas sincronizadas.
+SELECT DEPARTMENT_ID,FIRST_NAME, SALARY FROM EMPLOYEES EMPLE
+WHERE SALARY = (SELECT MAX(SALARY) FROM EMPLOYEES WHERE
+DEPARTMENT_ID = EMPLE.DEPARTMENT_ID);
+ */
+
+SELECT MAX(SALARY)
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID;
+
+SELECT DEPARTMENT_ID, FIRST_NAME, SALARY
+FROM EMPLOYEES EMP
+WHERE SALARY = (SELECT MAX(SALARY)
+                FROM EMPLOYEES
+                WHERE EMP.DEPARTMENT_ID = EMP.DEPARTMENT_ID);
+
+--****************************************************************************************
+
+/**
+Ejercicio 6.-
+Visualizar las ciudades en las que haya algún departamento. Debemos
+usar consultas sincronizadas y el operador EXISTS
+SELECT CITY FROM LOCATIONS LOCALIDADES
+WHERE EXISTS (SELECT * FROM DEPARTMENTS WHERE
+LOCATION_ID=LOCALIDADES.LOCATION_ID);
+ */
+
+SELECT CITY
+FROM LOCATIONS LOC
+WHERE EXISTS (SELECT *
+              FROM DEPARTMENTS DPT
+              WHERE DPT.LOCATION_ID = LOC.LOCATION_ID);
+
+
+/**
+Ejercicio 7.-
+Visualizar el nombre de las regiones donde no hay departamentos. Usar
+subconsultas sincronizadas y el operador NOT EXISTS
+ */
+SELECT REGION_NAME
+FROM REGIONS REG
+WHERE EXISTS(SELECT *
+                 FROM COUNTRIES CRT
+                          JOIN LOCATIONS LOC ON CRT.COUNTRY_ID = LOC.COUNTRY_ID
+                          JOIN DEPARTMENTS DEP ON LOC.LOCATION_ID = DEP.LOCATION_ID
+                 WHERE REGION_ID = REG.REGION_ID);
+
+SELECT REGION_NAME
+FROM REGIONS REGIONES
+WHERE NOT EXISTS (SELECT *
+                  FROM COUNTRIES
+                           NATURAL JOIN LOCATIONS
+                           NATURAL JOIN DEPARTMENTS
+                  WHERE REGION_ID = REGIONES.REGION_ID);
+
+/**
+  **¡Excelente pregunta!** El **NATURAL JOIN** es más específico que `USING`. Te explico cuándo puedes usarlo:
+
+## **¿Cuándo puedes usar NATURAL JOIN?**
+
+### **✅ Condiciones necesarias:**
+
+1. **Mismo nombre de columna** en ambas tablas
+2. **Mismo tipo de datos**
+3. **Misma lógica de relación** (que tenga sentido unir por esas columnas)
+4. **Solo UNA columna común** (o que todas las columnas comunes sean relevantes)
+
+## **Ejemplo válido:**
+
+```sql
+-- ✅ NATURAL JOIN funciona bien
+SELECT REGION_NAME, COUNTRY_NAME
+FROM REGIONS NATURAL JOIN COUNTRIES;
+```
+
+**¿Por qué funciona?**
+- Solo tienen **una columna común**: `REGION_ID`
+- Ambas tienen el mismo tipo de datos
+- Es lógico unir regiones con países por `REGION_ID`
+
+## **❌ Cuándo NO usarlo:**
+
+```sql
+-- ❌ PELIGROSO: Varias columnas comunes
+SELECT *
+FROM EMPLOYEES NATURAL JOIN DEPARTMENTS;
+```
+
+**Problema:** Si las tablas tienen múltiples columnas comunes (`DEPARTMENT_ID`, `MANAGER_ID`), el NATURAL JOIN une por **TODAS**, lo que puede dar resultados inesperados.
+
+## **Comparación práctica:**
+
+```sql
+-- 🔴 NATURAL JOIN (automático, arriesgado)
+SELECT DEPARTMENT_NAME, FIRST_NAME
+FROM EMPLOYEES NATURAL JOIN DEPARTMENTS;
+
+-- 🟡 USING (manual, más control)
+SELECT DEPARTMENT_NAME, FIRST_NAME
+FROM EMPLOYEES JOIN DEPARTMENTS USING (DEPARTMENT_ID);
+
+-- 🟢 ON (explícito, más claro)
+SELECT DEPARTMENT_NAME, FIRST_NAME
+FROM EMPLOYEES E JOIN DEPARTMENTS D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID;
+```
+
+## **Recomendación:**
+
+**Evita NATURAL JOIN** en producción porque:
+- ❌ Puede romperse si se agregan columnas a las tablas
+- ❌ No es explícito sobre qué columnas usa
+- ❌ Difícil de mantener
+
+**Usa `USING` cuando:**
+- ✅ Las columnas tienen exactamente el mismo nombre
+- ✅ Quieres simplificar la sintaxis
+- ✅ Solo hay UNA relación lógica
+
+**Usa `ON` cuando:**
+- ✅ Quieres máximo control y claridad
+- ✅ Las columnas tienen nombres diferentes
+- ✅ Necesitas condiciones complejas
+ */
