@@ -2160,7 +2160,6 @@ WHERE NOT EXISTS (SELECT *
 ganen mas que cualquiera de los salarios máximos de los
 departamentos 50, 60 y 70. Usar el operador ANY
  */
----
 -- primero realizo una prueba
 SELECT MAX(SALARY)
 FROM EMPLOYEES
