@@ -3569,180 +3569,339 @@ WHERE SALARY = (SELECT MAX(SALARY)
 
 
 ---
-# 📚 Clase 131: Prácticas Otras Subconsultas
-
-## 🎯 Ejercicios de Subconsultas Avanzadas
-
-### 1️⃣ Subconsulta con Operador ANY
-**📝 Objetivo:** Seleccionar empleados que ganen más que cualquier salario máximo de los departamentos 50, 60 y 70.
-
-```sql
--- ✅ Consulta corregida
-SELECT FIRST_NAME, SALARY, DEPARTMENT_ID
-FROM EMPLOYEES E
-WHERE SALARY > ANY (SELECT MAX(SALARY)
-                    FROM EMPLOYEES
-                    GROUP BY DEPARTMENT_ID
-                    HAVING DEPARTMENT_ID IN ('50', '60', '70'));
-```
-
-> 💡 **Nota importante:** Se requiere usar `IN` en lugar de paréntesis simples para la comparación múltiple.
+# ✍️ **CLASE 131 : PRACTICAS OTRAS SUBCONSULTAS**
 
 ---
 
-### 2️⃣ Subconsulta con Operador IN
-**📝 Objetivo:** Departamentos con salario medio superior a 9000.
+## 🔍 **1. Otras Subconsultas - Operador ANY**
+
+Seleccionar el nombre, salario y departamento de los empleados que ganen más que cualquiera de los salarios máximos de los departamentos 50, 60 y 70. Usar el operador `ANY`.
+
+```sql
+-- primero realizo una prueba
+SELECT MAX(SALARY)
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID
+HAVING DEPARTMENT_ID('50', '60', '70');
+
+SELECT FIRST_NAME, SALARY, DEPARTMENT_ID
+FROM EMPLOYEES E
+WHERE SALARY > ANY (
+  SELECT MAX(SALARY)
+  FROM EMPLOYEES
+  GROUP BY DEPARTMENT_ID
+  HAVING DEPARTMENT_ID IN ('50', '60', '70')
+);
+```
+
+> El problema en tu consulta es que estás usando `HAVING DEPARTMENT_ID ('50', '60', '70')` cuando debería ser `HAVING DEPARTMENT_ID IN ('50', '60', '70')`.
+
+### ❓ **¿Por qué es necesario el IN?**
+
+| Sintaxis        | Estado      | Comentario                                                   |
+|-----------------|-------------|--------------------------------------------------------------|
+| `HAVING DEPARTMENT_ID ('50', '60', '70')` | ❌ Inválida | No es función ni expresión válida, Oracle genera error. |
+| `HAVING DEPARTMENT_ID IN ('50', '60', '70')` | ✅ Correcta | Verifica si coincide con cualquiera de la lista.        |
+
+El operador `IN` significa "**está contenido en**". Permite verificar si un valor coincide con cualquiera de los valores de una lista:
+
+```sql
+-- Equivale a:
+DEPARTMENT_ID = '50' OR DEPARTMENT_ID = '60' OR DEPARTMENT_ID = '70'
+```
+
+#### Consulta corregida
+
+```sql
+SELECT MAX(SALARY)
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID
+HAVING DEPARTMENT_ID IN ('50', '60', '70');
+```
+
+**Pasos:**
+1. Agrupa empleados por departamento.
+2. Calcula el salario máximo.
+3. Filtra 50, 60 y 70.
+
+---
+
+## 🏢 **2. Otras Subconsultas - Salario medio superior a 9000**
+
+Indicar el nombre de los departamentos cuyo salario medio sea superior a 9000. Usar el operador `IN`.
 
 ```sql
 SELECT DEPARTMENT_NAME
 FROM DEPARTMENTS
-WHERE DEPARTMENT_ID IN (SELECT DEPARTMENT_ID
-                        FROM EMPLOYEES
-                        GROUP BY DEPARTMENT_ID
-                        HAVING AVG(SALARY) > 9000);
+WHERE DEPARTMENT_ID IN (
+  SELECT DEPARTMENT_ID
+  FROM EMPLOYEES
+  GROUP BY DEPARTMENT_ID
+  HAVING AVG(SALARY) > 9000
+);
 ```
 
 ---
 
-### 3️⃣ Empleados con Salario Máximo por Departamento
-**📝 Objetivo:** Mostrar empleados que tienen el salario máximo de su departamento.
+## 👑 **3. Nombre del empleado con salario máximo en su departamento (IN)**
 
-#### 🔹 Versión con Subconsulta Independiente
+Indicar el nombre del empleado, el nombre del departamento y el salario de los empleados que tengan el salario máximo de su departamento, ordenado por salario descendente. Usar el operador `IN`.
+
 ```sql
 SELECT FIRST_NAME, DEPARTMENT_NAME, SALARY
 FROM EMPLOYEES
          JOIN DEPARTMENTS USING (DEPARTMENT_ID)
-WHERE (DEPARTMENT_ID, SALARY) IN (SELECT DEPARTMENT_ID, MAX(SALARY)
-                                  FROM EMPLOYEES
-                                  GROUP BY DEPARTMENT_ID)
+WHERE (DEPARTMENT_ID, SALARY) IN (
+  SELECT DEPARTMENT_ID, MAX(SALARY)
+  FROM EMPLOYEES
+  GROUP BY DEPARTMENT_ID
+)
 ORDER BY SALARY DESC;
 ```
 
-#### 🔹 Versión con Subconsulta Correlacionada
-```sql
-SELECT FIRST_NAME, DEPARTMENT_NAME, SALARY
-FROM EMPLOYEES EMP
-         JOIN DEPARTMENTS DEPT ON (DEPT.DEPARTMENT_ID = EMP.DEPARTMENT_ID)
-WHERE SALARY = (SELECT MAX(SALARY)
-                FROM EMPLOYEES
-                WHERE DEPARTMENT_ID = EMP.DEPARTMENT_ID
-                GROUP BY DEPARTMENT_ID)
-ORDER BY SALARY DESC;
-```
+📝 **¿Cuándo usar JOIN?**
+
+*USING* es una forma abreviada de la condición de `JOIN` cuando las columnas tienen el mismo nombre en ambas tablas.
 
 ---
 
-### 4️⃣ Operador ALL
-**📝 Objetivo:** Empleados que ganen más que TODOS los empleados del departamento 100.
+## 🔄 **4. Consulta con subconsulta sincronizada**
+
+Realizar la misma consulta anterior pero usando una subconsulta sincronizada (correlacionada).
+
+```sql
+SELECT FIRST_NAME, DEPARTMENT_NAME, SALARY
+FROM EMPLOYEES EMP
+     JOIN DEPARTMENTS DEPT ON (DEPT.DEPARTMENT_ID = EMP.DEPARTMENT_ID)
+WHERE SALARY = (
+  SELECT MAX(SALARY)
+  FROM EMPLOYEES
+  WHERE DEPARTMENT_ID = EMP.DEPARTMENT_ID
+  GROUP BY DEPARTMENT_ID
+)
+ORDER BY SALARY DESC;
+```
+
+🟢 **¿Qué es una subconsulta sincronizada/correlacionada?**
+
+Una subconsulta sincronizada depende de la consulta principal y se ejecuta una vez por cada fila de la consulta externa.
+
+### 🆚 Diferencia clave
+
+| Tipo             | Ejemplo principal                                                                                                             | Ejecución          |
+|------------------|------------------------------------------------------------------------------------------------------------------------------|--------------------|
+| **Normal**       | `WHERE SALARY > (SELECT AVG(SALARY) FROM EMPLOYEES);`                                                                        | Una sola vez       |
+| **Sincronizada** | `WHERE SALARY = (SELECT MAX(SALARY) FROM EMPLOYEES WHERE DEPARTMENT_ID = EMP.DEPARTMENT_ID);`                                | Una vez por fila   |
+
+#### 👁 Ejemplo paso a paso
+
+```sql
+-- Empleado Steven (DEPT 90) → subconsulta busca MAX(SALARY) WHERE DEPT=90
+-- Empleado Bruce (DEPT 60)  → subconsulta busca MAX(SALARY) WHERE DEPT=60
+```
+
+#### ⚖ Ventajas y desventajas
+
+| Ventaja                           | Desventaja         |
+|------------------------------------|--------------------|
+| Más precisa y permite comparaciones por grupo | Menor eficiencia en tablas grandes |
+
+---
+
+## 🔬 **5. Diferencias entre las dos consultas**
+
+| Aspecto         | Correlacionada                | Independiente                    |
+|-----------------|------------------------------|----------------------------------|
+| Ejecución       | Una vez por empleado         | Una sola vez                     |
+| Rendimiento     | Más lenta                    | Más rápida                       |
+| Sintaxis JOIN   | ON explícito                 | USING simplificado               |
+| Legibilidad     | Más compleja                 | Más clara                        |
+
+**Recomendación:**  
+La consulta con **subconsulta independiente** suele ser preferible por rendimiento y claridad.
+
+---
+
+## 💵 **6. Empleados que ganan más que todos los empleados de un departamento (ALL)**
+
+Indicar los empleados que ganen más que todos los empleados del departamento 100. Usar operador `ALL`:
 
 ```sql
 SELECT *
 FROM EMPLOYEES
-WHERE SALARY > ALL (SELECT SALARY
-                    FROM EMPLOYEES
-                    WHERE DEPARTMENT_ID = 100);
+WHERE SALARY > ALL (
+  SELECT SALARY
+  FROM EMPLOYEES
+  WHERE DEPARTMENT_ID = 100
+);
 ```
 
 ---
 
-### 5️⃣ Subconsultas Sincronizadas
-**📝 Objetivo:** Empleados con mayor salario de su departamento usando subconsultas correlacionadas.
+## 🏅 **7. Empleados con mayor salario en su departamento (Subconsulta sincronizada)**
+
+Mostrar los empleados que tienen el mayor salario de su departamento:
 
 ```sql
 SELECT DEPARTMENT_ID, FIRST_NAME, SALARY
 FROM EMPLOYEES EMP
-WHERE SALARY = (SELECT MAX(SALARY)
-                FROM EMPLOYEES
-                WHERE DEPARTMENT_ID = EMP.DEPARTMENT_ID);
+WHERE SALARY = (
+  SELECT MAX(SALARY)
+  FROM EMPLOYEES
+  WHERE EMP.DEPARTMENT_ID = EMP.DEPARTMENT_ID
+);
 ```
 
 ---
 
-### 6️⃣ Operador EXISTS
-**📝 Objetivo:** Ciudades donde hay algún departamento.
+## 🌆 **8. Ciudades donde hay algún departamento (EXISTS)**
+
+Visualizar las ciudades en las que haya algún departamento. Usar `EXISTS`:
 
 ```sql
 SELECT CITY
 FROM LOCATIONS LOC
-WHERE EXISTS (SELECT *
-              FROM DEPARTMENTS DPT
-              WHERE DPT.LOCATION_ID = LOC.LOCATION_ID);
+WHERE EXISTS (
+  SELECT *
+  FROM DEPARTMENTS DPT
+  WHERE DPT.LOCATION_ID = LOC.LOCATION_ID
+);
 ```
 
 ---
 
-### 7️⃣ Operador NOT EXISTS
-**📝 Objetivo:** Regiones donde NO hay departamentos.
+## 🌍 **9. Regiones donde no hay departamentos (NOT EXISTS y NATURAL JOIN)**
+
+Visualizar el nombre de las regiones donde **no hay departamentos**. Usar `NOT EXISTS`:
 
 ```sql
 SELECT REGION_NAME
 FROM REGIONS REGIONES
-WHERE NOT EXISTS (SELECT *
-                  FROM COUNTRIES
-                           NATURAL JOIN LOCATIONS
-                           NATURAL JOIN DEPARTMENTS
-                  WHERE REGION_ID = REGIONES.REGION_ID);
+WHERE NOT EXISTS (
+  SELECT *
+  FROM COUNTRIES
+           NATURAL JOIN LOCATIONS
+           NATURAL JOIN DEPARTMENTS
+  WHERE REGION_ID = REGIONES.REGION_ID
+);
 ```
 
----
+> **¡Excelente pregunta!** El **NATURAL JOIN** es más específico que `USING`:
 
-## 📊 Comparación de Enfoques
+### ✅ ¿Cuándo puedes usar NATURAL JOIN?
 
-| 🔍 Tipo | ⚡ Rendimiento | 📖 Legibilidad | 🎯 Uso Recomendado |
-|---------|---------------|----------------|---------------------|
-| **Subconsulta Independiente** | ✅ Rápida | ✅ Clara | Comparaciones múltiples |
-| **Subconsulta Correlacionada** | ⚠️ Más lenta | ⚠️ Compleja | Comparaciones por fila |
-| **EXISTS/NOT EXISTS** | ✅ Eficiente | ✅ Intuitiva | Verificar existencia |
+| Condición                                               | ¿Obligatoria? |
+|---------------------------------------------------------|---------------|
+| Mismo nombre de columna en ambas tablas                 | Sí            |
+| Mismo tipo de datos                                     | Sí            |
+| Lógica coherente para la relación                       | Sí            |
+| Solo una columna común (o todas relevantes)             | Sí            |
 
----
+#### Ejemplo válido:
 
-## 🔧 Tipos de JOIN
-
-### 🟢 JOIN con ON (Explícito)
 ```sql
-FROM EMPLOYEES E JOIN DEPARTMENTS D 
-ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+SELECT REGION_NAME, COUNTRY_NAME
+FROM REGIONS NATURAL JOIN COUNTRIES;
 ```
-**✅ Recomendado:** Máximo control y claridad
 
-### 🟡 JOIN con USING (Simplificado)
+#### ⚠️ Peligroso (si varias columnas comunes):
+
 ```sql
-FROM EMPLOYEES JOIN DEPARTMENTS USING (DEPARTMENT_ID)
+SELECT *
+FROM EMPLOYEES NATURAL JOIN DEPARTMENTS;
 ```
-**✅ Bueno:** Cuando las columnas tienen el mismo nombre
+> NATURAL JOIN usaría **todas** las columnas comunes, lo cual puede dar resultados inesperados.
 
-### 🔴 NATURAL JOIN (Automático)
+---
+
+## 📝 **Comparación práctica:**
+
 ```sql
-FROM EMPLOYEES NATURAL JOIN DEPARTMENTS
+-- 🔴 NATURAL JOIN (automático, arriesgado)
+SELECT DEPARTMENT_NAME, FIRST_NAME
+FROM EMPLOYEES NATURAL JOIN DEPARTMENTS;
+
+-- 🟡 USING (manual, más control)
+SELECT DEPARTMENT_NAME, FIRST_NAME
+FROM EMPLOYEES JOIN DEPARTMENTS USING (DEPARTMENT_ID);
+
+-- 🟢 ON (explícito, más claro)
+SELECT DEPARTMENT_NAME, FIRST_NAME
+FROM EMPLOYEES E JOIN DEPARTMENTS D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID;
 ```
-**❌ Evitar:** Puede causar resultados inesperados
 
 ---
 
-## 💡 Conceptos Clave
+## 🏁 **Recomendaciones**
 
-### 🔄 Subconsulta Correlacionada/Sincronizada
-- Se ejecuta **una vez por cada fila** de la consulta principal
-- Depende de valores de la consulta externa
-- Usa alias obligatorio para referenciar la tabla externa
+| Sintaxis      | ¿Cuándo usar?                                                   |
+|---------------|-----------------------------------------------------------------|
+| `NATURAL JOIN`| Evítala. Solo si hay una única columna común y bien definida.   |
+| `USING`       | Cuando las columnas tienen exactamente el mismo nombre.         |
+| `ON`          | Máxima claridad y control. Para nombres diferentes o condiciones complejas. |
 
-### 🎯 Operadores de Comparación
-- **ANY:** Verdadero si cumple con al menos uno de los valores
-- **ALL:** Verdadero si cumple con todos los valores
-- **EXISTS:** Verdadero si la subconsulta devuelve al menos una fila
-- **IN:** Verdadero si el valor está en la lista de resultados
 
 ---
+# 🧾 CONEXION CON SQLPLUS : 🧾
 
-## 🚀 Mejores Prácticas
-
-1. **🎯 Preferir subconsultas independientes** cuando sea posible (mejor rendimiento)
-2. **📝 Usar alias descriptivos** para mejorar legibilidad
-3. **🔍 Elegir JOIN explícito (ON)** para mayor claridad
-4. **⚡ Considerar EXISTS** en lugar de IN para verificar existencia
-5. **🧪 Probar consultas por partes** antes de combinarlas
+> sqlplus hr/hr@//localhost:1521/xepdb1
 
 ---
+## EJEMPLO ADICIONAL 
+¿DEPARTAMENTOS QUE HAY EN LAS REGIONES?
+
+```sql
+SELECT D.DEPARTMENT_NAME
+FROM DEPARTMENTS D
+         LEFT JOIN LOCATIONS L ON D.LOCATION_ID = L.LOCATION_ID
+         LEFT JOIN COUNTRIES C ON L.COUNTRY_ID = C.COUNTRY_ID
+         LEFT JOIN REGIONS R ON C.REGION_ID = R.REGION_ID
+WHERE R.REGION_ID IS NOT NULL;
+
+-- RESULTADO  NOMBRE DE LOS DEPARTAMENTOS QUE TIENEN UBICACION ASIGNADA
+-- JOIN ESCALONADO
+
+SELECT REGION_NAME
+FROM REGIONS REGIONES
+WHERE NOT EXISTS(SELECT *
+                 FROM COUNTRIES
+                          NATURAL JOIN LOCATIONS
+                          NATURAL JOIN DEPARTMENTS
+                 WHERE REGION_ID = REGIONES.REGION_ID);
+
+-- RESULTADO  NOMBRE DE LAS REGIONES QUE NO TIENEN DEPARTAMENTOS ASIGNADOS
+
+-- USANDO NOT EXISTS CON WHERE Y NATURAL JOIN
+
+
+```
+
+Aquí tienes un cuadro comparativo de los tipos de JOIN en SQL, con ejemplos usando las tablas del diagrama y explicaciones breves. Puedes copiarlo en tu `README.md` y agregar los íconos que prefieras.
+
+| Tipo de JOIN         | ¿Qué hace?                                                                 | Ejemplo                                                                                                   | Resultado                                                                                   |
+|:---------------------|:--------------------------------------------------------------------------|:----------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------|
+| 🟦 INNER JOIN        | Devuelve solo las filas que tienen coincidencias en ambas tablas           | `SELECT * FROM EMPLOYEES INNER JOIN DEPARTMENTS USING (DEPARTMENT_ID);`                                   | Solo empleados que tienen departamento asignado                                             |
+| 🟩 LEFT JOIN         | Devuelve todas las filas de la tabla izquierda y las coincidentes de la derecha | `SELECT * FROM EMPLOYEES LEFT JOIN DEPARTMENTS USING (DEPARTMENT_ID);`                                    | Todos los empleados, aunque no tengan departamento (los campos de departamento serán NULL)  |
+| 🟧 RIGHT JOIN        | Devuelve todas las filas de la tabla derecha y las coincidentes de la izquierda | `SELECT * FROM EMPLOYEES RIGHT JOIN DEPARTMENTS USING (DEPARTMENT_ID);`                                   | Todos los departamentos, aunque no tengan empleados (los campos de empleado serán NULL)     |
+| 🟨 FULL OUTER JOIN   | Devuelve todas las filas cuando hay coincidencia en una u otra tabla       | `SELECT * FROM EMPLOYEES FULL OUTER JOIN DEPARTMENTS USING (DEPARTMENT_ID);`                              | Todos los empleados y departamentos, coincidan o no                                         |
+| 🟪 NATURAL JOIN      | Une automáticamente por columnas con el mismo nombre                       | `SELECT * FROM EMPLOYEES NATURAL JOIN DEPARTMENTS;`                                                       | Igual que INNER JOIN pero sin especificar la columna, puede causar errores si hay ambigüedad|
+| 🟫 JOIN ... USING    | Une por una columna específica (más seguro que NATURAL JOIN)               | `SELECT * FROM EMPLOYEES JOIN DEPARTMENTS USING (DEPARTMENT_ID);`                                         | Solo empleados con departamento, usando la columna DEPARTMENT_ID                           |
+| 🟦 SOLO JOIN         | Por defecto es INNER JOIN (en la mayoría de los motores)                   | `SELECT * FROM EMPLOYEES JOIN DEPARTMENTS ON EMPLOYEES.DEPARTMENT_ID = DEPARTMENTS.DEPARTMENT_ID;`        | Solo empleados con departamento asignado                                                    |
+
+**Explicación rápida:**
+- Usa INNER JOIN cuando solo quieres coincidencias.
+- Usa LEFT JOIN si quieres todos los registros de la tabla izquierda aunque no haya coincidencia.
+- Usa RIGHT JOIN si quieres todos los registros de la tabla derecha aunque no haya coincidencia.
+- Usa FULL OUTER JOIN para obtener todo, coincida o no.
+- NATURAL JOIN es automático pero puede ser peligroso si hay columnas con el mismo nombre pero distinto significado.
+- USING es más seguro que NATURAL JOIN, especifica la columna de unión.
+- JOIN solo, normalmente es INNER JOIN.
+
+Puedes agregar íconos como ✅, ❌, 🔍, etc. para hacerlo más visual.
+
+---
+# ✍️ **CLASE 132 : OPERADORES DE CONJUNTO - SET**
 
 <details>
 <summary><strong>📝 PL/SQL</strong></summary>

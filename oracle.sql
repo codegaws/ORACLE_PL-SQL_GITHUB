@@ -2546,3 +2546,47 @@ ON E.DEPARTMENT_ID = D.DEPARTMENT_ID;
 - ✅ Las columnas tienen nombres diferentes
 - ✅ Necesitas condiciones complejas
  */
+
+--*******************************************************************************************************
+--                           CLASE 132 - 133 : OPERADORES DE CONSJUNTO SET                               *
+--*******************************************************************************************************
+
+-- UNION - INTERSECT - MINUS -  UNION ALL
+CREATE TABLE REGIONS1
+(
+    REGION_ID NUMBER,
+    REGION_NAME VARCHAR2(25)
+);
+
+INSERT INTO REGIONS1 VALUES (1,'Europe');
+INSERT INTO REGIONS1 VALUES (3,'Asia');
+INSERT INTO REGIONS1 VALUES (6,'Australia');
+INSERT INTO REGIONS1 VALUES (8,'Antartica');
+
+commit;
+
+SELECT REGION_ID,REGION_NAME FROM REGIONS
+UNION
+SELECT REGION_ID,REGION_NAME FROM REGIONS1;
+
+SELECT REGION_ID,REGION_NAME FROM REGIONS
+UNION ALL
+SELECT REGION_ID,REGION_NAME FROM REGIONS1;
+
+SELECT REGION_ID,REGION_NAME FROM REGIONS
+INTERSECT
+SELECT REGION_ID,REGION_NAME FROM REGIONS1;
+
+SELECT REGION_ID,REGION_NAME FROM REGIONS
+MINUS-- AQUELLAS FILAS QUE ESTAN EN REGIONS PERO NO EN REGIONS1
+SELECT REGION_ID,REGION_NAME FROM REGIONS1;
+
+SELECT REGION_ID,REGION_NAME FROM REGIONS1
+MINUS
+SELECT REGION_ID,REGION_NAME FROM REGIONS;
+
+--*******************************************************************************************************
+--                           CLASE 134 :    PRACTICAS OPERADORES DE CONJUNTO                            *
+--*******************************************************************************************************
+
+
