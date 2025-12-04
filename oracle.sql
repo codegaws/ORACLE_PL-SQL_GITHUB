@@ -2639,7 +2639,7 @@ INSERT INTO COCHES2
 VALUES (7, 'FORD MUSTANG');
 COMMIT;
 
---//*****************************************+
+--//*****************************************
 
 SELECT *
 FROM COCHES1
@@ -2664,3 +2664,46 @@ FROM COCHES1
 MINUS
 SELECT *
 FROM COCHES2;
+
+
+--*******************************************************************************************************
+--                           CLASE 135 :    INSERTAR DATOS : INSERT                                     *
+--*******************************************************************************************************
+
+-- DML DAA MANIPULATION LANGUAGE
+-- INSERT - UPDATE - DELETE - MERGE - CALL
+-- COMMIT - ROLLBACK - SAVEPOINT
+
+-- INSERT INTO TABLE(C1,C2) VALUES(V1,V2);
+
+INSERT INTO REGIONS (REGION_ID, REGION_NAME)
+VALUES (5, 'PRUEBA');
+
+-- OTRA FORMA
+INSERT INTO REGIONS
+VALUES (6, 'PRUEBA2');
+
+INSERT INTO REGIONS
+VALUES (7, 'PRUEBA3');
+
+INSERT INTO REGIONS
+VALUES (8, 'PRUEBA4');
+
+COMMIT;
+
+SELECT *
+FROM REGIONS;
+-- PARA VER LA CONFIGURACION DE LA TABLA
+SELECT COLUMN_NAME, DATA_TYPE, DATA_LENGTH, NULLABLE, COLUMN_ID, DATA_DEFAULT
+FROM USER_TAB_COLUMNS
+WHERE TABLE_NAME = 'DEPARTMENTS';
+
+-- CUIDADO CON LOS NULABLES SI ESTAN EN NO NULABLES DEBES PONER TODOS LOS CAMPOS
+
+INSERT INTO DEPARTMENTS(DEPARTMENT_ID, DEPARTMENT_NAME, LOCATION_ID)
+VALUES (900, 'INFORMATIC', 1800);
+
+COMMIT;
+
+
+
