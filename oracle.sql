@@ -2705,5 +2705,105 @@ VALUES (900, 'INFORMATIC', 1800);
 
 COMMIT;
 
+-- IMAGENEMOS ESTA FORMA
+INSERT INTO DEPARTMENTS
+VALUES (901, 'RRHH', NULL, 1800);
+COMMIT;
+
+--*******************************************************************************************************
+--                           CLASE 136 :    INSERT MULTIPLES                                            *
+--*******************************************************************************************************
+-- INSERTAR MULTIPLES REGISTROS A LA VEZ
+CREATE TABLE DEPT2
+(
+    CODIGO NUMBER,
+    NOMBRE VARCHAR2(100),
+    JEFE   NUMBER
+);
+
+INSERT INTO DEPT2
+VALUES (1, UPPER('informatica'), 100);--PODEMOS INCORPORAR FUNCIONES SIMPLES
+COMMIT;
+
+-- AQUI DESDE DEPARTMENTS INSERTAMOS EN DEPT2 SIEMPRE Y CUANDO SEAN LAS MISMAS COLUMNAS.
+-- AQUI NO SE USA CLAUSULA VALUES
+INSERT INTO DEPT2 (CODIGO, NOMBRE, JEFE)
+SELECT DEPARTMENT_ID, DEPARTMENT_NAME, MANAGER_ID
+FROM DEPARTMENTS
+WHERE LOCATION_ID = 1700;
+
+COMMIT;
+
+--*******************************************************************************************************
+--                           CLASE 137 :    MODIFICAR DATOS UPDATE                                      *
+--*******************************************************************************************************
+
+-- CUIDADO CON UPDATE SIEMPRE DEBE IR CON UN WHERE PARA DARLE LA CONDICION.
+/*
+UPDATE TABLE
+SET COLUMNA = VALOR, COLUMNA2 = VALOR2
+WHERE CONDICION;
+*/
+
+UPDATE DEPT2
+SET JEFE =100
+WHERE CODIGO = 120;
+
+COMMIT;
+-- AQUI ACTUALIZAMOS TODOS LOS CAMPOS JEFE QUE ESTEN A NULL
+UPDATE DEPT2
+SET JEFE =200
+WHERE JEFE IS NULL;
+
+COMMIT;
+-- EJEMPLO CON SUBCONSULTAS DENTRO DEL UPDATE MODFICA EL JEFE DEL CODIGO 100
+-- LAS CONSULTAS SE PUEDEN HACER DENTRO DEL SET Y WHERE
+UPDATE DEPT2
+SET JEFE = (SELECT MANAGER_ID FROM DEPARTMENTS WHERE DEPARTMENT_ID = 30)
+WHERE CODIGO = 100;
+
+COMMIT;
+
+--*******************************************************************************************************
+--                           CLASE 138 :    DELETE                                                      *
+--*******************************************************************************************************
+
+-- DELETE
+/*
+DELETE FROM TABLE
+WHERE CONDICION;
+*/
+
+DELETE DEPT2
+WHERE CODIGO = 1; -- BORRA EL REGISTRO DONDE CODIGO =1
+
+COMMIT;
+
+DELETE REGIONS
+WHERE REGION_ID IN (5, 6, 7, 8);
+COMMIT;
+
+DELETE REGIONS1
+WHERE REGION_ID IN (SELECT REGION_ID FROM REGIONS WHERE REGION_ID IN (1, 3));
+
+COMMIT;
+
+--*******************************************************************************************************
+--                           CLASE 139 :    TRUNCATE                                                    *
+--*******************************************************************************************************
+
+-- TRUNCATE TABLE NOMBRE_TABLA;
+-- BORRA LAS FILAS PERO NO LA ESTRUCTURA DE LA TABLA
+-- NO SE PUEDE HACER ROLLBACK
+-- REINICIA LOS CONTADORES DE LAS TABLAS
+
+TRUNCATE TABLE REGIONS1;
+COMMIT;
+--*******************************************************************************************************
+--                           CLASE 139 :    TRUNCATE                                                    *
+--*******************************************************************************************************
+
+
+
 
 

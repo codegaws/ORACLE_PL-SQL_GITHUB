@@ -3903,7 +3903,12 @@ Puedes agregar íconos como ✅, ❌, 🔍, etc. para hacerlo más visual.
 ---
 # ✍️ **CLASE 132 : OPERADORES DE CONJUNTO - SET**
 
+
+
 <details>
+
+---
+
 <summary><strong>📝 PL/SQL</strong></summary>
 
 # 🧾 PL/SQL — Bloques Anónimos y Funciones Básicas
