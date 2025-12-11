@@ -2895,7 +2895,8 @@ COMMIT;
 --                           CLASE 141-142 :    introduccion - TRANSACCIONES COMMIT Y ROLLBACK          *
 --*******************************************************************************************************
 
-INSERT INTO REGIONS1 VALUES (100,'AUSTRALIA');
+INSERT INTO REGIONS1
+VALUES (100, 'AUSTRALIA');
 
 COMMIT;
 
@@ -2903,10 +2904,64 @@ COMMIT;
 --                           CLASE 143 :    TRANSACCIONES parte 2 COMMIT Y ROLLBACK                     *
 --*******************************************************************************************************
 
-SELECT * FROM REGIONS1;
+SELECT *
+FROM REGIONS1;
 
-INSERT INTO REGIONS1 VALUES (200,'EUROPA');
-INSERT INTO REGIONS1 VALUES (200,'ASIA');
-INSERT INTO REGIONS1 VALUES (700,'SOUTH');
+INSERT INTO REGIONS1
+VALUES (200, 'EUROPA');
+INSERT INTO REGIONS1
+VALUES (200, 'ASIA');
+INSERT INTO REGIONS1
+VALUES (700, 'SOUTH');
+
 COMMIT;
 ROLLBACK;
+
+--*******************************************************************************************************
+--                           CLASE 144 :    SAVEPOINT                                                   *
+--*******************************************************************************************************
+
+--SAVEPOINT HACE ROLLBACKS PARCIALES , OSEA SOLO HASTA UN PUNTO EN EL TIEMPO
+SELECT *
+FROM REGIONS1;
+
+INSERT INTO REGIONS1
+VALUES (300, 'AMERICA');
+INSERT INTO REGIONS1
+VALUES (400, 'ASIA');
+
+SAVEPOINT A;
+
+INSERT INTO REGIONS1
+VALUES (500, 'AFRICA1');
+INSERT INTO REGIONS1
+VALUES (600, 'OCEANIA');
+
+ROLLBACK TO SAVEPOINT A;
+
+ROLLBACK;
+
+--*******************************************************************************************************
+--                           CLASE 145 :    BLOQUEOS                                                   *
+--*******************************************************************************************************
+
+SELECT * FROM REGIONS1;
+UPDATE REGIONS1 SET REGION_NAME='XXXX' WHERE REGION_ID=1;
+UPDATE REGIONS1 SET REGION_NAME='yyyyy' WHERE REGION_ID=1;
+COMMIT;
+
+--*******************************************************************************************************
+--                           CLASE 146 :    PRACTICAS TRANSACCIONES                                     *
+--*******************************************************************************************************
+
+
+f
+
+
+
+
+
+
+
+
+
