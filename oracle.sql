@@ -2800,10 +2800,113 @@ COMMIT;
 TRUNCATE TABLE REGIONS1;
 COMMIT;
 --*******************************************************************************************************
---                           CLASE 139 :    TRUNCATE                                                    *
+--                           CLASE 140 :    PRACTICAS                                                   *
+--*******************************************************************************************************
+/***
+  1. DML- Insert-update-delete
+• Para hacer las prácticas de esta lección, primero debemos crear una
+tabla. En un capítulo posterior veremos con detalle este proceso. Por
+ahora nos limitamos a copiar y ejecutar en el Sql Developer el siguiente
+código. (También la podemos crear directamente en Sql Developer)
+ */
+
+CREATE TABLE PRODUCTOS
+(
+    CODIGO     NUMBER        NOT NULL,
+    NOMBRE     VARCHAR2(100) NOT NULL,
+    PRECIO     NUMBER        NOT NULL,
+    UNIDADES   NUMBER,
+    FECHA_ALTA DATE
+);
+
+COMMIT;
+SELECT *
+FROM PRODUCTOS;
+-- • Insertar los siguientes datos en la tabla, indicando todas las columnas
+
+
+INSERT INTO PRODUCTOS (CODIGO, NOMBRE, PRECIO, UNIDADES, FECHA_ALTA)
+VALUES (1, 'tornillos', 100, 10, TO_DATE('2017-09-01', 'YYYY-MM-DD'));
+
+
+-- • Insertar los siguientes datos en la tabla, sin indicar las columnas
+
+INSERT INTO PRODUCTOS
+VALUES (2, 'Tuercas', 50, 5, TO_DATE('2009-10-01', 'YYYY-MM-DD'))
+
+-- • Insertar los siguientes datos en la tabla,Codigo,Nombre,Precio
+INSERT INTO PRODUCTOS(CODIGO, NOMBRE, PRECIO)
+VALUES (3, 'Martillo', 90);
+
+CREATE TABLE PRODUCTOS2
+(
+    CODE NUMBER,
+    NAME VARCHAR2(100)
+);
+
+-- • Insertar en la tabla PRODUCTOS2 las filas de la tabla PRODUCTOS
+-- que tengan más de 8 unidades. Comprobar el resultado.
+
+-- AQUI DESDE DEPARTMENTS INSERTAMOS EN DEPT2 SIEMPRE Y CUANDO SEAN LAS MISMAS COLUMNAS.
+-- AQUI NO SE USA CLAUSULA VALUES
+
+--OPCION 1
+INSERT INTO PRODUCTOS2
+SELECT CODIGO, NOMBRE
+FROM PRODUCTOS
+WHERE UNIDADES > 8;
+
+COMMIT;
+
+INSERT INTO PRODUCTOS2(CODE, NAME)
+SELECT CODIGO, NOMBRE
+FROM PRODUCTOS
+WHERE UNIDADES > 8;
+
+--• Modificar el campo NAME de la tabla PRODUCTOS y poner en
+-- mayúsculas el nombre de aquellas filas que valgan más de 50.
+
+UPDATE DEPT2
+SET JEFE = (SELECT MANAGER_ID FROM DEPARTMENTS WHERE DEPARTMENT_ID = 30)
+WHERE CODIGO = 100;
+
+UPDATE PRODUCTOS
+SET NOMBRE = UPPER(NOMBRE)
+WHERE PRECIO > 50;
+
+-- • Modificar el precio de la tabla productos de aquellas filas cuyo nombre
+-- comienza por ‘T’. Debemos incrementarlo en 5. Comprobar el resultado
+
+UPDATE PRODUCTOS
+SET PRECIO = PRECIO + 5
+WHERE NOMBRE LIKE 'T%';
+
+-- • Borrar las filas de la tabla productos que tengan menos de 10 unidades
+-- o un valor nulo. Comprobar el resultado.
+
+DELETE PRODUCTOS
+WHERE UNIDADES < 10
+   OR UNIDADES IS NULL;
+
+TRUNCATE TABLE PRODUCTOS2;
+COMMIT;
+
+--*******************************************************************************************************
+--                           CLASE 141-142 :    introduccion - TRANSACCIONES COMMIT Y ROLLBACK          *
 --*******************************************************************************************************
 
+INSERT INTO REGIONS1 VALUES (100,'AUSTRALIA');
 
+COMMIT;
 
+--*******************************************************************************************************
+--                           CLASE 143 :    TRANSACCIONES parte 2 COMMIT Y ROLLBACK                     *
+--*******************************************************************************************************
 
+SELECT * FROM REGIONS1;
 
+INSERT INTO REGIONS1 VALUES (200,'EUROPA');
+INSERT INTO REGIONS1 VALUES (200,'ASIA');
+INSERT INTO REGIONS1 VALUES (700,'SOUTH');
+COMMIT;
+ROLLBACK;
