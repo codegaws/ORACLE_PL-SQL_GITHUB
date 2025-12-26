@@ -3455,7 +3455,9 @@ FROM REGIONES_PAISES;
 CREATE INDEX INDEX1 ON EMPLOYEES (LAST_NAME);
 
 
-SELECT * FROM EMPLOYEES WHERE LAST_NAME LIKE 'S%';
+SELECT *
+FROM EMPLOYEES
+WHERE LAST_NAME LIKE 'S%';
 
 -- PODEMOS CREAR INDICES COMPUESTOS
 
@@ -3465,17 +3467,60 @@ CREATE INDEX INDEX2 ON EMPLOYEES (FIRST_NAME, LAST_NAME);
 -- BORRAR INDEX
 DROP INDEX INDEX2;
 
+--*******************************************************************************************************
+--                           CLASE 162 : CREAR SECUENCIAS                                               *
+--*******************************************************************************************************
 
+-- SECUENCIAS PARA GENERAR VALORES UNICOS
+-- NO FORMAN PARTE DE LAS TABLAS
+-- SECUENCIA PARA GENERAR CODIGOS UNICOS
+-- NO SE PUEDE HACER ROLLBACK SOBRE SECUENCIAS
 
+-- FORMATO DE LA SECUENCIA
 
+/*
+CREATE SEQUENCE SEQUENCE1 INCREMENT BY 1
+MAXVALUE 1000 MINVALUE 20 CACHE 20;
+*/
 
+CREATE SEQUENCE SECUENCIA1 INCREMENT BY 1
+    MAXVALUE 1000 MINVALUE 20 CACHE 20;
 
+-- COMO SE USA
 
+SELECT SECUENCIA1.nextval
+FROM DUAL;
+-- DUAL ES UNA TABLA VIRTUAL QUE TIENE ORACLE
 
+-- COMO USARLO
+INSERT INTO REGIONS1
+VALUES (SECUENCIA1.nextval, 'AAAA');
 
+SELECT *
+FROM REGIONS1;
 
+DROP SEQUENCE SECUENCIA1;
 
+--*******************************************************************************************************
+--                           CLASE 163 : CREAR SINONIMOS                                                *
+--*******************************************************************************************************
 
+-- SIRVE PARA PONER NOMBRES CORTOS Y CLAROS
+-- ACCEDER A OBJETOS A OTROS ESQUEMAS
+
+CREATE SYNONYM DEPARTAMENTOS FOR DEPARTMENTS; -- ES COMO UN ALIAS
+
+SELECT *
+FROM DEPARTMENTS;
+
+-- PUEDES USARLO ASI
+SELECT *
+FROM DEPARTAMENTOS
+WHERE DEPARTMENT_ID = 10;
+
+-- COMANDO PARA DAR PERMISOS
+
+GRANT SELECT ON DEPARTMENTS TO PRUEBA
 
 
 
