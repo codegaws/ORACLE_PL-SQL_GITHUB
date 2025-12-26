@@ -3902,6 +3902,605 @@ Puedes agregar íconos como ✅, ❌, 🔍, etc. para hacerlo más visual.
 
 ---
 # ✍️ **CLASE 132 : OPERADORES DE CONJUNTO - SET**
+# Oracle PL/SQL - Apuntes y Prácticas
+
+## 📊 UNION - INTERSECT - MINUS - UNION ALL
+
+### Creación de Tabla de Prueba
+
+```sql
+CREATE TABLE REGIONS1
+(
+    REGION_ID   NUMBER,
+    REGION_NAME VARCHAR2(25)
+);
+
+INSERT INTO REGIONS1
+VALUES (1, 'Europe');
+INSERT INTO REGIONS1
+VALUES (3, 'Asia');
+INSERT INTO REGIONS1
+VALUES (6, 'Australia');
+INSERT INTO REGIONS1
+VALUES (8, 'Antartica');
+
+COMMIT;
+```
+
+### 🔗 Operadores de Conjunto
+
+#### UNION
+```sql
+SELECT REGION_ID, REGION_NAME
+FROM REGIONS
+UNION
+SELECT REGION_ID, REGION_NAME
+FROM REGIONS1;
+```
+
+#### UNION ALL
+```sql
+SELECT REGION_ID, REGION_NAME
+FROM REGIONS
+UNION ALL
+SELECT REGION_ID, REGION_NAME
+FROM REGIONS1;
+```
+
+#### INTERSECT
+```sql
+SELECT REGION_ID, REGION_NAME
+FROM REGIONS
+INTERSECT
+SELECT REGION_ID, REGION_NAME
+FROM REGIONS1;
+```
+
+#### MINUS
+```sql
+SELECT REGION_ID, REGION_NAME
+FROM REGIONS
+MINUS -- AQUELLAS FILAS QUE ESTAN EN REGIONS PERO NO EN REGIONS1
+SELECT REGION_ID, REGION_NAME
+FROM REGIONS1;
+
+SELECT REGION_ID, REGION_NAME
+FROM REGIONS1
+MINUS
+SELECT REGION_ID, REGION_NAME
+FROM REGIONS;
+```
+
+---
+
+## 🚗 CLASE 134: PRACTICAS OPERADORES DE CONJUNTO
+
+### Creación de Tablas de Coches
+
+```sql
+--CREAR LAS TABLAS
+CREATE TABLE COCHES1
+(
+    CODIGO NUMBER,
+    NOMBRE VARCHAR2(100)
+);
+
+CREATE TABLE COCHES2
+(
+    CODE NUMBER,
+    NAME VARCHAR2(100)
+);
+```
+
+### 📝 Insertar Datos
+
+```sql
+--INSERTAR DATOS EN TABLAS
+INSERT INTO COCHES1
+VALUES (1, 'BMW 3');
+INSERT INTO COCHES1
+VALUES (2, 'AUDI A5');
+INSERT INTO COCHES1
+VALUES (3, 'CITROEN C5');
+INSERT INTO COCHES1
+VALUES (4, 'RENAULT CLIO');
+
+INSERT INTO COCHES2
+VALUES (1, 'BMW 3');
+INSERT INTO COCHES2
+VALUES (6, 'MERCEDES C');
+INSERT INTO COCHES2
+VALUES (3, 'CITROEN C5');
+INSERT INTO COCHES2
+VALUES (7, 'FORD MUSTANG');
+
+COMMIT;
+```
+
+### 🔍 Consultas con Operadores
+
+```sql
+SELECT *
+FROM COCHES1
+UNION
+SELECT *
+FROM COCHES2;
+
+SELECT *
+FROM COCHES1
+UNION ALL
+SELECT *
+FROM COCHES2;
+
+SELECT *
+FROM COCHES1
+INTERSECT
+SELECT *
+FROM COCHES2;
+
+SELECT *
+FROM COCHES1
+MINUS
+SELECT *
+FROM COCHES2;
+```
+
+---
+
+## ➕ CLASE 135: INSERTAR DATOS - INSERT
+
+### 📌 DML (Data Manipulation Language)
+
+| Comando | Descripción |
+|---------|-------------|
+| INSERT | Insertar datos |
+| UPDATE | Actualizar datos |
+| DELETE | Eliminar datos |
+| MERGE | Combinar datos |
+| CALL | Llamar procedimientos |
+
+| Control de Transacciones | Descripción |
+|--------------------------|-------------|
+| COMMIT | Confirmar cambios |
+| ROLLBACK | Revertir cambios |
+| SAVEPOINT | Punto de guardado |
+
+### Sintaxis Básica
+
+```sql
+-- INSERT INTO TABLE(C1,C2) VALUES(V1,V2);
+
+INSERT INTO REGIONS (REGION_ID, REGION_NAME)
+VALUES (5, 'PRUEBA');
+
+-- OTRA FORMA
+INSERT INTO REGIONS
+VALUES (6, 'PRUEBA2');
+
+INSERT INTO REGIONS
+VALUES (7, 'PRUEBA3');
+
+INSERT INTO REGIONS
+VALUES (8, 'PRUEBA4');
+
+COMMIT;
+
+SELECT *
+FROM REGIONS;
+```
+
+### 🔍 Ver Configuración de Tabla
+
+```sql
+-- PARA VER LA CONFIGURACION DE LA TABLA
+SELECT COLUMN_NAME, DATA_TYPE, DATA_LENGTH, NULLABLE, COLUMN_ID, DATA_DEFAULT
+FROM USER_TAB_COLUMNS
+WHERE TABLE_NAME = 'DEPARTMENTS';
+```
+
+### ⚠️ Cuidado con Columnas NOT NULL
+
+```sql
+-- CUIDADO CON LOS NULABLES SI ESTAN EN NO NULABLES DEBES PONER TODOS LOS CAMPOS
+
+INSERT INTO DEPARTMENTS(DEPARTMENT_ID, DEPARTMENT_NAME, LOCATION_ID)
+VALUES (900, 'INFORMATIC', 1800);
+
+COMMIT;
+
+-- IMAGENEMOS ESTA FORMA
+INSERT INTO DEPARTMENTS
+VALUES (901, 'RRHH', NULL, 1800);
+COMMIT;
+```
+
+---
+
+## 📦 CLASE 136: INSERT MULTIPLES
+
+### Insertar Múltiples Registros
+
+```sql
+-- INSERTAR MULTIPLES REGISTROS A LA VEZ
+CREATE TABLE DEPT2
+(
+    CODIGO NUMBER,
+    NOMBRE VARCHAR2(100),
+    JEFE   NUMBER
+);
+
+INSERT INTO DEPT2
+VALUES (1, UPPER('informatica'), 100);--PODEMOS INCORPORAR FUNCIONES SIMPLES
+COMMIT;
+```
+
+### 🔄 Insertar desde otra Tabla
+
+```sql
+-- AQUI DESDE DEPARTMENTS INSERTAMOS EN DEPT2 SIEMPRE Y CUANDO SEAN LAS MISMAS COLUMNAS. 
+-- AQUI NO SE USA CLAUSULA VALUES
+INSERT INTO DEPT2 (CODIGO, NOMBRE, JEFE)
+SELECT DEPARTMENT_ID, DEPARTMENT_NAME, MANAGER_ID
+FROM DEPARTMENTS
+WHERE LOCATION_ID = 1700;
+
+COMMIT;
+```
+
+---
+
+## ✏️ CLASE 137: MODIFICAR DATOS - UPDATE
+
+### ⚠️ Sintaxis y Precauciones
+
+```sql
+-- CUIDADO CON UPDATE SIEMPRE DEBE IR CON UN WHERE PARA DARLE LA CONDICION.
+/*
+UPDATE TABLE
+SET COLUMNA = VALOR, COLUMNA2 = VALOR2
+WHERE CONDICION;
+*/
+
+UPDATE DEPT2
+SET JEFE =100
+WHERE CODIGO = 120;
+
+COMMIT;
+```
+
+### Actualizar Valores NULL
+
+```sql
+-- AQUI ACTUALIZAMOS TODOS LOS CAMPOS JEFE QUE ESTEN A NULL
+UPDATE DEPT2
+SET JEFE =200
+WHERE JEFE IS NULL;
+
+COMMIT;
+```
+
+### 🔍 UPDATE con Subconsultas
+
+```sql
+-- EJEMPLO CON SUBCONSULTAS DENTRO DEL UPDATE MODFICA EL JEFE DEL CODIGO 100
+-- LAS CONSULTAS SE PUEDEN HACER DENTRO DEL SET Y WHERE
+UPDATE DEPT2
+SET JEFE = (SELECT MANAGER_ID FROM DEPARTMENTS WHERE DEPARTMENT_ID = 30)
+WHERE CODIGO = 100;
+
+COMMIT;
+```
+
+---
+
+## 🗑️ CLASE 138: DELETE
+
+### Sintaxis
+
+```sql
+-- DELETE
+/*
+DELETE FROM TABLE
+WHERE CONDICION;
+*/
+
+DELETE DEPT2
+WHERE CODIGO = 1; -- BORRA EL REGISTRO DONDE CODIGO =1
+
+COMMIT;
+
+DELETE REGIONS
+WHERE REGION_ID IN (5, 6, 7, 8);
+COMMIT;
+```
+
+### DELETE con Subconsultas
+
+```sql
+DELETE REGIONS1
+WHERE REGION_ID IN (SELECT REGION_ID FROM REGIONS WHERE REGION_ID IN (1, 3));
+
+COMMIT;
+```
+
+---
+
+## 🔥 CLASE 139: TRUNCATE
+
+### Características de TRUNCATE
+
+| Característica | Descripción |
+|----------------|-------------|
+| ❌ No permite ROLLBACK | Los cambios son permanentes |
+| 🔄 Reinicia contadores | Resetea secuencias |
+| 🏗️ Mantiene estructura | Solo borra datos, no la tabla |
+| ⚡ Más rápido que DELETE | No genera logs de transacción |
+
+```sql
+-- TRUNCATE TABLE NOMBRE_TABLA;
+-- BORRA LAS FILAS PERO NO LA ESTRUCTURA DE LA TABLA
+-- NO SE PUEDE HACER ROLLBACK
+-- REINICIA LOS CONTADORES DE LAS TABLAS
+
+TRUNCATE TABLE REGIONS1;
+COMMIT;
+```
+
+---
+
+## 📝 CLASE 140: PRACTICAS DML
+
+### 1.  Crear Tabla PRODUCTOS
+
+```sql
+CREATE TABLE PRODUCTOS
+(
+    CODIGO     NUMBER        NOT NULL,
+    NOMBRE     VARCHAR2(100) NOT NULL,
+    PRECIO     NUMBER        NOT NULL,
+    UNIDADES   NUMBER,
+    FECHA_ALTA DATE
+);
+
+COMMIT;
+```
+
+### 2. Insertar indicando todas las columnas
+
+```sql
+INSERT INTO PRODUCTOS (CODIGO, NOMBRE, PRECIO, UNIDADES, FECHA_ALTA)
+VALUES (1, 'tornillos', 100, 10, TO_DATE('2017-09-01', 'YYYY-MM-DD'));
+```
+
+### 3. Insertar sin indicar columnas
+
+```sql
+INSERT INTO PRODUCTOS
+VALUES (2, 'Tuercas', 50, 5, TO_DATE('2009-10-01', 'YYYY-MM-DD'));
+```
+
+### 4. Insertar parcialmente (Codigo, Nombre, Precio)
+
+```sql
+INSERT INTO PRODUCTOS(CODIGO, NOMBRE, PRECIO)
+VALUES (3, 'Martillo', 90);
+```
+
+### 5. Crear segunda tabla
+
+```sql
+CREATE TABLE PRODUCTOS2
+(
+    CODE NUMBER,
+    NAME VARCHAR2(100)
+);
+```
+
+### 6. Insertar datos filtrados de otra tabla
+
+```sql
+-- Insertar en la tabla PRODUCTOS2 las filas de la tabla PRODUCTOS
+-- que tengan más de 8 unidades. Comprobar el resultado.
+
+--OPCION 1
+INSERT INTO PRODUCTOS2
+SELECT CODIGO, NOMBRE
+FROM PRODUCTOS
+WHERE UNIDADES > 8;
+
+COMMIT;
+
+-- OPCION 2
+INSERT INTO PRODUCTOS2(CODE, NAME)
+SELECT CODIGO, NOMBRE
+FROM PRODUCTOS
+WHERE UNIDADES > 8;
+```
+
+### 7. Modificar a mayúsculas
+
+```sql
+-- Modificar el campo NAME de la tabla PRODUCTOS y poner en
+-- mayúsculas el nombre de aquellas filas que valgan más de 50.
+
+UPDATE PRODUCTOS
+SET NOMBRE = UPPER(NOMBRE)
+WHERE PRECIO > 50;
+```
+
+### 8. Incrementar precio
+
+```sql
+-- Modificar el precio de la tabla productos de aquellas filas cuyo nombre
+-- comienza por 'T'. Debemos incrementarlo en 5. Comprobar el resultado
+
+UPDATE PRODUCTOS
+SET PRECIO = PRECIO + 5
+WHERE NOMBRE LIKE 'T%';
+```
+
+### 9. Borrar con condiciones
+
+```sql
+-- Borrar las filas de la tabla productos que tengan menos de 10 unidades
+-- o un valor nulo. Comprobar el resultado. 
+
+DELETE PRODUCTOS
+WHERE UNIDADES < 10
+   OR UNIDADES IS NULL;
+```
+
+### 10. Limpiar tabla
+
+```sql
+TRUNCATE TABLE PRODUCTOS2;
+COMMIT;
+```
+
+---
+
+## 💾 CLASE 141-142: TRANSACCIONES - COMMIT Y ROLLBACK
+
+### Introducción
+
+```sql
+INSERT INTO REGIONS1
+VALUES (100, 'AUSTRALIA');
+
+COMMIT;
+```
+
+---
+
+## 🔄 CLASE 143: TRANSACCIONES PARTE 2
+
+### Control de Transacciones
+
+```sql
+SELECT *
+FROM REGIONS1;
+
+INSERT INTO REGIONS1
+VALUES (200, 'EUROPA');
+INSERT INTO REGIONS1
+VALUES (200, 'ASIA');
+INSERT INTO REGIONS1
+VALUES (700, 'SOUTH');
+
+COMMIT;
+ROLLBACK;
+```
+
+| Comando | Función |
+|---------|---------|
+| COMMIT | ✅ Confirma los cambios permanentemente |
+| ROLLBACK | ↩️ Revierte todos los cambios no confirmados |
+
+---
+
+## 📍 CLASE 144: SAVEPOINT
+
+### Rollbacks Parciales
+
+> **SAVEPOINT** hace rollbacks parciales, es decir, solo hasta un punto en el tiempo
+
+```sql
+SELECT *
+FROM REGIONS1;
+
+INSERT INTO REGIONS1
+VALUES (300, 'AMERICA');
+INSERT INTO REGIONS1
+VALUES (400, 'ASIA');
+
+SAVEPOINT A;
+
+INSERT INTO REGIONS1
+VALUES (500, 'AFRICA1');
+INSERT INTO REGIONS1
+VALUES (600, 'OCEANIA');
+
+ROLLBACK TO SAVEPOINT A;
+
+ROLLBACK;
+```
+
+### 📊 Flujo de Savepoints
+
+| Paso | Acción | Estado |
+|------|--------|--------|
+| 1 | INSERT 300, 400 | Sin confirmar |
+| 2 | SAVEPOINT A | Punto de guardado |
+| 3 | INSERT 500, 600 | Sin confirmar |
+| 4 | ROLLBACK TO A | Revierte 500, 600 |
+| 5 | ROLLBACK | Revierte todo |
+
+---
+
+## 🔒 CLASE 145: BLOQUEOS
+
+### Ejemplo de Bloqueo de Registro
+
+```sql
+SELECT * FROM REGIONS1;
+
+UPDATE REGIONS1 SET REGION_NAME='XXXX' WHERE REGION_ID=1;
+UPDATE REGIONS1 SET REGION_NAME='yyyyy' WHERE REGION_ID=1;
+
+COMMIT;
+```
+
+### ⚠️ Consideraciones sobre Bloqueos
+
+| Aspecto | Descripción |
+|---------|-------------|
+| 🔐 Bloqueo automático | Oracle bloquea automáticamente las filas modificadas |
+| ⏳ Espera | Otras sesiones esperan hasta el COMMIT o ROLLBACK |
+| 🎯 Nivel de fila | Los bloqueos son a nivel de fila, no de tabla |
+| ✅ Liberación | Se liberan con COMMIT o ROLLBACK |
+
+---
+
+## 🎯 CLASE 146: PRACTICAS TRANSACCIONES
+
+### Ejercicios de Transacciones
+
+> Esta sección está reservada para prácticas adicionales de transacciones, savepoints y bloqueos.
+
+---
+
+## 📚 Resumen de Comandos DML
+
+| Categoría | Comandos |
+|-----------|----------|
+| **Manipulación de Datos** | INSERT, UPDATE, DELETE, MERGE, CALL |
+| **Control de Transacciones** | COMMIT, ROLLBACK, SAVEPOINT |
+| **Operadores de Conjunto** | UNION, UNION ALL, INTERSECT, MINUS |
+| **Comandos DDL** | TRUNCATE |
+
+---
+
+## 🎨 Iconos de Referencia Rápida
+
+- 📊 Consultas y operadores
+- ➕ Inserción de datos
+- ✏️ Actualización de datos
+- 🗑️ Eliminación de datos
+- 🔥 Truncado de tablas
+- 💾 Guardado de cambios
+- 🔄 Reversión de cambios
+- 📍 Puntos de guardado
+- 🔒 Bloqueos de registros
+- ⚠️ Advertencias importantes
+- 🔍 Consultas de metadatos
+- 🎯 Prácticas y ejercicios
+
+----
+# 🎯SECCION 16 - DDL DATA DEFINITION LANGUAGE🎯
+
+## 🔍 Clase 147: Introduccion a DDL
+
+
 
 </details>
 

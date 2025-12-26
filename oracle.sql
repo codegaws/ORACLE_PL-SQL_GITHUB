@@ -2159,13 +2159,13 @@ WHERE NOT EXISTS (SELECT *
 • Seleccionar el nombre, salario y departamento de los empleados que
 ganen mas que cualquiera de los salarios máximos de los
 departamentos 50, 60 y 70. Usar el operador ANY
- */
+
 -- primero realizo una prueba
 SELECT MAX(SALARY)
 FROM EMPLOYEES
 GROUP BY DEPARTMENT_ID
 HAVING DEPARTMENT_ID('50', '60', '70');
-
+ */
 SELECT FIRST_NAME, SALARY, DEPARTMENT_ID
 FROM EMPLOYEES E
 WHERE SALARY > ANY (SELECT MAX(SALARY)
@@ -2945,23 +2945,199 @@ ROLLBACK;
 --                           CLASE 145 :    BLOQUEOS                                                   *
 --*******************************************************************************************************
 
-SELECT * FROM REGIONS1;
-UPDATE REGIONS1 SET REGION_NAME='XXXX' WHERE REGION_ID=1;
-UPDATE REGIONS1 SET REGION_NAME='yyyyy' WHERE REGION_ID=1;
+SELECT *
+FROM REGIONS1;
+UPDATE REGIONS1
+SET REGION_NAME='XXXX'
+WHERE REGION_ID = 1;
+UPDATE REGIONS1
+SET REGION_NAME='yyyyy'
+WHERE REGION_ID = 1;
 COMMIT;
 
 --*******************************************************************************************************
 --                           CLASE 146 :    PRACTICAS TRANSACCIONES                                     *
 --*******************************************************************************************************
 
+-- FACIL es solo repasarlo
+
+--*******************************************************************************************************
+--                           CLASE 147 :    INTRODUCCION A DDL                                          *
+--*******************************************************************************************************
+
+/*
+ CREATE
+ ALTER
+ DROP
+ */
+
+/*
+ TABLAS -> DATOS
+ INDICES -> RENDIMIENTO
+ VISTAS -> SELECT GUARDADA
+ SINONIMOS -> ALIAS DE TABLAS
+
+ */
+
+--*******************************************************************************************************
+--                           CLASE 148 :    CREATE TABLE                                                *
+--*******************************************************************************************************
+
+/*
+CREATE TABLE NOMBRE
+(
+    C1 TIPO,
+    C2 TIPO,
+    C3 TIPO
+)
+ */
+
+CREATE TABLE PRUEBA
+(
+    NOMBRE VARCHAR2(100)
+);
+
+SELECT COLUMN_NAME, DATA_TYPE, DATA_LENGTH, NULLABLE
+FROM USER_TAB_COLUMNS
+WHERE TABLE_NAME = 'PRUEBA';
+
+DESCRIBE PRUEBA;-- EN DATAGRIP NO FUNCIONA
+
+SELECT *
+FROM EMPLOYEES;
 
 
+CREATE TABLE PRUEBA1
+(
+    CODIGO        NUMBER        DEFAULT 0,
+    NOMBRE        VARCHAR2(100) DEFAULT 'TOMAS',
+    FECHA_ENTRADA DATE          DEFAULT SYSDATE
+);
+
+--*******************************************************************************************************
+--                           CLASE 149 : CONSTRAINTS, PRIMARY KEY , NOT NULL                             *
+--*******************************************************************************************************
+
+-- CONSTRAINTS -> RESTRICCIONES
+/*
+ TIPOS DE CONSTRAINTS :
+ ******************
+ NOT NULL
+ UNIQUE
+ PRIMARY KEY
+ FOREIGN KEY
+ CHECK
+ */
+
+CREATE TABLE PRUEBA3
+(
+    CODIGO NUMBER PRIMARY KEY,
+    NOMBRE VARCHAR2(100) NOT NULL
+);
+
+INSERT INTO PRUEBA3
+VALUES (1, 'GEORGE');
+INSERT INTO PRUEBA3
+VALUES (1, 'RAUL');
+
+SELECT *
+FROM PRUEBA4;
+
+-- //*******************************
+CREATE TABLE PRUEBA4
+(
+    CODIGO1 NUMBER,
+    CODIGO2 NUMBER,
+    NOMBRE  VARCHAR2(100),
+    PRIMARY KEY (CODIGO1, CODIGO2)
+);
+
+INSERT INTO PRUEBA4
+VALUES (1, 1, 'TOMAS');
 
 
+--*******************************************************************************************************
+--                           CLASE 150 : CONSTRAINTS UNIQUE                                             *
+--*******************************************************************************************************
 
+CREATE TABLE PRUEBA5
+(
+    CODIGO NUMBER PRIMARY KEY,
+    NOMBRE VARCHAR2(100) UNIQUE
+);
 
+INSERT INTO PRUEBA5
+VALUES (1, 'TOMAS');
 
+INSERT INTO PRUEBA5
+VALUES (2, 'NULL');
 
+SELECT *
+FROM PRUEBA6;
 
+-- SI VA LA CONSTRAIN ES POR QUE LE HAN PUESTO UN NOMBRE A LA CONSTRAINT
+
+CREATE TABLE PRUEBA6
+(
+    CODIGO NUMBER PRIMARY KEY,
+    NOMBRE VARCHAR2(100),
+    CONSTRAINT NOMBRE_I UNIQUE (NOMBRE)
+);
+
+DESCRIBE PRUEBA6;
+--*******************************************************************************************************
+--                           CLASE 151 : PRACTICA - CREAR TABLAS Y CONSTRAINTS-PRIMARY-UNIQUE           *
+--*******************************************************************************************************
+-- CREAR TABLA ALUMNOS
+
+CREATE TABLE ALUMNOS
+(
+    "COD_MATRICULA"   NUMBER,
+    "NOMBRE"          VARCHAR2(20 BYTE),
+    "APELLIDO1"       VARCHAR2(20 BYTE),
+    "APELLIDO2"       VARCHAR2(20 BYTE),
+    "EDADI"           NUMBER,
+    "FECHA_MATRICULA" DATE
+);
+
+-- COMPORBAR LA ESRUCTURA DE LA TABLA
+SELECT COLUMN_NAME, DATA_TYPE, DATA_LENGTH, NULLABLE
+FROM USER_TAB_COLUMNS
+WHERE TABLE_NAME = 'CENTROS';
+
+-- CREAR TABLA CENTROS
+CREATE TABLE CENTROS
+(
+    COD_CENTRO  NUMBER,
+    NOMBRE      VARCHAR2(100),
+    PROVINCIA   VARCHAR2(100) DEFAULT 'MADRID',
+    FECHA_ALTA  DATE          DEFAULT SYSDATE,
+    NUM_ALUMNOS NUMBER        DEFAULT 0
+);
+-- INSERTANDO FILA
+INSERT INTO CENTROS (COD_CENTRO, NOMBRE)
+VALUES (1, 'MATEMÁTICAS');
+SELECT *
+FROM CENTROS;
+
+-- CREANDO TABLA CON CONSTRAINTS
+CREATE TABLE CURSOS
+(
+    COD_CURSO    NUMBER PRIMARY KEY,
+    NOMBRE_CURSO VARCHAR2(50) NOT NULL UNIQUE,
+    RESPONSABLE  VARCHAR2(20)
+);
+
+INSERT INTO CURSOS VALUES (1,'FISICA','JUANP');
+
+SELECT * FROM CURSOS;
+
+INSERT INTO CURSOS VALUES (1,'LITERATURA','JUANP'); -- SALDRA ERROR POR EL CONSTRAINT
+
+-- RECORDAR QUE EL PRIMARY KEY POR DEFECTO VIENE COMO UNIQUE Y NOT NULL.
+
+--*******************************************************************************************************
+--                           CLASE 152 : CONSTRAINT FOREIGN KEY                                         *
+--*******************************************************************************************************
 
 
