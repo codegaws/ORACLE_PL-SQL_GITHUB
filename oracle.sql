@@ -3411,12 +3411,17 @@ SELECT *
 FROM REGIONS
          NATURAL JOIN COUNTRIES;
 
--- VERSION SIN NARURAL JOIN
+-- VERSION SIN NATURAL JOIN
 
 CREATE VIEW REGIONES_PAISES2 AS
-SELECT *
+SELECT R.REGION_ID AS REGION_ID_R,
+       R.REGION_NAME,
+       C.REGION_ID AS REGION_ID_C,
+       C.COUNTRY_ID,
+       C.COUNTRY_NAME
 FROM REGIONS R
          JOIN COUNTRIES C ON R.REGION_ID = C.REGION_ID;
+
 
 CREATE VIEW REGIONES_PAISES3 AS
 SELECT *
@@ -3427,6 +3432,11 @@ FROM REGIONS
   Tanto USING como NATURAL JOIN requieren:
 ✅ Mismo nombre de columna en ambas tablas
 ✅ Mismo tipo de datos
+✅ Con Using no se repite la columna en el resultado
+Pero tienen limitaciones:
+❌ No permiten nombres de columnas diferentes
+❌ No permiten condiciones complejas
+
 
   Solo ON permite:
 ✅ Nombres de columnas diferentes
@@ -3434,10 +3444,40 @@ FROM REGIONS
 Por eso ON es más flexible y se recomienda en producción.
  */
 
-
-
 SELECT *
 FROM REGIONES_PAISES;
+
+--*******************************************************************************************************
+--                           CLASE 161 : CREAR INDICES                                                  *
+--*******************************************************************************************************
+-- MEJORA EL RENDIMIENTO DE LAS TABLAS
+-- INDEX HACE QUE LAS BUSQUEDAS SEAN MAS RAPIDAS
+CREATE INDEX INDEX1 ON EMPLOYEES (LAST_NAME);
+
+
+SELECT * FROM EMPLOYEES WHERE LAST_NAME LIKE 'S%';
+
+-- PODEMOS CREAR INDICES COMPUESTOS
+
+CREATE INDEX INDEX2 ON EMPLOYEES (FIRST_NAME, LAST_NAME);
+
+
+-- BORRAR INDEX
+DROP INDEX INDEX2;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
