@@ -3222,9 +3222,223 @@ CREATE TABLE EMPLEADO1
 
 INSERT INTO EMPLEADO
 VALUES (1, 'ALBERTO', 1900);
-COMMIT; -- SALDRA ERROR
+COMMIT;
+-- SALDRA ERROR
 
 --*******************************************************************************************************
 --                           CLASE 154 : CREAR TABLAS DE OTRAS TABLAS                                   *
 --*******************************************************************************************************
+CREATE TABLE EMPLEADOS
+AS
+SELECT *
+FROM EMPLOYEES;
+
+-- SIRVE PARA VER LAS CONSTRAIN QUE EXISTEN EN LA TABLA.
+SELECT constraint_name,
+       search_condition,
+       status
+FROM user_constraints
+WHERE table_name = 'EMPLOYEES'
+  AND constraint_type = 'C';
+
+
+-- SE PUEDE CREAR OTRAS TABLAS CON CONCIONES
+CREATE TABLE EMPLEADOS_50
+AS
+SELECT *
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 50;
+
+COMMIT;
+
+-- CREAMOS UNA NUEVA TABLA
+CREATE TABLE EMPLEADOS2
+AS
+SELECT FIRST_NAME || ' ' || LAST_NAME AS NOMBRE, SALARY AS SALARIO, SALARY * 12 AS NETO
+FROM EMPLOYEES;
+
+COMMIT;
+
+SELECT *
+FROM EMPLEADOS_50;
+
+--*******************************************************************************************************
+--                           CLASE 155 : MODIFICAR TABLAS : ADD Y MODIFY                                *
+--*******************************************************************************************************
+
+-- ALTER TABLE
+/**
+  AÑADIR COLUMNA
+  MODIFICAR UNA COLUMNA
+  DEFINIR DEFAULT VALUE
+  BORRAR UNA COLUMNA
+  READ-ONLY
+
+ */
+
+ALTER TABLE CURSOS
+    ADD (PROFESOR VARCHAR2(100));
+
+
+ALTER TABLE CURSOS
+    ADD (TUTOR VARCHAR2(100) NOT NULL);
+-- ESTO N FUNCIONARIA POR QUE YA RTIENE NULL
+
+
+--AGREGAMOS UNA COLUMNA
+ALTER TABLE CURSOS
+    ADD (TUTOR VARCHAR2(100));
+
+
+--MODIFICANDO CON MODIFY
+
+ALTER TABLE CURSOS
+    MODIFY (PROFESOR VARCHAR2(50));
+
+
+ALTER TABLE CURSOS
+    MODIFY (PROFESOR NUMBER);
+-- SIEMPRE Y CUANDO NO HAYA INFORMACION
+
+
+--AGREGANDO DEFAULT
+ALTER TABLE CURSOS
+    MODIFY (TUTOR VARCHAR2(100) DEFAULT 'TUTOR1');
+
+
+SELECT *
+FROM CURSOS;
+
+-- ✅ Correcto (asumiendo que George tiene ID = 1)
+INSERT INTO CURSOS (CODIGO, NOMBRE, PROFESOR)
+VALUES (3, 'Base de Datos', 1);
+
+--*******************************************************************************************************
+--                           CLASE 156 : DROP Y READ ONLY                               *
+--*******************************************************************************************************
+
+ALTER TABLE CURSOS
+    DROP (TUTOR);
+
+ALTER TABLE CURSOS
+    READ ONLY; -- NO QUIERO QUE NADIE LO MODIFIQUE
+
+ALTER TABLE CURSOS
+    READ ONLY;-- EN ESTE ESTADO NO PODRAS ALTERAR NADA
+
+INSERT INTO CURSOS
+VALUES (4, 'GEORGE', 100);
+COMMIT;
+ALTER TABLE CURSOS
+    READ WRITE; -- VOLVER A ALTERAR COSAS
+
+SELECT *
+FROM CURSOS;
+
+
+--*******************************************************************************************************
+--                           CLASE 157 : DROP TABLE                                                     *
+--*******************************************************************************************************
+
+DROP TABLE CURSOS CASCADE CONSTRAINTS;-- BORRA LAS CONSTRAINTS RELACIONADAS
+
+DROP TABLE ALUMNOS;
+
+--*******************************************************************************************************
+--                           CLASE 159 : CREAR VISTAS                                                   *
+--*******************************************************************************************************
+
+CREATE VIEW EMPLE_VISTA
+AS
+SELECT *
+FROM EMPLOYEES;
+
+CREATE VIEW EMPLE_50
+AS
+SELECT *
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 50;
+
+SELECT *
+FROM EMPLE_50
+WHERE SALARY > 5000;
+
+SELECT JOB_ID, AVG(SALARY)
+FROM EMPLE_50
+GROUP BY JOB_ID
+HAVING AVG(SALARY) > 5000;
+
+CREATE VIEW EMPLE_SALARIOS
+AS
+SELECT FIRST_NAME || ' ' || LAST_NAME AS NOMBRE, SALARY AS SALARIO, SALARY * 12 AS ANUAL
+FROM EMPLOYEES;
+
+SELECT *
+FROM EMPLE_SALARIOS;
+
+DROP VIEW EMPLE_SALARIOS;
+-- BORRAR LA VISTA.
+
+--*******************************************************************************************************
+--                           CLASE 160 : INSERT ,UPDATES, DELETES SOBRE VIEWS                                                   *
+--*******************************************************************************************************
+
+CREATE VIEW REGIONS_V AS
+SELECT *
+FROM REGIONS;
+
+SELECT *
+FROM REGIONS_V;
+
+INSERT INTO REGIONS_V
+VALUES (9, 'XXX');
+COMMIT;
+
+SELECT *
+FROM REGIONS;
+
+INSERT INTO REGIONS_V (REGION_NAME)
+VALUES ('ZZZ');
+-- NO SE VA A PODER POR QUE NECESITA TODOS LOS CAMPOS
+
+-- HACER UPDATE
+UPDATE REGIONS_V
+SET REGION_NAME='TTTT'
+WHERE REGION_NAME = 'XXX';
+
+CREATE VIEW REGIONES_PAISES AS
+SELECT *
+FROM REGIONS
+         NATURAL JOIN COUNTRIES;
+
+-- VERSION SIN NARURAL JOIN
+
+CREATE VIEW REGIONES_PAISES2 AS
+SELECT *
+FROM REGIONS R
+         JOIN COUNTRIES C ON R.REGION_ID = C.REGION_ID;
+
+CREATE VIEW REGIONES_PAISES3 AS
+SELECT *
+FROM REGIONS
+         JOIN COUNTRIES USING (REGION_ID);
+
+/**
+  Tanto USING como NATURAL JOIN requieren:
+✅ Mismo nombre de columna en ambas tablas
+✅ Mismo tipo de datos
+
+  Solo ON permite:
+✅ Nombres de columnas diferentes
+✅ Condiciones complejas
+Por eso ON es más flexible y se recomienda en producción.
+ */
+
+
+
+SELECT *
+FROM REGIONES_PAISES;
+
+
+
 
