@@ -4500,6 +4500,14 @@ COMMIT;
 
 ## 🔍 Clase 147: Introduccion a DDL
 
+-- ✅ Mejor práctica: mantén AUTOCOMMIT OFF
+SET AUTOCOMMIT OFF;
+
+-- Y haz COMMIT manualmente cuando estés seguro
+INSERT INTO tabla VALUES (1, 'dato');
+-- ... más operaciones ...
+COMMIT;  -- Solo cuando todo esté correcto
+
 
 
 </details>

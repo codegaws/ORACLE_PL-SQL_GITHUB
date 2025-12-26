@@ -3128,11 +3128,15 @@ CREATE TABLE CURSOS
     RESPONSABLE  VARCHAR2(20)
 );
 
-INSERT INTO CURSOS VALUES (1,'FISICA','JUANP');
+INSERT INTO CURSOS
+VALUES (1, 'FISICA', 'JUANP');
 
-SELECT * FROM CURSOS;
+SELECT *
+FROM CURSOS;
 
-INSERT INTO CURSOS VALUES (1,'LITERATURA','JUANP'); -- SALDRA ERROR POR EL CONSTRAINT
+INSERT INTO CURSOS
+VALUES (1, 'LITERATURA', 'JUANP');
+-- SALDRA ERROR POR EL CONSTRAINT
 
 -- RECORDAR QUE EL PRIMARY KEY POR DEFECTO VIENE COMO UNIQUE Y NOT NULL.
 
@@ -3140,4 +3144,87 @@ INSERT INTO CURSOS VALUES (1,'LITERATURA','JUANP'); -- SALDRA ERROR POR EL CONST
 --                           CLASE 152 : CONSTRAINT FOREIGN KEY                                         *
 --*******************************************************************************************************
 
+DROP TABLE CURSOS CASCADE CONSTRAINTS;--EN ORACLE NO EXISTE EL DROP TABLE IF EXISTS ...
+CREATE TABLE CURSOS
+(
+    CODIGO NUMBER PRIMARY KEY,
+    NOMBRE VARCHAR2(100) NOT NULL
+);
+DROP TABLE ALUMNOS CASCADE CONSTRAINTS;
+
+-- creamos  a nivel de columna la FK
+CREATE TABLE ALUMNOS
+(
+    COD_ALUMNO NUMBER PRIMARY KEY,
+    NOMBRE     VARCHAR2(100) NOT NULL,
+    APELLIDOS  VARCHAR2(100),
+    COD_CURSO  NUMBER REFERENCES CURSOS (CODIGO)
+);
+
+-- INSERTANDO CURSOS
+-- Tabla CURSOS
+INSERT INTO CURSOS
+VALUES (1, 'web');
+INSERT INTO CURSOS
+VALUES (2, 'Programación');
+INSERT INTO CURSOS
+VALUES (3, 'Base de Datos');
+
+-- Tabla ALUMNOS (cada uno en UN SOLO curso)
+INSERT INTO ALUMNOS
+VALUES (100, 'Juan', 'Pérez', 1); -- Juan → web
+INSERT INTO ALUMNOS
+VALUES (101, 'María', 'García', 1); -- María → Matemáticas
+INSERT INTO ALUMNOS
+VALUES (102, 'Pedro', 'López', 2); -- Pedro → Programación
+INSERT INTO ALUMNOS
+VALUES (103, 'Ana', 'Martínez', 2); -- Ana → Programación
+INSERT INTO ALUMNOS
+VALUES (104, 'Luis', 'Rodríguez', 3); -- Luis → Base de Datos
+
+commit;
+select *
+from alumnos;
+
+-- CREAMOS A NIVEL DE TABLA LA FK ES DISTINTO
+CREATE TABLE ALUMNOS1
+(
+    COD_ALUMNO NUMBER PRIMARY KEY,
+    NOMBRE     VARCHAR2(100) NOT NULL,
+    APELLIDOS  VARCHAR2(100),
+    COD_CURSO  NUMBER,
+    CONSTRAINT CURSO_ALUMNO FOREIGN KEY (COD_CURSO) REFERENCES CURSOS (CODIGO)
+);
+COMMIT;
+
+--*******************************************************************************************************
+--                           CLASE 153 : CONSTRAINT CHECK                                               *
+--*******************************************************************************************************
+
+-- SALARIO NUNCA PUEDE ESTAR DEBAJO DE 1000
+CREATE TABLE EMPLEADO
+(
+    CODIGO  NUMBER PRIMARY KEY,
+    NOMBRE  VARCHAR2(100) NOT NULL,
+    SALARIO NUMBER CHECK (SALARIO > 1000)
+);
+
+INSERT INTO EMPLEADO
+VALUES (1, 'ALBERTO', 900);
+COMMIT; -- SALDRA ERROR
+
+CREATE TABLE EMPLEADO1
+(
+    CODIGO  NUMBER PRIMARY KEY,
+    NOMBRE  VARCHAR2(100) NOT NULL CHECK (NOMBRE = UPPER(NOMBRE)),
+    SALARIO NUMBER CHECK (SALARIO > 1000)
+);
+
+INSERT INTO EMPLEADO
+VALUES (1, 'ALBERTO', 1900);
+COMMIT; -- SALDRA ERROR
+
+--*******************************************************************************************************
+--                           CLASE 154 : CREAR TABLAS DE OTRAS TABLAS                                   *
+--*******************************************************************************************************
 
