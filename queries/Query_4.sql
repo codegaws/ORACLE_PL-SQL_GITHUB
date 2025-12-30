@@ -43,6 +43,6 @@ FROM CURSOS C
 
 -- VALIDANDO
 INSERT INTO ALUMNOS
-VALUES (101, 'Juan', 'Pérez', 2); -- Juan → Programación (PK duplicada)
+VALUES (107, 'Juan', 'Pérez', 3); -- Juan → Programación (PK duplicada)
 
 COMMIT;
