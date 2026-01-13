@@ -1,7 +1,7 @@
 ![Mi Base de Datos](assets/title.svg)
-<details>
 
-<summary><strong>📝 PL/SQL</strong></summary>
+
+# 📝 PL/SQL Tutorial
 
 # 🧾 PL/SQL — Bloques Anónimos y Funciones Básicas
 
@@ -930,4 +930,3 @@ Si algún `j` divide exactamente a `n` (resto 0), entonces `n` no es primo.
 
 **Resumen:**  
 `IF n MOD j = 0 THEN` pregunta: ¿`j` divide exactamente a `n`? Si sí, entonces `n` no es primo.
-</details>

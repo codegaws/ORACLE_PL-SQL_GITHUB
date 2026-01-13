@@ -1,7 +1,7 @@
 ![Mi Base de Datos](assets/title.svg)
 
-<details>
-<summary><strong>📝 SQL</strong></summary>
+
+# 📝 SQL
 # 📖 SQL — Consultas, Operadores y Funciones
 
 Un archivo con estilo para tu GitHub, manteniendo todo tu contenido original y enriqueciéndolo con títulos, secciones, y emojis para facilitar su lectura y uso.
@@ -4510,7 +4510,7 @@ COMMIT;  -- Solo cuando todo esté correcto
 
 
 
-</details>
+
 
 
 
