@@ -88,7 +88,7 @@ BEGIN
     END IF;
 END;
 
-***************************************************************************************************
+--***************************************************************************************************
 --*                         CLASE 37 :  %TYPE es del tipo                                               *
 --******************************************************************************************************* 
 SET SERVEROUTPUT ON
@@ -494,7 +494,7 @@ end;
 --                       CLASE 57 COMANDO GOTO                                                  *       *
 --*******************************************************************************************************
 -- NO ES RECOMENDABLE USAR GOTO PORQUE GENERA CODIGO SPAGUETI
--- SET SERVEROUTPUT ON;
+SET SERVEROUTPUT ON;
 DECLARE
     p VARCHAR2(30);
     n PLS_INTEGER := 5;
@@ -510,3 +510,165 @@ BEGIN
     <<print_now>>
         DBMS_OUTPUT.PUT_LINE(TO_CHAR(n) || p);
 end;
+
+--*******************************************************************************************************
+--                       CLASE 59 SELECTS dentro de PLSQL                                       *       *
+--*******************************************************************************************************
+SET SERVEROUTPUT ON;
+DECLARE
+    SALARIO NUMBER;
+    NOMBRE  EMPLOYEES.FIRST_NAME%type;
+BEGIN
+    SELECT SALARY, FIRST_NAME-- solo puede devolver una fila select
+    INTO SALARIO,NOMBRE
+    from EMPLOYEES
+    WHERE EMPLOYEE_ID = 100;
+    DBMS_OUTPUT.PUT_LINE(SALARIO);
+    DBMS_OUTPUT.PUT_LINE(NOMBRE);
+END;
+--RPTA 24000 - STEVEN
+
+--*******************************************************************************************************
+--                       CLASE 60 ROWTYPE                                                      *       *
+--*******************************************************************************************************
+SET SERVEROUTPUT ON;
+DECLARE
+    --SALARIO  NUMBER;
+    --NOMBRE   EMPLOYEES.FIRST_NAME%type;
+    EMPLEADO EMPLOYEES%ROWTYPE;-- TODA LA FILA DE EMPLOYEES
+BEGIN
+    SELECT *-- solo puede devolver una fila select
+    INTO EMPLEADO
+    from EMPLOYEES
+    WHERE EMPLOYEE_ID = 100;
+    DBMS_OUTPUT.PUT_LINE(EMPLEADO.SALARY * 100);
+    DBMS_OUTPUT.PUT_LINE(EMPLEADO.FIRST_NAME);
+END;
+-- RPTA -> 2400000 - Steven
+
+--*******************************************************************************************************
+--                        ROWTYPE EJERCICIO                                                      *       *
+--*******************************************************************************************************
+
+/**
+  1. PRÁCTICA 1
+• Crear un bloque PL/SQL que devuelva al salario máximo del
+departamento 100 y lo deje en una variable denominada salario_maximo
+y la visualice
+ */
+
+SET SERVEROUTPUT ON;
+DECLARE
+    salario_maximo NUMBER;
+BEGIN
+    SELECT SALARY
+    INTO salario_maximo
+    FROM EMPLOYEES
+    WHERE DEPARTMENT_ID = 100
+      AND SALARY = (SELECT MAX(SALARY)
+                    FROM EMPLOYEES
+                    WHERE DEPARTMENT_ID = 100);
+    DBMS_OUTPUT.PUT_LINE('EL SALARIO MÁXIMO DEL DEPARTAMENTO 100 ES: ' || salario_maximo);
+
+END;
+
+-- OTRA SOLUCION
+SET SERVEROUTPUT ON;
+DECLARE
+    salario_maximo EMPLOYEES.SALARY%type;
+BEGIN
+    SELECT MAX(SALARY)
+    INTO salario_maximo
+    FROM EMPLOYEES
+    WHERE DEPARTMENT_ID = 100;
+    DBMS_OUTPUT.PUT_LINE('EL SALARIO MÁXIMO DEL DEPARTAMENTO 100 ES: ' || salario_maximo);
+END;
+
+/***
+  2. PRÁCTICA2
+• Visualizar el tipo de trabajo del empleado número 100
+ */
+SET SERVEROUTPUT ON;
+DECLARE
+    TIPO_TRABAJO EMPLOYEES.JOB_ID%type;
+BEGIN
+    SELECT JOB_ID
+    INTO TIPO_TRABAJO
+    FROM EMPLOYEES
+    WHERE EMPLOYEE_ID = 100;
+    DBMS_OUTPUT.PUT_LINE('EL TIPO DE TRABAJO DEL EMPLEADO 100 ES: ' || TIPO_TRABAJO);
+
+    -- RPTA -> EL TIPO DE TRABAJO DEL EMPLEADO 100 ES: AD_PRES
+END;
+
+/***
+3. PRÁCTICA 3
+• Crear una variable de tipo DEPARTMENT_ID y ponerla algún valor, por
+ejemplo 10.
+• Visualizar el nombre de ese departamento y el número de empleados
+que tiene, poniendo. Crear dos variables para albergar los valores.
+ */
+
+SET SERVEROUTPUT ON;
+DECLARE
+    COD_DEPARTMENT      DEPARTMENTS.DEPARTMENT_ID%type := 30;
+    NOMBRE_DEPARTAMENTO DEPARTMENTS.DEPARTMENT_NAME%type;
+    NUMERO_EMPLEADOS    NUMBER;
+BEGIN
+    --RECUPERAR EL NOMBRE DEL DEPARTAMENTO
+    SELECT DEPARTMENT_NAME
+    INTO NOMBRE_DEPARTAMENTO
+    FROM DEPARTMENTS
+    WHERE DEPARTMENT_ID = COD_DEPARTMENT;
+    --RECUPERAR EL NÚMERO DE EMLEADOS DEL DEPARTAMENTO
+    SELECT COUNT(*)
+    INTO NUMERO_EMPLEADOS
+    FROM EMPLOYEES
+    WHERE DEPARTMENT_ID = COD_DEPARTMENT;
+    --VISUALIZAR LOS RESULTADOS
+    DBMS_OUTPUT.PUT_LINE('EL NOMBRE DEL DEPARTAMENTO ' || COD_DEPARTMENT || ' ES: ' || NOMBRE_DEPARTAMENTO);
+    DBMS_OUTPUT.PUT_LINE('EL NÚMERO DE EMPLEADOS DEL DEPARTAMENTO ' || COD_DEPARTMENT || ' ES: ' || NUMERO_EMPLEADOS);
+
+
+    /** RPTA ->
+  EL NOMBRE DEL DEPARTAMENTO 30 ES: Purchasing
+  EL NÚMERO DE EMPLEADOS DEL DEPARTAMENTO 30 ES: 6
+ */
+END;
+
+
+/***
+  4. PRÁCTICA 4
+• Mediante dos consultas recuperar el salario máximo y el salario mínimo
+de la empresa e indicar su diferencia
+ */
+
+SET SERVEROUTPUT ON;
+
+DECLARE
+    SALARIO_MAX EMPLOYEES.SALARY%TYPE;
+    SALARIO_MIN EMPLOYEES.SALARY%TYPE;
+    DIFERENCIA  NUMBER;
+
+BEGIN
+    SELECT MAX(SALARY), MIN(SALARY)
+    INTO SALARIO_MAX,SALARIO_MIN
+    FROM EMPLOYEES;
+    DIFERENCIA := SALARIO_MAX - SALARIO_MIN;
+    DBMS_OUTPUT.PUT_LINE('EL SALARIO MÁXIMO DE LA EMPRESA ES: ' || SALARIO_MAX);
+    DBMS_OUTPUT.PUT_LINE('EL SALARIO MÍNIMO DE LA EMPRESA ES: ' || SALARIO_MIN);
+    DBMS_OUTPUT.PUT_LINE('LA DIFERENCIA ENTRE EL SALARIO MÁXIMO Y MÍNIMO DE LA EMPRESA ES: ' || DIFERENCIA);
+END;
+
+/***+ rpta ->
+  EL SALARIO MÁXIMO DE LA EMPRESA ES: 24000
+EL SALARIO MÍNIMO DE LA EMPRESA ES: 2100
+LA DIFERENCIA ENTRE EL SALARIO MÁXIMO Y MÍNIMO DE LA EMPRESA ES: 21900
+ */
+
+
+
+
+
+
+
