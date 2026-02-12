@@ -547,7 +547,7 @@ END;
 -- RPTA -> 2400000 - Steven
 
 --*******************************************************************************************************
---                        ROWTYPE EJERCICIO                                                      *       *
+--                        ROWTYPE EJERCICIO                                                      *      *
 --*******************************************************************************************************
 
 /**
@@ -601,13 +601,13 @@ BEGIN
     -- RPTA -> EL TIPO DE TRABAJO DEL EMPLEADO 100 ES: AD_PRES
 END;
 
-/***
+/*
 3. PRÁCTICA 3
 • Crear una variable de tipo DEPARTMENT_ID y ponerla algún valor, por
 ejemplo 10.
 • Visualizar el nombre de ese departamento y el número de empleados
 que tiene, poniendo. Crear dos variables para albergar los valores.
- */
+*/
 
 SET SERVEROUTPUT ON;
 DECLARE
@@ -665,6 +665,108 @@ END;
 EL SALARIO MÍNIMO DE LA EMPRESA ES: 2100
 LA DIFERENCIA ENTRE EL SALARIO MÁXIMO Y MÍNIMO DE LA EMPRESA ES: 21900
  */
+
+
+--*******************************************************************************************************
+--                          62 - INSERT                                                     *      *
+--*******************************************************************************************************
+
+DECLARE
+    COL1 TEST.C1%type;
+BEGIN
+    COL1 := 10;
+    INSERT INTO TEST (C1, C2) VALUES (20, 'BBBB');
+    COMMIT;
+END;
+
+
+--*******************************************************************************************************
+--                          63 - updates                                                     *      *
+--*******************************************************************************************************
+DECLARE
+    T TEST.C1%type;
+BEGIN
+    T := 10;
+    UPDATE TEST SET C2='CCCCC' WHERE C1 = T;
+    COMMIT;
+end;
+
+
+--*******************************************************************************************************
+--                          64 - DELETE                                                     *      *
+--*******************************************************************************************************
+DECLARE
+    T TEST.C1%type;
+BEGIN
+    T := 20;
+    DELETE FROM TEST WHERE C1 = T;
+    COMMIT;
+end;
+/
+
+SELECT *
+FROM TEST;
+
+--*******************************************************************************************************
+--                          65 - PRACTICA                                                     *      *
+--*******************************************************************************************************
+
+/**
+  1- Crear un bloque que inserte un nuevo departamento en la tabla
+DEPARTMENTS. Para saber el DEPARTMENT_ID que debemos asignar al
+nuevo departamento primero debemos averiguar el valor mayor que hay en la
+tabla DEPARTMENTS y sumarle uno para la nueva clave.
+• Location_id debe ser 1000
+• Manager_id debe ser 100
+• Department_name debe ser “INFORMATICA”
+• NOTA: en PL/SQL debemos usar COMMIT y ROLLBACK de la misma
+forma que lo hacemos en SQL. Por tanto, para validar definitivamente un
+cambio debemos usar COMMIT.
+ */
+
+DECLARE
+    MAX_ID NUMBER;
+BEGIN
+    SELECT MAX(DEPARTMENT_ID) INTO MAX_ID FROM DEPARTMENTS;
+    MAX_ID := MAX_ID + 1;
+    INSERT INTO DEPARTMENTS(DEPARTMENT_ID, DEPARTMENT_NAME, MANAGER_ID, LOCATION_ID)
+    VALUES (MAX_ID, 'INFORMATICA', 100, 1000);
+    COMMIT;
+end;
+
+---
+
+/*
+ 2- Crear un bloque PL/SQL que modifique la LOCATION_ID del nuevo
+departamento a 1700. En este caso usemos el COMMIT dentro del bloque
+PL/SQL.
+ */
+BEGIN
+    UPDATE DEPARTMENTS
+    SET LOCATION_ID = 1700
+    WHERE DEPARTMENT_NAME = 'INFORMATICA';
+    COMMIT;
+END;
+
+/*
+ 3- Por último, hacer otro bloque PL/SQL que elimine ese departamento nuevo.
+*/
+
+BEGIN
+    DELETE
+    FROM DEPARTMENTS
+    WHERE DEPARTMENT_NAME = 'INFORMATICA';
+    COMMIT;
+end;
+
+
+
+
+
+
+
+
+
 
 
 
